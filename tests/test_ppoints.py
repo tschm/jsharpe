@@ -1,3 +1,8 @@
+"""Tests for the ppoints function in jsharpe.sharpe.
+
+These tests validate default behavior, custom offsets, and error handling.
+"""
+
 import numpy as np
 import pytest
 

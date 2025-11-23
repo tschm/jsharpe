@@ -10,6 +10,7 @@ from jsharpe.sharpe import ppoints
 
 
 def test_ppoints_default_large_n():
+    """Default behavior when n > 10 (a defaults to 0.5)."""
     n = 20
     # default a = 0.5 when n > 10
     expected = np.linspace(1 - 0.5, n - 0.5, n) / (n + 1 - 2 * 0.5)
@@ -22,6 +23,7 @@ def test_ppoints_default_large_n():
 
 
 def test_ppoints_default_small_n():
+    """Default behavior when n <= 10 (a defaults to 3/8)."""
     n = 10
     # default a = 3/8 when n <= 10
     a = 3 / 8
@@ -34,6 +36,7 @@ def test_ppoints_default_small_n():
 
 
 def test_ppoints_custom_a_zero():
+    """Custom a=0.0 should exclude boundaries 0 and 1."""
     n = 5
     a = 0.0
     expected = np.linspace(1 - a, n - a, n) / (n + 1 - 2 * a)
@@ -45,6 +48,7 @@ def test_ppoints_custom_a_zero():
 
 
 def test_ppoints_custom_a_one_includes_boundaries():
+    """Custom a=1.0 includes both boundaries 0 and 1 by formula design."""
     n = 5
     a = 1.0
     # This includes both boundaries 0 and 1 by design of the formula
@@ -56,6 +60,7 @@ def test_ppoints_custom_a_one_includes_boundaries():
 
 
 def test_ppoints_invalid_a_raises():
+    """Invalid a outside [0, 1] should raise AssertionError."""
     n = 7
     with pytest.raises(AssertionError):
         ppoints(n, a=-0.01)

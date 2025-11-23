@@ -5,6 +5,7 @@ import numpy as np
 
 def ppoints(n, a=None):
     """Equidistant points in [0,1], to be used as arguments of the pdf or icdf of distributions.
+
     Boundaries are excluded.
     See the documentation of the corresponding R function for more details.
 

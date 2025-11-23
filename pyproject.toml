@@ -22,7 +22,7 @@ dev = [
     "pre-commit>=4.0.1",
     "marimo==0.13.15",
     "numpy==2.3.0",
-    "matplotlib==3.10.0",
+    "matplotlib==3.10.7",
     "altair==5.5.0",
     "vega-datasets==0.9.0",
     "pyarrow",

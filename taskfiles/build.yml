@@ -22,6 +22,7 @@ tasks:
     desc: Install uv and uvx
     env:
       UV_INSTALL_DIR: ./bin
+      UV_NO_MODIFY_PATH: 1
     cmds:
       - |
         if [ -x "${UV_INSTALL_DIR}/uv" ] && [ -x "${UV_INSTALL_DIR}/uvx" ]; then

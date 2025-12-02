@@ -156,7 +156,7 @@ def moments_Mk(k, *, rho=0):
     """
     Phi = scipy.stats.norm.cdf
     Ez = E_under_normal(lambda z: k * z * (Phi(z) ** (k - 1)))
-    Ez2 = E_under_normal(lambda z: k * z * z * (Phi(z) ** (k - 1)))
+    Ez2 = E_under_normal(lambda z: k * z**2 * (Phi(z) ** (k - 1)))
     var = Ez2 - Ez**2
 
     Ez = (1 - rho) * Ez
@@ -237,7 +237,6 @@ def control_for_FDR(
         - SR_c: float, critical value
         - q_hat: float, estimated FDR; should be close to q
     """
-    # Z_inv = scipy.stats.norm.ppf
     Z = scipy.stats.norm.cdf
 
     s0 = math.sqrt(sharpe_ratio_variance(SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K))

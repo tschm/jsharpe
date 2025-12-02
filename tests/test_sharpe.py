@@ -155,6 +155,7 @@ def test_numeric_example():
         sr_c_g = critical_sharpe_ratio(SR0, T, gamma3=0.0, gamma4=3.0, rho=0, alpha=alpha)
         sr_c_ng = critical_sharpe_ratio(SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, alpha=alpha)
         print(f"SR_c                   = {sr_c_g:.3f} (Gaussian, iid)")
+        # Note: unchanged if iid and SR0=0
         print(f"SR_c                   = {sr_c_ng:.3f} (non-Gaussian)")
         print(f"SR1                    = {SR1:.3f}")
 

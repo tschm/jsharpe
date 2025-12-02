@@ -45,4 +45,4 @@ exclude_dirs = ["tests"]
 pep621_dev_dependency_groups = ["dev"]
 
 [tool.deptry.per_rule_ignores]
-DEP002 = ["scipy","scikit-learn"]
+DEP002 = ["scipy"]

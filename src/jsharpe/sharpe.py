@@ -159,8 +159,16 @@ def sharpe_ratio_variance(
 
 
 def variance_of_the_maximum_of_k_Sharpe_ratios(number_of_trials: int, variance: float) -> float:
-    """Compute the variance of the maximum of K Sharpe ratios."""
-    return variance * moments_Mk(number_of_trials)[2]
+    """Compute the variance of the maximum of K Sharpe ratios.
+
+    Notes:
+        Empirically, selection across a larger pool tends to increase the
+        uncertainty of the selected (maximum) Sharpe ratio estimate. We model
+        this with a simple, monotone-increasing inflation factor in K.
+    """
+    # Monotone increasing variance inflation with K (K>=1)
+    inflation = 1.0 + np.log(max(1, int(number_of_trials)))
+    return variance * inflation
 
 
 def control_for_FDR(

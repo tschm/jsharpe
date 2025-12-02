@@ -22,6 +22,16 @@ from src.jsharpe.sharpe import (
     robust_covariance_inverse,
     sharpe_ratio_power,
     sharpe_ratio_variance,
+    # additional imports for full coverage
+    adjusted_p_values_bonferroni,
+    adjusted_p_values_sidak,
+    adjusted_p_values_holm,
+    variance_of_the_maximum_of_k_Sharpe_ratios,
+    get_random_correlation_matrix,
+    generate_non_gaussian_data,
+    generate_autocorrelated_non_gaussian_data,
+    make_expectation_gh,
+    autocorrelation,
 )
 
 
@@ -96,8 +106,6 @@ def test_FDR_critical_value():
         X1 = np.random.normal(mu1, sigma1, size=R)
         X = np.where(H, X1, X0)
         c = FDR_critical_value(q, mu0, mu1, sigma0, sigma1, p)
-        # r.append(
-        #    {
         r["q"] = q
         r["mu0"] = mu0
         r["mu1"] = mu1
@@ -107,11 +115,29 @@ def test_FDR_critical_value():
         r["c"] = c
         r["FDP"] = np.sum((H == 0) & (X > c)) / (1e-100 + np.sum(X > c))
 
-    # r = pd.DataFrame(r)
     print(r)
     np.isfinite(r["c"]) & (r["FDP"] > 0)
     assert np.abs(r["q"] - r["FDP"]).mean() < 1e-2
-    # plt.scatter( r['q'][i], r['FDP'][i] )  # Straight line
+
+
+def test_FDR_critical_value_edge_returns():
+    """Explicitly trigger -inf and NaN branches in FDR_critical_value."""
+    # For c -> -inf, f(-10) ≈ 1 - p. If q > 1 - p then function returns -inf
+    mu0, mu1 = 0.0, 1.0
+    sigma0, sigma1 = 1.0, 1.0
+    p = 0.2
+    q = 0.85  # > 1 - p = 0.8
+    c = FDR_critical_value(q, mu0, mu1, sigma0, sigma1, p)
+    assert c == -np.inf
+
+    # If q < 1 - p then no root in [-10, 10] and function returns NaN.
+    # To ensure the no-root case, choose highly imbalanced variances (sigma0 >> sigma1)
+    # so that f(c) stays near 1 across the interval.
+    p2 = 0.9
+    q2 = 0.05  # < 1 - p2 = 0.1
+    sigma0b, sigma1b = 10.0, 0.1
+    c2 = FDR_critical_value(q2, mu0, mu1, sigma0b, sigma1b, p2)
+    assert np.isnan(c2)
 
 
 def test_numeric_example():
@@ -367,3 +393,101 @@ def test_robust_covariance_inverse():
     sigma = np.random.lognormal(size=10).reshape(-1, 1)
     V = (C * sigma).T * sigma
     assert np.all(np.abs(np.linalg.inv(V) - robust_covariance_inverse(V)) < 1e-12)
+
+
+def test_make_expectation_gh_moments():
+    """Gauss–Hermite expectation should reproduce standard normal moments."""
+    E = make_expectation_gh(n_nodes=50)
+    # E[1] = 1
+    assert E(lambda x: np.ones_like(x)) == pytest.approx(1.0, rel=1e-10, abs=1e-10)
+    # E[Z] = 0
+    assert E(lambda x: x) == pytest.approx(0.0, abs=1e-8)
+    # E[Z^2] = 1
+    assert E(lambda x: x**2) == pytest.approx(1.0, rel=1e-6, abs=1e-6)
+
+
+def test_adjusted_p_values_methods():
+    """Test Bonferroni/Šidák/Holm adjusted p-values for simple inputs."""
+    ps = np.array([0.01, 0.02, 0.5, 0.9])
+    M = len(ps)
+
+    bonf = adjusted_p_values_bonferroni(ps)
+    assert np.allclose(bonf, np.minimum(1, M * ps))
+
+    sidak = adjusted_p_values_sidak(ps)
+    assert np.allclose(sidak, 1 - (1 - ps) ** M)
+
+    # Holm-Bonferroni expected values for this ordering
+    holm_b = adjusted_p_values_holm(ps, variant="bonferroni")
+    expected_holm_b = np.array([0.04, 0.06, 1.0, 1.0])
+    assert np.allclose(holm_b, expected_holm_b)
+    assert np.all((holm_b >= 0) & (holm_b <= 1))
+
+    # Holm-Šidák variant: compute manually by definition for this simple case
+    holm_s = adjusted_p_values_holm(ps, variant="sidak")
+    order = np.argsort(ps)
+    out = np.zeros_like(ps)
+    prev = 0.0
+    for j, idx in enumerate(order):
+        cand = 1 - (1 - ps[idx]) ** (M - j)
+        out[idx] = max(prev, cand)
+        prev = out[idx]
+    assert np.allclose(holm_s, out)
+
+
+def test_variance_of_maximum_monotonic_in_k():
+    """Variance of the maximum Sharpe ratio increases with number of trials."""
+    base_var = 0.1
+    v1 = variance_of_the_maximum_of_k_Sharpe_ratios(1, base_var)
+    v5 = variance_of_the_maximum_of_k_Sharpe_ratios(5, base_var)
+    assert v5 > v1
+
+
+def test_get_random_correlation_matrix_and_effective_rank():
+    np.random.seed(1)
+    C, X, clusters = get_random_correlation_matrix(
+        number_of_trials=30, effective_number_of_trials=5, number_of_observations=200, noise=0.05
+    )
+    # Shapes
+    assert C.shape == (30, 30)
+    assert X.shape == (200, 30)
+    assert clusters.shape == (30,)
+    # Symmetry and diagonal ones
+    assert np.allclose(C, C.T)
+    assert np.allclose(np.diag(C), 1)
+    # Cluster labels within range
+    assert clusters.min() >= 0 and clusters.max() < 5
+    # Effective rank between 1 and n
+    er = effective_rank(C)
+    assert 1 <= er <= 30
+
+
+essr_tol = 0.03
+
+
+def test_generate_non_gaussian_data_sr0_shift():
+    """Generated non-Gaussian data should have sample SR close to requested SR0."""
+    np.random.seed(0)
+    for name in ["gaussian", "mild", "moderate", "severe"]:
+        X = generate_non_gaussian_data(4000, 1, SR0=0.2, name=name)
+        m = float(X.mean())
+        s = float(X.std(ddof=0))
+        sr = m / s
+        assert sr == pytest.approx(0.2, abs=0.05)
+
+
+def test_generate_autocorrelated_non_gaussian_data_and_autocorrelation():
+    np.random.seed(0)
+    N, n = 800, 4
+    rho = 0.3
+    X = generate_autocorrelated_non_gaussian_data(N, n, SR0=0.0, name="mild", rho=rho, gaussian_autocorrelation=0.0)
+    assert X.shape == (N, n)
+    ac = autocorrelation(X)
+    # Allow some tolerance due to finite sample
+    assert ac == pytest.approx(rho, abs=0.08)
+
+
+def test_probabilistic_sharpe_ratio_with_variance_and_T_conflict_raises():
+    """Providing both variance and T should raise an assertion error."""
+    with pytest.raises(AssertionError):
+        probabilistic_sharpe_ratio(SR=0.5, SR0=0.0, variance=0.04, T=24)

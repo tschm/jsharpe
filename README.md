@@ -92,7 +92,7 @@ Probabilistic Sharpe Ratio (PSR) from the package functions.
 import sys
 sys.path.append("src")  # allow importing the local package without installing
 
-from jsharpe.sharpe import probabilistic_sharpe_ratio
+from jsharpe import probabilistic_sharpe_ratio
 
 sr = 0.036 / 0.079
 psr = probabilistic_sharpe_ratio(SR=sr, SR0=0, T=24, gamma3=-2.448, gamma4=10.164)

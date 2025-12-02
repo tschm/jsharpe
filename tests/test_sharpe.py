@@ -8,10 +8,19 @@ import pytest
 
 from src.jsharpe.sharpe import (
     FDR_critical_value,
+    # additional imports for full coverage
+    adjusted_p_values_bonferroni,
+    adjusted_p_values_holm,
+    adjusted_p_values_sidak,
+    autocorrelation,
     control_for_FDR,
     critical_sharpe_ratio,
     effective_rank,
     expected_maximum_sharpe_ratio,
+    generate_autocorrelated_non_gaussian_data,
+    generate_non_gaussian_data,
+    get_random_correlation_matrix,
+    make_expectation_gh,
     minimum_track_record_length,
     minimum_variance_weights_for_correlated_assets,
     oFDR,
@@ -22,16 +31,7 @@ from src.jsharpe.sharpe import (
     robust_covariance_inverse,
     sharpe_ratio_power,
     sharpe_ratio_variance,
-    # additional imports for full coverage
-    adjusted_p_values_bonferroni,
-    adjusted_p_values_sidak,
-    adjusted_p_values_holm,
     variance_of_the_maximum_of_k_Sharpe_ratios,
-    get_random_correlation_matrix,
-    generate_non_gaussian_data,
-    generate_autocorrelated_non_gaussian_data,
-    make_expectation_gh,
-    autocorrelation,
 )
 
 
@@ -444,6 +444,7 @@ def test_variance_of_maximum_monotonic_in_k():
 
 
 def test_get_random_correlation_matrix_and_effective_rank():
+    """Generate a clustered correlation matrix and validate shapes, symmetry, labels, and effective rank."""
     np.random.seed(1)
     C, X, clusters = get_random_correlation_matrix(
         number_of_trials=30, effective_number_of_trials=5, number_of_observations=200, noise=0.05
@@ -477,6 +478,7 @@ def test_generate_non_gaussian_data_sr0_shift():
 
 
 def test_generate_autocorrelated_non_gaussian_data_and_autocorrelation():
+    """Generate AR(1) non-Gaussian data and verify mean autocorrelation matches target rho."""
     np.random.seed(0)
     N, n = 800, 4
     rho = 0.3

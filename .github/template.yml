@@ -9,6 +9,7 @@ include: |
     CODE_OF_CONDUCT.md
     CONTRIBUTING.md
     Makefile
-    ruff.toml
 exclude: |
     .github/workflows/docker.yml
+    .github/workflows/devcontainer.yml
+    ruff.toml

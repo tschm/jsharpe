@@ -6,7 +6,7 @@ import cvxpy as cp
 import numpy as np
 import pytest
 
-from src.jsharpe.sharpe import (
+from jsharpe import (
     FDR_critical_value,
     # additional imports for full coverage
     adjusted_p_values_bonferroni,

@@ -81,3 +81,24 @@ already match your expectations.
 Please register your repository. The 'release.yml' flow is
 publishing from the 'release' environment. Once you have
 registered your new repo it should all work.
+
+
+## 📚 Usage
+
+Run this minimal, deterministic example to compute the
+Probabilistic Sharpe Ratio (PSR) from the package functions.
+
+```python
+import sys
+sys.path.append("src")  # allow importing the local package without installing
+
+from jsharpe.sharpe import probabilistic_sharpe_ratio
+
+sr = 0.036 / 0.079
+psr = probabilistic_sharpe_ratio(SR=sr, SR0=0, T=24, gamma3=-2.448, gamma4=10.164)
+print(f"{psr:.3f}")
+```
+
+```result
+0.987
+```

@@ -16,11 +16,14 @@ repository = "https://github.com/tschm/jsharpe"
 
 [project.optional-dependencies]
 dev = [
-    "pytest-cov>=6.0.0",
-    "pytest>=8.3.3",
+    "pytest-cov>=7.0.0",
+    "pytest>=9.0.1",
+    "pytest-html>=4.1.1",
     "pre-commit>=4.0.1",
     "marimo==0.18.1",
-    "cvxpy>=1.7.0"
+    "cvxpy>=1.7.0",
+    "pdoc>=16.0.0"
+
 ]
 
 [build-system]

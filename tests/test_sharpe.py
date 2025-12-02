@@ -2,8 +2,9 @@
 
 import math
 
+import cvxpy as cp
 import numpy as np
-import pandas as pd
+import pytest
 
 from src.jsharpe.sharpe import (
     FDR_critical_value,
@@ -12,9 +13,13 @@ from src.jsharpe.sharpe import (
     effective_rank,
     expected_maximum_sharpe_ratio,
     minimum_track_record_length,
+    minimum_variance_weights_for_correlated_assets,
     oFDR,
     pFDR,
+    # merged imports
+    ppoints,
     probabilistic_sharpe_ratio,
+    robust_covariance_inverse,
     sharpe_ratio_power,
     sharpe_ratio_variance,
 )
@@ -75,7 +80,7 @@ def test_oFDR():
 def test_FDR_critical_value():
     """Test FDR_critical_value computation."""
     np.random.seed(0)
-    r = []
+    r = dict()
     for _ in range(100):
         q = np.random.uniform()
         mu0 = np.random.uniform()
@@ -91,21 +96,21 @@ def test_FDR_critical_value():
         X1 = np.random.normal(mu1, sigma1, size=R)
         X = np.where(H, X1, X0)
         c = FDR_critical_value(q, mu0, mu1, sigma0, sigma1, p)
-        r.append(
-            {
-                "q": q,
-                "mu0": mu0,
-                "mu1": mu1,
-                "sigma0": sigma0,
-                "sigma1": sigma1,
-                "p": p,
-                "c": c,
-                "FDP": np.sum((H == 0) & (X > c)) / (1e-100 + np.sum(X > c)),
-            }
-        )
-    r = pd.DataFrame(r)
-    i = np.isfinite(r["c"]) & (r["FDP"] > 0)
-    assert np.abs(r["q"][i] - r["FDP"][i]).mean() < 1e-2
+        # r.append(
+        #    {
+        r["q"] = q
+        r["mu0"] = mu0
+        r["mu1"] = mu1
+        r["sigma0"] = sigma0
+        r["sigma1"] = sigma1
+        r["p"] = p
+        r["c"] = c
+        r["FDP"] = np.sum((H == 0) & (X > c)) / (1e-100 + np.sum(X > c))
+
+    # r = pd.DataFrame(r)
+    print(r)
+    np.isfinite(r["c"]) & (r["FDP"] > 0)
+    assert np.abs(r["q"] - r["FDP"]).mean() < 1e-2
     # plt.scatter( r['q'][i], r['FDP'][i] )  # Straight line
 
 
@@ -270,3 +275,95 @@ def test_numeric_example():
         print(f"α (K=1)              = {alpha_W:.5f}")
         print(f"β (K=1)              = {beta_W:.3f}")
         print(f"SR_c (K=1)           = {SR_c_W:.3f}")
+
+
+# ---- merged from test_ppoints.py ----
+
+
+def test_ppoints_default_large_n():
+    """Default behavior when n > 10 (a defaults to 0.5)."""
+    n = 20
+    # default a = 0.5 when n > 10
+    expected = np.linspace(1 - 0.5, n - 0.5, n) / (n + 1 - 2 * 0.5)
+    x = ppoints(n)
+    assert np.allclose(x, expected)
+    assert np.all(x > 0) and np.all(x < 1)
+    # uniform spacing
+    diffs = np.diff(x)
+    assert np.allclose(diffs, diffs[0])
+
+
+def test_ppoints_default_small_n():
+    """Default behavior when n <= 10 (a defaults to 3/8)."""
+    n = 10
+    # default a = 3/8 when n <= 10
+    a = 3 / 8
+    expected = np.linspace(1 - a, n - a, n) / (n + 1 - 2 * a)
+    x = ppoints(n)
+    assert np.allclose(x, expected)
+    # uniform spacing
+    diffs = np.diff(x)
+    assert np.allclose(diffs, diffs[0])
+
+
+def test_ppoints_custom_a_zero():
+    """Custom a=0.0 should exclude boundaries 0 and 1."""
+    n = 5
+    a = 0.0
+    expected = np.linspace(1 - a, n - a, n) / (n + 1 - 2 * a)
+    x = ppoints(n, a=a)
+    assert np.allclose(x, expected)
+    # should exclude 0 and 1 for a=0
+    assert x[0] == pytest.approx(1 / (n + 1))
+    assert x[-1] == pytest.approx(n / (n + 1))
+
+
+def test_ppoints_custom_a_one_includes_boundaries():
+    """Custom a=1.0 includes both boundaries 0 and 1 by formula design."""
+    n = 5
+    a = 1.0
+    # This includes both boundaries 0 and 1 by design of the formula
+    expected = np.linspace(1 - a, n - a, n) / (n + 1 - 2 * a)
+    x = ppoints(n, a=a)
+    assert np.allclose(x, expected)
+    assert x[0] == pytest.approx(0.0)
+    assert x[-1] == pytest.approx(1.0)
+
+
+def test_ppoints_invalid_a_raises():
+    """Invalid a outside [0, 1] should raise AssertionError."""
+    n = 7
+    with pytest.raises(AssertionError):
+        ppoints(n, a=-0.01)
+    with pytest.raises(AssertionError):
+        ppoints(n, a=1.01)
+
+
+# ---- merged from test_minimum_variance.py ----
+
+
+def test_minimum_variance_weights_for_correlated_assets():
+    """Test minimum variance portfolio weights computation."""
+    np.random.seed(0)
+    rho = 0.5
+    C = rho * np.ones(shape=(10, 10))
+    np.fill_diagonal(C, 1)
+    sigma = np.random.lognormal(size=10).reshape(-1, 1)
+    V = (C * sigma).T * sigma
+    w = minimum_variance_weights_for_correlated_assets(V)
+
+    W = cp.Variable(shape=V.shape[0])
+    problem = cp.Problem(cp.Minimize(cp.quad_form(W, V)), [W.sum() == 1])
+    problem.solve()
+    assert np.all(np.abs(W.value - w) < 1e-10)
+
+
+def test_robust_covariance_inverse():
+    """Test robust covariance inverse computation."""
+    np.random.seed(0)
+    rho = 0.5
+    C = rho * np.ones(shape=(10, 10))
+    np.fill_diagonal(C, 1)
+    sigma = np.random.lognormal(size=10).reshape(-1, 1)
+    V = (C * sigma).T * sigma
+    assert np.all(np.abs(np.linalg.inv(V) - robust_covariance_inverse(V)) < 1e-12)

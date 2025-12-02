@@ -6,9 +6,6 @@ import warnings
 import numpy as np
 import pandas as pd
 import scipy
-from matplotlib import pyplot as plt
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_samples
 
 
 def ppoints(n, a=None):
@@ -726,85 +723,3 @@ def oFDR(
     p_H0 = 1 - p_H1
     return p0 * p_H0 / (p0 * p_H0 + p1 * p_H1)
 
-
-def number_of_clusters(
-    C: np.ndarray,
-    *,
-    retries: int = 10,
-    max_clusters: int = 100,
-    plot: bool = False,
-) -> tuple[int, pd.Series, np.ndarray]:
-    """Compute the optimal number of clusters from a correlation matrix.
-
-    Algorithm in section 8.1 of [1], without recursive re-clustering:
-    - Convert the correlation matrix into a distance matrix
-    - Using the columns of the distance matrix as features, run k-means
-      for all k, and compute the "quality" of the clustering
-    - Keep the clustering with the highest quality
-    The quality is computed as mean of silhouette scores / std deviation.
-
-    References:
-        [1] Detection of false investment strategies using unsupervised learning
-            M. Lopez de Prado (2018)
-            https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3167017
-
-    Args:
-        C: np.ndarray, square, a correlation matrix
-        retries: int, number of times to run the k-means algorithm
-        max_clusters: int, maximum number of clusters to consider
-        plot: bool, whether to plot the quality of the clustering
-
-    Returns:
-        Tuple of (number_of_clusters, qualities, clusters):
-        - number_of_clusters: int, the optimal number of clusters
-        - qualities: pd.Series, quality of clusterings by number of clusters
-        - clusters: np.ndarray, cluster assignment for optimal clustering
-    """
-    # Check this looks like a correlation matrix
-    assert isinstance(C, np.ndarray)
-    assert np.all(-1 <= C)
-    assert np.all(C <= 1)
-    assert np.all(np.diag(C) == 1)
-    assert np.all(np.isfinite(C))
-
-    max_clusters = min(max_clusters, C.shape[0] - 1)
-
-    # Compute the distances
-    D = np.sqrt((1 - C) / 2)
-    assert np.all(np.isfinite(D))
-
-    # For all values of k:
-    # - run the k-means algorithm on D
-    # - compute the silhouette score of each observation, S[i],
-    # - compute the quality of the clustering, q = E[S]/Std[S]
-    # - Do that several times and keep the maximum quality
-    qualities = {}
-    clusters = {}
-    for k in range(2, max_clusters + 1):
-        qualities[k] = -np.inf
-        for _ in range(retries):
-            kmeans = KMeans(n_clusters=k)
-            # Use the distances as features
-            kmeans.fit(D)
-            labels = kmeans.labels_
-            silhouette_vals = silhouette_samples(D, labels)
-            q = silhouette_vals.mean() / silhouette_vals.std()
-            if q > qualities[k]:
-                qualities[k] = max(qualities[k], q)
-                clusters[k] = labels
-    qualities = pd.Series(qualities)
-    number_of_clusters = qualities.idxmax()
-    clusters = clusters[number_of_clusters]
-
-    if plot:
-        fig, ax = plt.subplots(figsize=(4, 3), layout="constrained")
-        ax.plot(qualities)
-        i = np.argmax(qualities)
-        x, y = qualities.index[i], qualities.iloc[i]
-        ax.scatter(x, y)
-        ax.text(x, y, f"  {qualities.index[i]}", va="center", ha="left")
-        ax.set_xlabel("Number of clusters")
-        ax.set_ylabel("Quality")
-        plt.show()
-
-    return number_of_clusters, qualities, clusters

@@ -4,7 +4,8 @@ import math
 import warnings
 
 import numpy as np
-import pandas as pd
+
+# import pandas as pd
 import scipy
 
 
@@ -94,42 +95,6 @@ def effective_rank(C: np.ndarray) -> float:
     p = p / sum(p)
     H = np.sum(-p * np.log(p))
     return math.exp(H)
-
-
-def variance_of_the_clustered_trials(X: np.ndarray, clusters: np.ndarray) -> tuple[float, np.ndarray, pd.DataFrame]:
-    """Compute variance of Sharpe ratios across cluster portfolios.
-
-    Computes the returns of a minimum variance portfolio in each cluster,
-    the corresponding Sharpe ratios, and then the variance of those Sharpe ratios.
-
-    Args:
-        X: numpy array of returns, one column per strategy
-        clusters: cluster assignment, list (or array) with one element per strategy
-
-    Returns:
-        Tuple containing:
-        - the variance of the Sharpe ratios of the cluster portfolios
-        - The Sharpe ratios of the cluster portfolios
-        - The time series of returns of the cluster portfolios
-    """
-    assert X.shape[1] == len(clusters)
-    # Minimum variance portfolio in each cluster (assuming constant correlation)
-    y = {}
-    for i in np.unique(clusters):
-        j = clusters == i
-        if j.sum() == 1:
-            y[i] = X[:, j][:, 0]
-        else:
-            Y = X[:, j]
-            V = np.cov(Y.T)
-            w = minimum_variance_weights_for_correlated_assets(V)
-            y[i] = np.sum(Y * w, axis=1)
-    y = pd.DataFrame(y)
-
-    # Sharpe ratios
-    SRs = y.mean() / y.std()
-
-    return SRs.var(), SRs, y
 
 
 def moments_Mk(k, *, rho=0):
@@ -722,4 +687,3 @@ def oFDR(
     p1 = 1 - probabilistic_sharpe_ratio(SR, SR1, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K)
     p_H0 = 1 - p_H1
     return p0 * p_H0 / (p0 * p_H0 + p1 * p_H1)
-

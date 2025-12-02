@@ -10,6 +10,8 @@ _book
 _pdoc
 _marimushka
 
+src/jsharpe/functions.py
+
 # temp file used by Junie
 .output.txt
 

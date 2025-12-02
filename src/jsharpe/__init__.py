@@ -1,4 +1,4 @@
-"""{{ project_name }} package.
+"""jsharpe package.
 
-This package provides functionality for the {{ project_name }} project.
+This package provides functionality for the jsharpe project.
 """

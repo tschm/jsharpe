@@ -1,4 +1,4 @@
-# 📦 [jsharpe]()
+# 📦 [jsharpe](https://github.com/tschm/jsharpe)
 
 [![PyPI version](https://badge.fury.io/py/jsharpe.svg)](https://badge.fury.io/py/jsharpe)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)

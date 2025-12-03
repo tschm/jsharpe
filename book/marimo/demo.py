@@ -31,9 +31,9 @@ with app.setup:
     # Allow running from a checkout without installing the package
     # by adding the local src to sys.path if present.
     if "src" not in sys.path:
-        sys.path.append("src")
+        sys.path.append("src/jsharpe")
 
-    from jsharpe.sharpe import (
+    from jsharpe import (
         control_for_FDR,
         critical_sharpe_ratio,
         expected_maximum_sharpe_ratio,
@@ -60,8 +60,6 @@ def _():
 
 @app.cell
 def _():
-    import marimo as mo
-
     mu = mo.ui.number(value=0.036, step=0.001, label="mu (mean)")
     sigma = mo.ui.number(value=0.079, step=0.001, label="sigma (std)")
     t = mo.ui.slider(12, 120, value=24, label="T (observations)")
@@ -83,7 +81,6 @@ def _():
 def _(mu, sigma, t, gamma3, gamma4, rho, sr0, sr1, p_h1, alpha, k):
     import math
 
-    import marimo as mo
     import numpy as np
 
     sr = mu.value / sigma.value if sigma.value != 0 else np.nan

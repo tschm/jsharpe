@@ -1,6 +1,6 @@
 [project]
 name = 'jsharpe'
-version = "0.0.0"
+version = "0.0.1"
 description = "Sharpe ratio"
 # Please add authors and correct the email...
 authors = [{name='Thomas Schmelzer', email='thomas@jqr.ae'}]

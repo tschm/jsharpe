@@ -129,16 +129,12 @@ deptry: install-uv ## run deptry if pyproject.toml exists
 ##@ Documentation
 docs: install-uv ## create documentation with pdoc
 	@if [ -d "$(SOURCE_FOLDER)" ]; then \
-	  # Find all top-level packages (with __init__.py) or dirs (namespace packages) \
-	  PKGS=$$(find "$(SOURCE_FOLDER)" -maxdepth 1 -mindepth 1 -type d | xargs -r -n1 basename); \
+	  PKGS=""; for d in "$(SOURCE_FOLDER)"/*; do [ -d "$$d" ] && PKGS="$$PKGS $$(basename "$$d")"; done; \
 	  if [ -z "$$PKGS" ]; then \
 	    printf "$(YELLOW)[WARN] No packages found under $(SOURCE_FOLDER), skipping docs$(RESET)\n"; \
 	  else \
-	    $(UV_BIN) pip install pdoc && \
-	    PYTHONPATH="$(SOURCE_FOLDER)" $(UV_BIN) run pdoc \
-	        --docformat google \
-	        --output-dir _pdoc \
-	        $$PKGS; \
+	    ${UV_BIN} pip install pdoc && \
+	    PYTHONPATH="$(SOURCE_FOLDER)" ${UV_BIN} run pdoc --docformat google --output-dir _pdoc $$PKGS; \
 	  fi; \
 	else \
 	  printf "$(YELLOW)[WARN] Source folder $(SOURCE_FOLDER) not found, skipping docs$(RESET)\n"; \

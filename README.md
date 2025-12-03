@@ -5,8 +5,6 @@
 [![CI](https://github.com/tschm/jsharpe/actions/workflows/ci.yml/badge.svg)](https://github.com/tschm/jsharpe/actions/workflows/ci.yml)
 [![Created with qCradle](https://img.shields.io/badge/Created%20with-qCradle-blue?style=flat-square)](https://github.com/tschm/package)
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/tschm/jsharpe)
-
 ## 🚀 Getting Started
 
 ### **🔧 Set Up Environment**

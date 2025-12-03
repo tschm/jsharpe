@@ -94,12 +94,17 @@ def git_repo(tmp_path, monkeypatch):
     # 1. Create bare remote
     remote_dir.mkdir()
     subprocess.run(["git", "init", "--bare", str(remote_dir)], check=True)
+    # Ensure the remote's default HEAD points to master for predictable behavior
+    subprocess.run(["git", "symbolic-ref", "HEAD", "refs/heads/master"], cwd=remote_dir, check=True)
 
     # 2. Clone to local
     subprocess.run(["git", "clone", str(remote_dir), str(local_dir)], check=True)
 
     # Use monkeypatch to safely change cwd for the duration of the test
     monkeypatch.chdir(local_dir)
+
+    # Ensure local default branch is 'master' to match test expectations
+    subprocess.run(["git", "checkout", "-b", "master"], check=True)
 
     # Create pyproject.toml
     with open("pyproject.toml", "w") as f:

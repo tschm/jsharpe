@@ -89,9 +89,6 @@ Run this minimal, deterministic example to compute the
 Probabilistic Sharpe Ratio (PSR) from the package functions.
 
 ```python
-import sys
-sys.path.append("src")  # allow importing the local package without installing
-
 from jsharpe import probabilistic_sharpe_ratio
 
 sr = 0.036 / 0.079

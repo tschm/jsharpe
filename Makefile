@@ -129,8 +129,11 @@ deptry: install-uv ## run deptry if pyproject.toml exists
 ##@ Documentation
 docs: install-uv ## create documentation with pdoc
 	@if [ -d ${SOURCE_FOLDER} ]; then \
-  	  ${UV_BIN} pip install pdoc; \
-	  ${UV_BIN} run pdoc -o _pdoc ${SOURCE_FOLDER}/*; \
+	  $(UV_BIN) pip install pdoc && \
+	  $(UV_BIN) run pdoc \
+	      --config 'docformat="google"' \
+	      --output-dir _pdoc \
+	      "$(SOURCE_FOLDER)"; \
 	else \
 	  printf "${YELLOW}[WARN] Source folder ${SOURCE_FOLDER} not found, skipping docs${RESET}\n"; \
 	fi

@@ -1,10 +1,3 @@
-# /// script
-# requires-python = ">=3.11"
-# dependencies = [
-#     "marimo==0.18.1",
-# ]
-# ///
-
 """Interactive marimo demo for the jsharpe package.
 
 This notebook-style script provides a lightweight, self-contained UI to explore
@@ -24,14 +17,8 @@ import marimo
 app = marimo.App()
 
 with app.setup:
-    import sys
 
     import marimo as mo
-
-    # Allow running from a checkout without installing the package
-    # by adding the local src to sys.path if present.
-    if "src" not in sys.path:
-        sys.path.append("src/jsharpe")
 
     from jsharpe import (
         control_for_FDR,
@@ -168,8 +155,8 @@ def _(mu, sigma, t, gamma3, gamma4, rho, sr0, sr1, p_h1, alpha, k):
 
     mo.vstack(
         [
-            mo.hstack([mu, sigma, t, gamma3, gamma4, rho]).callout("Inputs: returns distribution", color="neutral"),
-            mo.hstack([sr0, sr1, p_h1, alpha, k]).callout("Inputs: hypothesis & multiple testing", color="neutral"),
+            mo.hstack([mu, sigma, t, gamma3, gamma4, rho]).callout("Inputs: returns distribution"),
+            mo.hstack([sr0, sr1, p_h1, alpha, k]).callout("Inputs: hypothesis & multiple testing"),
             mo.md(
                 f"""
                 ### Results
@@ -185,7 +172,7 @@ def _(mu, sigma, t, gamma3, gamma4, rho, sr0, sr1, p_h1, alpha, k):
                 - FDR control (q=0.25): alpha={alpha_fdr:.4f}, beta={beta_fdr:.3f}, SR_c={sr_c_fdr:.3f},
                   q_hat={q_hat:.3f}
                 """
-            ).callout("Computed metrics", color="green"),
+            ).callout("Computed metrics"),
         ]
     )
     return

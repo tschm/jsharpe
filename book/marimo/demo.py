@@ -17,7 +17,6 @@ import marimo
 app = marimo.App()
 
 with app.setup:
-
     import marimo as mo
 
     from jsharpe import (

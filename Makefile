@@ -17,7 +17,7 @@ RESET := \033[0m
 .DEFAULT_GOAL := help
 
 # Declare phony targets (they don't produce files)
-.PHONY: install-uv install clean test marimo marimushka book fmt deptry docs release release-dry-run post-release help all
+.PHONY: install-uv install clean test marimo marimushka book fmt deptry docs release release-dry-run post-release sync help all
 
 UV_INSTALL_DIR := ./bin
 UV_BIN := ${UV_INSTALL_DIR}/uv
@@ -130,9 +130,14 @@ deptry: install-uv ## run deptry if pyproject.toml exists
 
 ##@ Documentation
 docs: install-uv ## create documentation with pdoc
-	@if [ -d ${SOURCE_FOLDER} ]; then \
-  	  ${UV_BIN} pip install pdoc; \
-	  ${UV_BIN} run pdoc -o _pdoc ${SOURCE_FOLDER}/*; \
+	@if [ -d "${SOURCE_FOLDER}" ]; then \
+	  PKGS=""; for d in "${SOURCE_FOLDER}"/*; do [ -d "$$d" ] && PKGS="$$PKGS $$(basename "$$d")"; done; \
+	  if [ -z "$$PKGS" ]; then \
+	    printf "${YELLOW}[WARN] No packages found under ${SOURCE_FOLDER}, skipping docs${RESET}\n"; \
+	  else \
+	    ${UV_BIN} pip install pdoc && \
+	    PYTHONPATH="${SOURCE_FOLDER}" ${UV_BIN} run pdoc --docformat google --output-dir _pdoc $$PKGS; \
+	  fi; \
 	else \
 	  printf "${YELLOW}[WARN] Source folder ${SOURCE_FOLDER} not found, skipping docs${RESET}\n"; \
 	fi
@@ -207,6 +212,9 @@ post-release: install-uv ## perform post-release tasks (usage: make post-release
 	fi
 
 ##@ Meta
+sync: ## sync with template repository as defined in .github/template.yml
+	@/bin/sh "${SCRIPTS_FOLDER}/sync.sh"
+
 help: ## Display this help message
 	+@printf "$(BOLD)Usage:$(RESET)\n"
 	+@printf "  make $(BLUE)<target>$(RESET)\n\n"
@@ -222,5 +230,20 @@ customisations: ## list available customisation scripts
 	fi
 
 # debugger tools
+custom-%: ## run a custom script (usage: make custom-scriptname)
+	@SCRIPT="${CUSTOM_SCRIPTS_FOLDER}/$*.sh"; \
+	if [ -x "$$SCRIPT" ]; then \
+		printf "${BLUE}[INFO] Running custom script $$SCRIPT...${RESET}\n"; \
+		"$$SCRIPT"; \
+	elif [ -f "$$SCRIPT" ]; then \
+		printf "${BLUE}[INFO] Running custom script $$SCRIPT with /bin/sh...${RESET}\n"; \
+		/bin/sh "$$SCRIPT"; \
+	else \
+		printf "${RED}[ERROR] Custom script '$$SCRIPT' not found.${RESET}\n"; \
+		printf "Available scripts:\n"; \
+		ls -1 "${CUSTOM_SCRIPTS_FOLDER}"/*.sh 2>/dev/null | xargs -n1 basename | sed 's/\.sh$$//' | sed 's/^/  - /'; \
+		exit 1; \
+	fi
+
 print-% :
 	@echo $* = $($*)

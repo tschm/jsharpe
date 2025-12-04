@@ -5,6 +5,7 @@ The script exposes two commands: `bump` (updates pyproject.toml via `uv`) and
 clone and use a small mock `uv` to avoid external dependencies.
 """
 
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -90,6 +91,7 @@ def git_repo(tmp_path, monkeypatch):
     """Sets up a remote bare repo and a local clone with necessary files."""
     remote_dir = tmp_path / "remote.git"
     local_dir = tmp_path / "local"
+    gnupg_home = tmp_path / "gnupg"
 
     # 1. Create bare remote
     remote_dir.mkdir()
@@ -129,9 +131,48 @@ def git_repo(tmp_path, monkeypatch):
     script_path = script_dir / "release.sh"
     script_path.chmod(0o755)
 
+    # Set up a test GPG key for tag signing
+    gnupg_home.mkdir(mode=0o700)
+    monkeypatch.setenv("GNUPGHOME", str(gnupg_home))
+
+    # Generate a GPG key without a passphrase for testing
+    key_params = """%no-protection
+Key-Type: RSA
+Key-Length: 2048
+Name-Real: Test User
+Name-Email: test@example.com
+Expire-Date: 0
+%commit
+"""
+    subprocess.run(
+        ["gpg", "--batch", "--gen-key"],
+        input=key_params,
+        text=True,
+        check=True,
+        env={**os.environ, "GNUPGHOME": str(gnupg_home)},
+    )
+
+    # Get the key ID
+    result = subprocess.run(
+        ["gpg", "--list-keys", "--keyid-format", "long", "test@example.com"],
+        capture_output=True,
+        text=True,
+        check=True,
+        env={**os.environ, "GNUPGHOME": str(gnupg_home)},
+    )
+    # Parse key ID from output (format: "pub   rsa2048/KEYID ...")
+    key_id = None
+    for line in result.stdout.split("\n"):
+        if line.strip().startswith("pub"):
+            key_id = line.split("/")[1].split()[0]
+            break
+    assert key_id is not None, "Failed to parse GPG key ID from output"
+
     # Commit and push initial state
     subprocess.run(["git", "config", "user.email", "test@example.com"], check=True)
     subprocess.run(["git", "config", "user.name", "Test User"], check=True)
+    subprocess.run(["git", "config", "user.signingkey", key_id], check=True)
+    subprocess.run(["git", "config", "gpg.program", "gpg"], check=True)
     subprocess.run(["git", "add", "."], check=True)
     subprocess.run(["git", "commit", "-m", "Initial commit"], check=True)
     subprocess.run(["git", "push", "origin", "master"], check=True)
@@ -188,6 +229,28 @@ def test_bump_commit_then_release_push(git_repo):
     # Verify tag exists on remote
     remote_tags = subprocess.check_output(["git", "ls-remote", "--tags", "origin"], cwd=git_repo, text=True)
     assert "v0.1.1" in remote_tags
+
+
+def test_release_creates_signed_tag(git_repo):
+    """Release creates a GPG-signed tag."""
+    script = git_repo / ".github" / "scripts" / "release.sh"
+
+    # Run release
+    # 1. Prompts to create tag -> y
+    # 2. Prompts to push tag -> y
+    result = subprocess.run([str(script), "release"], cwd=git_repo, input="y\ny\n", capture_output=True, text=True)
+    assert result.returncode == 0
+    assert "Tag 'v0.1.0' created locally" in result.stdout
+
+    # Verify the tag is signed using git tag -v
+    # git tag -v returns 0 only for valid signed tags with verified signatures
+    verify_result = subprocess.run(
+        ["git", "tag", "-v", "v0.1.0"],
+        cwd=git_repo,
+        capture_output=True,
+        text=True,
+    )
+    assert verify_result.returncode == 0, f"Tag signature verification failed: {verify_result.stderr}"
 
 
 def test_uncommitted_changes_failure(git_repo):

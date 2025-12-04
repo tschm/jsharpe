@@ -351,10 +351,10 @@ do_release() {
   # Step 1: Create the tag (if it doesn't exist)
   if [ -z "$SKIP_TAG_CREATE" ]; then
     printf "\n%b=== Step 1: Create Tag ===%b\n" "$BLUE" "$RESET"
-    printf "Creating annotated tag '%s' for version %s\n" "$TAG" "$CURRENT_VERSION"
+    printf "Creating signed tag '%s' for version %s\n" "$TAG" "$CURRENT_VERSION"
     prompt_continue ""
     
-    git tag -a "$TAG" -m "Release $TAG"
+    git tag -s "$TAG" -m "Release $TAG"
     printf "%b[SUCCESS] Tag '%s' created locally%b\n" "$GREEN" "$TAG" "$RESET"
   fi
 

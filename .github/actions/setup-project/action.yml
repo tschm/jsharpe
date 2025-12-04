@@ -11,6 +11,7 @@
 #
 # Inputs:
 #   - python-version: Python version used for the virtual environment (default: 3.12)
+#     Can be overridden by setting PYTHON_DEFAULT_VERSION repository variable
 #
 # Outputs:
 #   - pyproject_exists: "true" if pyproject.toml exists, otherwise "false"
@@ -26,7 +27,10 @@ inputs:
   python-version:
     description: 'Python version to use'
     required: false
-    default: '3.12'
+    # Default uses PYTHON_DEFAULT_VERSION variable if set, otherwise '3.14'
+    # Note: GitHub Actions doesn't support vars context in action defaults,
+    # so this must be handled in the workflow or in the run step
+    default: '3.14'
 
 outputs:
   pyproject_exists:

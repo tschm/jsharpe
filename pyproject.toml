@@ -20,7 +20,7 @@ dev = [
     "pytest>=9.0.1",
     "pytest-html>=4.1.1",
     "pre-commit>=4.0.1",
-    "marimo==0.18.1",
+    "marimo==0.18.2",
     "cvxpy>=1.7.0",
     "pdoc>=16.0.0"
 

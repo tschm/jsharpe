@@ -1,5 +1,4 @@
-"""
-Marimo Example: Probabilistic Sharpe Ratio (PSR)
+"""Marimo Example: Probabilistic Sharpe Ratio (PSR).
 
 A compact, lint-clean app demonstrating PSR computation using jsharpe.
 Adjust SR, SR0, T, skew, kurtosis, autocorrelation, and trials. Results
@@ -13,7 +12,9 @@ app = marimo.App()
 
 with app.setup:
     import math
+
     import marimo as mo
+
     from jsharpe import probabilistic_sharpe_ratio
 
 
@@ -55,19 +56,23 @@ def _inputs():
 
     mo.hstack(
         [
-            mo.vstack([
-                mo.md("### Basic"),
-                sr,
-                sr0,
-                T,
-            ]),
-            mo.vstack([
-                mo.md("### Advanced"),
-                gamma3,
-                gamma4,
-                rho,
-                K,
-            ]),
+            mo.vstack(
+                [
+                    mo.md("### Basic"),
+                    sr,
+                    sr0,
+                    T,
+                ]
+            ),
+            mo.vstack(
+                [
+                    mo.md("### Advanced"),
+                    gamma3,
+                    gamma4,
+                    rho,
+                    K,
+                ]
+            ),
         ]
     )
     return K, T, gamma3, gamma4, rho, sr, sr0
@@ -83,12 +88,23 @@ def psr_value(sr, sr0, T, gamma3, gamma4, rho, K):
         gamma3=float(gamma3.value),
         gamma4=float(gamma4.value),
         rho=float(rho.value),
-        K=int(K.value)
+        K=int(K.value),
     )
 
 
 @app.cell
 def display(K, T, gamma3, gamma4, rho, sr, sr0):
+    """Render the PSR result markdown.
+
+    Args:
+        K: Trials slider widget controlling multiple-testing adjustment.
+        T: Observations slider widget.
+        gamma3: Skewness (third standardized moment) widget.
+        gamma4: Kurtosis (fourth standardized moment) widget.
+        rho: Autocorrelation widget.
+        sr: Observed Sharpe ratio widget.
+        sr0: Benchmark Sharpe ratio widget.
+    """
     mo.md(f"""
     ### Result
     **PSR = {fmt(psr_value(sr, sr0, T, gamma3, gamma4, rho, K), 4)}**

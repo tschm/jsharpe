@@ -26,11 +26,7 @@ description: 'Setup the project'
 inputs:
   python-version:
     description: 'Python version to use'
-    required: false
-    # Default uses PYTHON_DEFAULT_VERSION variable if set, otherwise '3.14'
-    # Note: GitHub Actions doesn't support vars context in action defaults,
-    # so this must be handled in the workflow or in the run step
-    default: '3.14'
+    required: true
 
 outputs:
   pyproject_exists:

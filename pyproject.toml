@@ -10,7 +10,7 @@ dependencies = [
     "scipy>=1.16.3"
 ]
 license = { file="LICENSE" }
-keywords = ["sharpe ratio", "quant", "risk", "statistics"]
+keywords = ["Sharpe ratio", "quant", "risk", "statistics"]
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",

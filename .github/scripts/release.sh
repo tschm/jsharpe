@@ -351,10 +351,17 @@ do_release() {
   # Step 1: Create the tag (if it doesn't exist)
   if [ -z "$SKIP_TAG_CREATE" ]; then
     printf "\n%b=== Step 1: Create Tag ===%b\n" "$BLUE" "$RESET"
-    printf "Creating signed tag '%s' for version %s\n" "$TAG" "$CURRENT_VERSION"
+    printf "Creating tag '%s' for version %s\n" "$TAG" "$CURRENT_VERSION"
     prompt_continue ""
     
-    git tag -s "$TAG" -m "Release $TAG"
+    # check for gpg signing config
+    if git config --get user.signingkey >/dev/null 2>&1 || [ "$(git config --get commit.gpgsign)" = "true" ]; then
+      printf "%b[INFO] GPG signing is enabled. Creating signed tag.%b\n" "$BLUE" "$RESET"
+      git tag -s "$TAG" -m "Release $TAG"
+    else
+      printf "%b[INFO] GPG signing is not enabled. Creating unsigned tag.%b\n" "$BLUE" "$RESET"
+      git tag -a "$TAG" -m "Release $TAG"
+    fi
     printf "%b[SUCCESS] Tag '%s' created locally%b\n" "$GREEN" "$TAG" "$RESET"
   fi
 

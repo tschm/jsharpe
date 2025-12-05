@@ -1,6 +1,6 @@
 [project]
 name = 'jsharpe'
-version = "0.0.2"
+version = "0.1.0"
 description = "Sharpe ratio"
 authors = [{name='Thomas Schmelzer', email='thomas@jqr.ae'}]
 readme = "README.md"

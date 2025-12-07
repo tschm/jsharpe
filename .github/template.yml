@@ -1,6 +1,7 @@
 template-repository: "tschm/.config-templates"
 template-branch: "main"
 include: |
+    .devcontainer
     .github
     tests
     .editorconfig
@@ -9,7 +10,8 @@ include: |
     CODE_OF_CONDUCT.md
     CONTRIBUTING.md
     Makefile
+    pytest.ini
+    LICENSE
 exclude: |
     .github/workflows/docker.yml
-    .github/workflows/devcontainer.yml
     ruff.toml

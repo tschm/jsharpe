@@ -4,6 +4,7 @@
 This helper is used in GitHub Actions to pick a default interpreter.
 """
 
+import json
 import tomllib
 from pathlib import Path
 
@@ -11,7 +12,7 @@ from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 
 PYPROJECT = Path(__file__).resolve().parents[3] / "pyproject.toml"
-CANDIDATES = ["3.10", "3.11", "3.12", "3.13", "3.14"]  # extend as needed
+CANDIDATES = ["3.11", "3.12", "3.13", "3.14"]  # extend as needed
 
 
 def max_supported_version() -> str:
@@ -28,7 +29,8 @@ def max_supported_version() -> str:
 
     spec_str = data.get("project", {}).get("requires-python")
     if not spec_str:
-        raise KeyError("Missing 'project.requires-python' in pyproject.toml")
+        msg = "pyproject.toml: missing 'project.requires-python'"
+        raise KeyError(msg)
 
     spec = SpecifierSet(spec_str)
     max_version = None
@@ -38,10 +40,14 @@ def max_supported_version() -> str:
             max_version = v
 
     if max_version is None:
-        raise ValueError(f"No supported versions found in {spec_str}")
+        msg = "pyproject.toml: no supported Python versions match 'project.requires-python'"
+        raise ValueError(msg)
 
     return max_version
 
 
 if __name__ == "__main__":
-    print(max_supported_version())
+    if PYPROJECT.exists():
+        print(json.dumps(max_supported_version()))
+    else:
+        print(json.dumps("3.13"))

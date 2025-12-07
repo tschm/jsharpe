@@ -6,19 +6,12 @@ complex/numerically sensitive test paths to aid debugging without affecting
 assertions.
 """
 
-import math
 import logging
+import math
 
 import cvxpy as cp
 import numpy as np
 import pytest
-
-# Set up module-level logger for detailed diagnostics
-logger = logging.getLogger(__name__)
-
-
-# Route any legacy print calls in this module to the logger for consistency
-print = logger.debug  # type: ignore[assignment]
 
 from jsharpe import (
     FDR_critical_value,
@@ -47,6 +40,12 @@ from jsharpe import (
     sharpe_ratio_variance,
     variance_of_the_maximum_of_k_Sharpe_ratios,
 )
+
+# Set up module-level logger for detailed diagnostics
+logger = logging.getLogger(__name__)
+
+# Route any legacy print calls in this module to the logger for consistency
+print = logger.debug  # type: ignore[assignment]
 
 
 def test_effective_rank():

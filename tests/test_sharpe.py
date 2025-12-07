@@ -1,10 +1,24 @@
-"""Tests for Sharpe ratio functions."""
+"""Tests for Sharpe ratio functions.
+
+This test module now uses a dedicated logger to provide detailed diagnostics
+when running under pytest. Logging is kept lightweight and added mainly to
+complex/numerically sensitive test paths to aid debugging without affecting
+assertions.
+"""
 
 import math
+import logging
 
 import cvxpy as cp
 import numpy as np
 import pytest
+
+# Set up module-level logger for detailed diagnostics
+logger = logging.getLogger(__name__)
+
+
+# Route any legacy print calls in this module to the logger for consistency
+print = logger.debug  # type: ignore[assignment]
 
 from jsharpe import (
     FDR_critical_value,
@@ -115,7 +129,7 @@ def test_FDR_critical_value():
         r["c"] = c
         r["FDP"] = np.sum((H == 0) & (X > c)) / (1e-100 + np.sum(X > c))
 
-    print(r)
+    logger.debug("FDR simulation snapshot: %s", r)
     np.isfinite(r["c"]) & (r["FDP"] > 0)
     assert np.abs(r["q"] - r["FDP"]).mean() < 1e-2
 
@@ -143,7 +157,7 @@ def test_FDR_critical_value_edge_returns():
 def test_numeric_example():
     """Test numeric example with various Sharpe ratio computations."""
     for rho in [0, 0.2]:
-        print("----------")
+        logger.debug("----------")
         mu = 0.036
         sigma = 0.079
         T = 24

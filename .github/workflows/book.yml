@@ -65,6 +65,10 @@ jobs:
 
       # Step 6: Deploy the packaged artifacts to GitHub Pages
       # This step publishes the content to GitHub Pages
+      # The deployment is conditional based on whether the repository is a fork and the PUBLISH_COMPANION_BOOK variable is set
+      # If the repository is a fork, deployment is skipped to avoid unauthorized publishing
+      # If PUBLISH_COMPANION_BOOK is not set, it defaults to allowing deployment
       - name: Deploy to GitHub Pages
-        if: ${{ !github.event.repository.fork && github.event.repository.visibility == 'public'}}
+        if: ${{ !github.event.repository.fork && (vars.PUBLISH_COMPANION_BOOK == 'true' || vars.PUBLISH_COMPANION_BOOK == '') }}
         uses: actions/deploy-pages@v4  # Official GitHub Pages deployment action
+        continue-on-error: true

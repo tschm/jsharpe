@@ -6,12 +6,16 @@ particularly for nested files within directories.
 
 from __future__ import annotations
 
+import logging
 import subprocess
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def create_test_structure(base_path: Path) -> Path:
     """Create a template directory structure for testing."""
+    logger.debug("Creating test structure under %s", base_path)
     # Create .github directory with workflow files
     github_dir = base_path / ".github"
     github_dir.mkdir(parents=True)
@@ -40,6 +44,7 @@ def create_test_structure(base_path: Path) -> Path:
     tests_dir.mkdir()
     (tests_dir / "test_example.py").write_text("# Test file\n")
 
+    logger.debug("Test structure created under %s", base_path)
     return base_path
 
 
@@ -57,18 +62,18 @@ def test_directory_copy_excludes_nested_files(tmp_path: Path):
     dest = tmp_path / "dest"
     dest.mkdir()
 
-    # Define exclusions list (as it would appear in template.yml)
-
     # Simulate the sync operation from sync.sh lines 225-240
     # This is the buggy behavior - it copies everything recursively
     src_path = source / ".github"
     dest_path = dest / ".github"
     dest_path.mkdir(parents=True)
 
+    logger.info("Copying directory recursively (simulating buggy behavior): %s -> %s", src_path, dest_path)
     # This is what the current script does (copies everything)
     subprocess.run(["cp", "-R", f"{src_path}/.", f"{dest_path}/"], check=True)
 
     # Current behavior (BUG): excluded files should NOT be present but they are
+    logger.debug("Checking presence of files that should have been excluded")
     assert (dest / ".github" / "workflows" / "docker.yml").exists(), (
         "This test shows the bug - docker.yml is copied despite exclusion"
     )
@@ -139,6 +144,7 @@ exclude: |
   ruff.toml
 """)
 
+    logger.info("Running test sync script: %s", test_script)
     # Run the test sync script
     result = subprocess.run(
         ["/bin/sh", str(test_script)],
@@ -147,12 +153,19 @@ exclude: |
         text=True,
     )
 
+    logger.debug("Sync script exited with %d", result.returncode)
+    if result.stdout:
+        logger.debug("Sync script STDOUT (truncated):\n%s", result.stdout[:1000])
+    if result.stderr:
+        logger.debug("Sync script STDERR (truncated):\n%s", result.stderr[:1000])
+
     print("STDOUT:", result.stdout)
     print("STDERR:", result.stderr)
 
     assert result.returncode == 0, f"Sync failed: {result.stderr}"
 
     # Verify excluded files are NOT present (this will fail before fix)
+    logger.debug("Verifying excluded files are not present")
     assert not (target_dir / ".github" / "workflows" / "docker.yml").exists(), (
         "docker.yml should be excluded but was copied"
     )
@@ -162,6 +175,7 @@ exclude: |
     assert not (target_dir / "ruff.toml").exists(), "ruff.toml should be excluded but was copied"
 
     # Verify non-excluded files ARE present
+    logger.debug("Verifying non-excluded files are present")
     assert (target_dir / ".github" / "workflows" / "ci.yml").exists(), "ci.yml should be copied"
     assert (target_dir / ".github" / "workflows" / "release.yml").exists(), "release.yml should be copied"
     assert (target_dir / ".editorconfig").exists()

@@ -28,16 +28,15 @@ def strip_ansi(text: str) -> str:
 
 
 @pytest.fixture(autouse=True)
-def setup_tmp_makefile(tmp_path: Path):
+def setup_tmp_makefile(root, tmp_path: Path):
     """Copy only the Makefile into a temp directory and chdir there.
 
     We rely on `make -n` so that no real commands are executed.
     """
-    project_root = Path(__file__).parent.parent
     logger.debug("Setting up temporary Makefile test dir: %s", tmp_path)
 
     # Copy the Makefile into the temporary working directory
-    shutil.copy(project_root / "Makefile", tmp_path / "Makefile")
+    shutil.copy(root / "Makefile", tmp_path / "Makefile")
 
     # Move into tmp directory for isolation
     old_cwd = Path.cwd()
@@ -167,3 +166,35 @@ class TestMakefile:
         proc = run_make(["print-CUSTOM_SCRIPTS_FOLDER"], dry_run=False)
         out = strip_ansi(proc.stdout)
         assert "Value of CUSTOM_SCRIPTS_FOLDER:\n.github/scripts/customisations" in out
+
+
+class TestMakefileRootFixture:
+    """Tests for root fixture usage in Makefile tests."""
+
+    def test_makefile_exists_at_root(self, root):
+        """Makefile should exist at repository root."""
+        makefile = root / "Makefile"
+        assert makefile.exists()
+        assert makefile.is_file()
+
+    def test_makefile_is_readable(self, root):
+        """Makefile should be readable."""
+        makefile = root / "Makefile"
+        content = makefile.read_text()
+        assert len(content) > 0
+
+    def test_makefile_contains_targets(self, root):
+        """Makefile should contain expected targets."""
+        makefile = root / "Makefile"
+        content = makefile.read_text()
+
+        expected_targets = ["install", "fmt", "test", "deptry", "book", "help"]
+        for target in expected_targets:
+            assert f"{target}:" in content or f".PHONY: {target}" in content
+
+    def test_makefile_has_uv_variables(self, root):
+        """Makefile should define UV-related variables."""
+        makefile = root / "Makefile"
+        content = makefile.read_text()
+
+        assert "UV_BIN" in content or "uv" in content.lower()

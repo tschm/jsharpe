@@ -12,7 +12,7 @@ from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 
 PYPROJECT = Path(__file__).resolve().parents[3] / "pyproject.toml"
-CANDIDATES = ["3.10", "3.11", "3.12", "3.13", "3.14"]  # extend as needed
+CANDIDATES = ["3.11", "3.12", "3.13", "3.14"]  # extend as needed
 
 
 def supported_versions() -> list[str]:
@@ -29,7 +29,8 @@ def supported_versions() -> list[str]:
 
     spec_str = data.get("project", {}).get("requires-python")
     if not spec_str:
-        raise KeyError("Missing 'project.requires-python' in pyproject.toml")
+        msg = "pyproject.toml: missing 'project.requires-python'"
+        raise KeyError(msg)
 
     spec = SpecifierSet(spec_str)
 
@@ -39,10 +40,14 @@ def supported_versions() -> list[str]:
             versions.append(v)
 
     if not versions:
-        raise ValueError(f"No supported versions found in {spec_str}")
+        msg = "pyproject.toml: no supported Python versions match 'project.requires-python'"
+        raise ValueError(msg)
 
     return versions
 
 
 if __name__ == "__main__":
-    print(json.dumps(supported_versions()))
+    if PYPROJECT.exists():
+        print(json.dumps(supported_versions()))
+    else:
+        print(json.dumps(CANDIDATES))

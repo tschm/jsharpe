@@ -189,7 +189,7 @@ is_file_excluded() {
   if [ -z "$EXCLUDE_LIST" ]; then
     return 1  # Not excluded (false)
   fi
-
+  
   while IFS= read -r exclude_item || [ -n "$exclude_item" ]; do
     [ -z "$exclude_item" ] && continue
     if [ "$file_path" = "$exclude_item" ]; then
@@ -198,7 +198,7 @@ is_file_excluded() {
   done <<EOF_EXCLUDE_CHECK
 $EXCLUDE_LIST
 EOF_EXCLUDE_CHECK
-
+  
   return 1  # Not excluded (false)
 }
 
@@ -279,3 +279,6 @@ printf "  Synced: %d files/directories\n" "$synced_count"
 if [ "$skipped_count" -gt 0 ]; then
   printf "  Skipped: %d files/directories\n" "$skipped_count"
 fi
+
+printf "\n%b[INFO] Review the changes with: git status%b\n" "$BLUE" "$RESET"
+printf "%b[INFO] Commit the changes with: git add . && git commit -m 'chore: sync template files'%b\n" "$BLUE" "$RESET"

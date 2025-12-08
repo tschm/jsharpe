@@ -43,7 +43,6 @@ class TestRootFixture:
             "README.md",
             "Makefile",
             "ruff.toml",
-            "pytest.ini",
             ".gitignore",
             ".editorconfig",
         ]

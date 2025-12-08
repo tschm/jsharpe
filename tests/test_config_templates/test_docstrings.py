@@ -8,16 +8,13 @@ from __future__ import annotations
 
 import doctest
 import importlib
-import logging
 import warnings
 from pathlib import Path
 
 import pytest
 
-logger = logging.getLogger(__name__)
 
-
-def _iter_modules_from_path(package_path: Path):
+def _iter_modules_from_path(logger, package_path: Path):
     """Recursively find all Python modules in a directory."""
     for path in package_path.rglob("*.py"):
         if path.name == "__init__.py":
@@ -36,7 +33,7 @@ def _iter_modules_from_path(package_path: Path):
             continue
 
 
-def test_doctests(root, monkeypatch: pytest.MonkeyPatch):
+def test_doctests(logger, root, monkeypatch: pytest.MonkeyPatch):
     """Run doctests for each package directory under src/."""
     src_path = root / "src"
 
@@ -60,7 +57,7 @@ def test_doctests(root, monkeypatch: pytest.MonkeyPatch):
             package_name = package_dir.name
             logger.info("Discovered package: %s", package_name)
             try:
-                modules = list(_iter_modules_from_path(package_dir))
+                modules = list(_iter_modules_from_path(logger, package_dir))
                 logger.debug("%d module(s) found in package %s", len(modules), package_name)
 
                 for module in modules:

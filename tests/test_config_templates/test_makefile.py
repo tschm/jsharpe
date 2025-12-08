@@ -9,7 +9,6 @@ changes.
 
 from __future__ import annotations
 
-import logging
 import os
 import re
 import shutil
@@ -17,8 +16,6 @@ import subprocess
 from pathlib import Path
 
 import pytest
-
-logger = logging.getLogger(__name__)
 
 
 def strip_ansi(text: str) -> str:
@@ -28,7 +25,7 @@ def strip_ansi(text: str) -> str:
 
 
 @pytest.fixture(autouse=True)
-def setup_tmp_makefile(root, tmp_path: Path):
+def setup_tmp_makefile(logger, root, tmp_path: Path):
     """Copy only the Makefile into a temp directory and chdir there.
 
     We rely on `make -n` so that no real commands are executed.
@@ -49,10 +46,13 @@ def setup_tmp_makefile(root, tmp_path: Path):
         logger.debug("Restored working directory to %s", old_cwd)
 
 
-def run_make(args: list[str] | None = None, check: bool = True, dry_run: bool = True) -> subprocess.CompletedProcess:
+def run_make(
+    logger, args: list[str] | None = None, check: bool = True, dry_run: bool = True
+) -> subprocess.CompletedProcess:
     """Run `make` with optional arguments and return the completed process.
 
     Args:
+        logger: Logger used to emit diagnostic messages during the run
         args: Additional arguments for make
         check: If True, raise on non-zero return code
         dry_run: If True, use -n to avoid executing commands
@@ -79,9 +79,9 @@ def run_make(args: list[str] | None = None, check: bool = True, dry_run: bool = 
 class TestMakefile:
     """Smoke tests for Makefile help and common targets using make -n."""
 
-    def test_default_goal_is_help(self):
+    def test_default_goal_is_help(self, logger):
         """Default goal should render the help index with known targets."""
-        proc = run_make()
+        proc = run_make(logger)
         out = proc.stdout
         assert "Usage:" in out
         assert "Targets:" in out
@@ -89,81 +89,81 @@ class TestMakefile:
         for target in ["install", "fmt", "deptry", "test", "book", "help"]:
             assert target in out
 
-    def test_help_target(self):
+    def test_help_target(self, logger):
         """Explicit `make help` prints usage, targets, and section headers."""
-        proc = run_make(["help"])
+        proc = run_make(logger, ["help"])
         out = proc.stdout
         assert "Usage:" in out
         assert "Targets:" in out
         assert "Bootstrap" in out or "Meta" in out  # section headers
 
-    def test_fmt_target_dry_run(self):
+    def test_fmt_target_dry_run(self, logger):
         """Fmt target should invoke pre-commit via uvx in dry-run output."""
-        proc = run_make(["fmt"])
+        proc = run_make(logger, ["fmt"])
         out = proc.stdout
         assert "./bin/uvx pre-commit run --all-files" in out
 
-    def test_deptry_target_dry_run(self):
+    def test_deptry_target_dry_run(self, logger):
         """Deptry target should invoke deptry via uvx in dry-run output."""
-        proc = run_make(["deptry"])
+        proc = run_make(logger, ["deptry"])
         out = proc.stdout
         assert './bin/uvx deptry "src"' in out
 
-    def test_test_target_dry_run(self):
+    def test_test_target_dry_run(self, logger):
         """Test target should invoke pytest via uv with coverage and HTML outputs in dry-run output."""
-        proc = run_make(["test"])
+        proc = run_make(logger, ["test"])
         out = proc.stdout
         # Expect key steps
         assert "mkdir -p _tests/html-coverage _tests/html-report" in out
         assert "./bin/uv run pytest" in out
 
-    def test_book_target_dry_run(self):
+    def test_book_target_dry_run(self, logger):
         """Book target should run inline commands to assemble the book without go-task."""
-        proc = run_make(["book"])
+        proc = run_make(logger, ["book"])
         out = proc.stdout
         # Expect marimushka export to install marimo and minibook to be invoked
         assert "./bin/uvx minibook" in out
 
-    def test_all_target_dry_run(self):
+    def test_all_target_dry_run(self, logger):
         """All target echoes a composite message in dry-run output."""
-        proc = run_make(["all"])
+        proc = run_make(logger, ["all"])
         out = proc.stdout
         # The composite target should echo a message
         assert "Run fmt, deptry, test and book" in out
 
-    def test_uv_no_modify_path_is_exported(self):
+    def test_uv_no_modify_path_is_exported(self, logger):
         """`UV_NO_MODIFY_PATH` should be set to `1` in the Makefile."""
-        proc = run_make(["print-UV_NO_MODIFY_PATH"], dry_run=False)
+        proc = run_make(logger, ["print-UV_NO_MODIFY_PATH"], dry_run=False)
         out = strip_ansi(proc.stdout)
         assert "Value of UV_NO_MODIFY_PATH:\n1" in out
 
-    def test_uv_install_dir_is_bin(self):
+    def test_uv_install_dir_is_bin(self, logger):
         """`UV_INSTALL_DIR` should point to `./bin`."""
-        proc = run_make(["print-UV_INSTALL_DIR"], dry_run=False)
+        proc = run_make(logger, ["print-UV_INSTALL_DIR"], dry_run=False)
         out = strip_ansi(proc.stdout)
         assert "Value of UV_INSTALL_DIR:\n./bin" in out
 
-    def test_uv_bin_is_bin_uv(self):
+    def test_uv_bin_is_bin_uv(self, logger):
         """`UV_BIN` should point to `./bin/uv`."""
-        proc = run_make(["print-UV_BIN"], dry_run=False)
+        proc = run_make(logger, ["print-UV_BIN"], dry_run=False)
         out = strip_ansi(proc.stdout)
         assert "Value of UV_BIN:\n./bin/uv" in out
 
-    def test_uvx_bin_is_bin_uvx(self):
+    def test_uvx_bin_is_bin_uvx(self, logger):
         """`UVX_BIN` should point to `./bin/uvx`."""
-        proc = run_make(["print-UVX_BIN"], dry_run=False)
+        proc = run_make(logger, ["print-UVX_BIN"], dry_run=False)
         out = strip_ansi(proc.stdout)
         assert "Value of UVX_BIN:\n./bin/uvx" in out
 
-    def test_script_folder_is_github_scripts(self):
+    def test_script_folder_is_github_scripts(self, logger):
         """`SCRIPTS_FOLDER` should point to `.github/scripts`."""
-        proc = run_make(["print-SCRIPTS_FOLDER"], dry_run=False)
+        proc = run_make(logger, ["print-SCRIPTS_FOLDER"], dry_run=False)
         out = strip_ansi(proc.stdout)
         assert "Value of SCRIPTS_FOLDER:\n.github/scripts" in out
 
-    def test_custom_scripts_folder_is_set(self):
+    def test_custom_scripts_folder_is_set(self, logger):
         """`CUSTOM_SCRIPTS_FOLDER` should point to `.github/scripts/customisations`."""
-        proc = run_make(["print-CUSTOM_SCRIPTS_FOLDER"], dry_run=False)
+        proc = run_make(logger, ["print-CUSTOM_SCRIPTS_FOLDER"], dry_run=False)
         out = strip_ansi(proc.stdout)
         assert "Value of CUSTOM_SCRIPTS_FOLDER:\n.github/scripts/customisations" in out
 

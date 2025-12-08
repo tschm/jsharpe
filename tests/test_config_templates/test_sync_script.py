@@ -6,14 +6,11 @@ particularly for nested files within directories.
 
 from __future__ import annotations
 
-import logging
 import subprocess
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
 
-
-def create_test_structure(base_path: Path) -> Path:
+def create_test_structure(logger, base_path: Path) -> Path:
     """Create a template directory structure for testing."""
     logger.debug("Creating test structure under %s", base_path)
     # Create .github directory with workflow files
@@ -48,7 +45,7 @@ def create_test_structure(base_path: Path) -> Path:
     return base_path
 
 
-def test_directory_copy_excludes_nested_files(tmp_path: Path):
+def test_directory_copy_excludes_nested_files(logger, tmp_path: Path):
     """Test the core logic of directory copy with file exclusions.
 
     This test simulates what the sync script does when copying directories
@@ -56,7 +53,7 @@ def test_directory_copy_excludes_nested_files(tmp_path: Path):
     """
     # Create source directory with files
     source = tmp_path / "source"
-    create_test_structure(source)
+    create_test_structure(logger, source)
 
     # Create destination directory
     dest = tmp_path / "dest"
@@ -86,14 +83,14 @@ def test_directory_copy_excludes_nested_files(tmp_path: Path):
     assert (dest / ".github" / "workflows" / "release.yml").exists()
 
 
-def test_sync_script_with_exclusions_integration(root, tmp_path: Path):
+def test_sync_script_with_exclusions_integration(logger, root, tmp_path: Path):
     """Integration test that verifies sync.sh properly excludes nested files.
 
     This test will fail with the current implementation and pass after the fix.
     """
     # Create template directory
     template_dir = tmp_path / "template_for_test"
-    create_test_structure(template_dir)
+    create_test_structure(logger, template_dir)
 
     # Create target directory with sync script
     target_dir = tmp_path / "target"

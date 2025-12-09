@@ -64,7 +64,7 @@ This project uses standardized configuration files from [tschm/.config-templates
 
 The following files are automatically synchronized from the template repository:
 
-- **Development Tools**: [.editorconfig](.editorconfig), [.pre-commit-config.yaml](.pre-commit-config.yaml], [Makefile](Makefile), [ruff.toml](ruff.toml), [pytest.ini](pytest.ini)
+- **Development Tools**: [.editorconfig](.editorconfig), [.pre-commit-config.yaml](.pre-commit-config.yaml), [Makefile](Makefile), [ruff.toml](ruff.toml), [pytest.ini](pytest.ini)
 - **GitHub Workflows**: CI/CD pipelines in [.github/workflows](.github/workflows)
 - **Documentation**: `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `LICENSE`
 - **Configuration**: `.gitignore` and other project setup files

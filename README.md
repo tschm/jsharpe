@@ -66,12 +66,12 @@ The following files are automatically synchronized from the template repository:
 
 - **Development Tools**: [.editorconfig](.editorconfig), [.pre-commit-config.yaml](.pre-commit-config.yaml), [Makefile](Makefile), [ruff.toml](ruff.toml), [pytest.ini](pytest.ini)
 - **GitHub Workflows**: CI/CD pipelines in [.github/workflows](.github/workflows)
-- **Documentation**: `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `LICENSE`
-- **Configuration**: `.gitignore` and other project setup files
+- **Documentation**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [LICENSE](LICENSE.md)
+- **Configuration**: [.gitignore](.gitignore) and other project setup files
 
 ### Template Synchronization
 
-The `.github/template.yml` file controls which files are synchronized from the template repository. To sync with the latest template updates:
+The [.github/template.yml](.github/template.yml) file controls which files are synchronized from the template repository. To sync with the latest template updates:
 
 ```bash
 make sync
@@ -82,10 +82,10 @@ This ensures the project benefits from improvements to the shared configuration 
 ### Customization
 
 While most boilerplate files come from the template, the following are project-specific:
-- `README.md` (this file)
-- `pyproject.toml` (project dependencies and metadata)
-- `ruff.toml` (extended but based on template)
-- Source code in `src/`
+- [README.md](README.md) (this file)
+- [pyproject.toml](pyproject.toml) (project dependencies and metadata)
+- [ruff.toml](ruff.toml) (extended but based on template)
+- Source code in [src/](src/)
 - Project-specific tests (e.g., `tests/test_sharpe.py`)
 
 Note: The `tests/test_config_templates/` directory contains template-provided tests for validating the boilerplate configuration itself.

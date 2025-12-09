@@ -88,6 +88,6 @@ While most boilerplate files come from the template, the following are project-s
 - Source code in [src/](src/)
 - Project-specific tests (e.g., `tests/test_sharpe.py`)
 
-Note: The `tests/test_config_templates/` directory contains template-provided tests for validating the boilerplate configuration itself.
+Note: The [tests/test_config_templates](tests/test_config_templates) directory contains template-provided tests for validating the boilerplate configuration itself.
 
 

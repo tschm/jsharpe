@@ -41,31 +41,31 @@ make fmt
 
 Installs hooks to maintain code quality and formatting.
 
-        ## 🛠️ Development Commands
+## 🛠️ Development Commands
+
+```bash                
+make tests   # Run test suite
+make marimo  # Start Marimo notebooks
+```
+
+## 👥 Contributing
+
+- 🍴 Fork the repository
+- 🌿 Create your feature branch (git checkout -b feature/amazing-feature)
+- 💾 Commit your changes (git commit -m 'Add some amazing feature')
+- 🚢 Push to the branch (git push origin feature/amazing-feature)
+- 🔍 Open a Pull Request
         
-        ```bash
-        make tests   # Run test suite
-        make marimo  # Start Marimo notebooks
-        ```
+## 🏗️ Project Structure & Configuration Templates
         
-        ## 👥 Contributing
-        
-        - 🍴 Fork the repository
-        - 🌿 Create your feature branch (git checkout -b feature/amazing-feature)
-        - 💾 Commit your changes (git commit -m 'Add some amazing feature')
-        - 🚢 Push to the branch (git push origin feature/amazing-feature)
-        - 🔍 Open a Pull Request
-        
-        ## 🏗️ Project Structure & Configuration Templates
-        
-        This project uses standardized configuration files from [tschm/.config-templates](https://github.com/tschm/.config-templates), which provides a consistent development environment across multiple projects.
+This project uses standardized configuration files from [tschm/.config-templates](https://github.com/tschm/.config-templates), which provides a consistent development environment across multiple projects.
 
 ### Synchronized Files
 
 The following files are automatically synchronized from the template repository:
 
-- **Development Tools**: [`.editorconfig`](.editorconfig), `.pre-commit-config.yaml`, `Makefile`, `ruff.toml`, `pytest.ini`
-- **GitHub Workflows**: CI/CD pipelines in `.github/workflows/`
+- **Development Tools**: [.editorconfig](.editorconfig), [.pre-commit-config.yaml](.pre-commit-config.yaml], [Makefile](Makefile), [ruff.toml](ruff.toml), [pytest.ini](pytest.ini)
+- **GitHub Workflows**: CI/CD pipelines in [.github/workflows](.github/workflows)
 - **Documentation**: `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `LICENSE`
 - **Configuration**: `.gitignore` and other project setup files
 

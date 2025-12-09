@@ -1,7 +1,6 @@
 template-repository: "tschm/.config-templates"
 template-branch: "main"
 include: |
-    .devcontainer
     .github
     tests
     .editorconfig
@@ -14,4 +13,5 @@ include: |
     LICENSE
 exclude: |
     .github/workflows/docker.yml
+    .github/workflows/devcontainer.yml
     ruff.toml

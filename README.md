@@ -75,7 +75,10 @@ While most boilerplate files come from the template, the following are project-s
 - `README.md` (this file)
 - `pyproject.toml` (project dependencies and metadata)
 - `ruff.toml` (extended but based on template)
-- Source code in `src/` and tests in `tests/`
+- Source code in `src/`
+- Project-specific tests (e.g., `tests/test_sharpe.py`)
+
+Note: The `tests/test_config_templates/` directory contains template-provided tests for validating the boilerplate configuration itself.
 
 ## 📚 Usage
 

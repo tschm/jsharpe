@@ -16,70 +16,6 @@ make install
 This installs/updates [uv](https://github.com/astral-sh/uv),
 creates your virtual environment and installs dependencies.
 
-For adding or removing packages:
-
-```bash
-uv add/remove requests  # for main dependencies
-uv add/remove requests --dev  # for dev dependencies
-```
-
-### **✅ Configure Pre-commit Hooks**
-
-```bash
-make fmt
-```
-
-Installs hooks to maintain code quality and formatting.
-
-## 🛠️ Development Commands
-
-```bash
-make tests   # Run test suite
-make marimo  # Start Marimo notebooks
-```
-
-## 👥 Contributing
-
-- 🍴 Fork the repository
-- 🌿 Create your feature branch (git checkout -b feature/amazing-feature)
-- 💾 Commit your changes (git commit -m 'Add some amazing feature')
-- 🚢 Push to the branch (git push origin feature/amazing-feature)
-- 🔍 Open a Pull Request
-
-## 🏗️ Project Structure & Configuration Templates
-
-This project uses standardized configuration files from [tschm/.config-templates](https://github.com/tschm/.config-templates), which provides a consistent development environment across multiple projects.
-
-### Synchronized Files
-
-The following files are automatically synchronized from the template repository:
-
-- **Development Tools**: `.editorconfig`, `.pre-commit-config.yaml`, `Makefile`, `ruff.toml`, `pytest.ini`
-- **GitHub Workflows**: CI/CD pipelines in `.github/workflows/`
-- **Documentation**: `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `LICENSE`
-- **Configuration**: `.gitignore` and other project setup files
-
-### Template Synchronization
-
-The `.github/template.yml` file controls which files are synchronized from the template repository. To sync with the latest template updates:
-
-```bash
-make sync
-```
-
-This ensures the project benefits from improvements to the shared configuration without manual updates.
-
-### Customization
-
-While most boilerplate files come from the template, the following are project-specific:
-- `README.md` (this file)
-- `pyproject.toml` (project dependencies and metadata)
-- `ruff.toml` (extended but based on template)
-- Source code in `src/`
-- Project-specific tests (e.g., `tests/test_sharpe.py`)
-
-Note: The `tests/test_config_templates/` directory contains template-provided tests for validating the boilerplate configuration itself.
-
 ## 📚 Usage
 
 Run this minimal, deterministic example to compute the
@@ -96,3 +32,62 @@ print(f"{psr:.3f}")
 ```result
 0.987
 ```
+
+### **✅ Configure Pre-commit Hooks**
+
+```bash
+make fmt
+```
+
+Installs hooks to maintain code quality and formatting.
+
+## 🛠️ Development Commands
+
+```bash                
+make tests   # Run test suite
+make marimo  # Start Marimo notebooks
+```
+
+## 👥 Contributing
+
+- 🍴 Fork the repository
+- 🌿 Create your feature branch (git checkout -b feature/amazing-feature)
+- 💾 Commit your changes (git commit -m 'Add some amazing feature')
+- 🚢 Push to the branch (git push origin feature/amazing-feature)
+- 🔍 Open a Pull Request
+        
+## 🏗️ Project Structure & Configuration Templates
+        
+This project uses standardized configuration files from [tschm/.config-templates](https://github.com/tschm/.config-templates), which provides a consistent development environment across multiple projects.
+
+### Synchronized Files
+
+The following files are automatically synchronized from the template repository:
+
+- **Development Tools**: [.editorconfig](.editorconfig), [.pre-commit-config.yaml](.pre-commit-config.yaml), [Makefile](Makefile), [ruff.toml](ruff.toml), [pytest.ini](pytest.ini)
+- **GitHub Workflows**: CI/CD pipelines in [.github/workflows](.github/workflows)
+- **Documentation**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [LICENSE](LICENSE.md)
+- **Configuration**: [.gitignore](.gitignore) and other project setup files
+
+### Template Synchronization
+
+The [.github/template.yml](.github/template.yml) file controls which files are synchronized from the template repository. To sync with the latest template updates:
+
+```bash
+make sync
+```
+
+This ensures the project benefits from improvements to the shared configuration without manual updates.
+
+### Customization
+
+While most boilerplate files come from the template, the following are project-specific:
+- [README.md](README.md) (this file)
+- [pyproject.toml](pyproject.toml) (project dependencies and metadata)
+- [ruff.toml](ruff.toml) (extended but based on template)
+- Source code in [src/](src/)
+- Project-specific tests (e.g., `tests/test_sharpe.py`)
+
+Note: The [tests/test_config_templates](tests/test_config_templates) directory contains template-provided tests for validating the boilerplate configuration itself.
+
+

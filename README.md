@@ -16,11 +16,21 @@ make install
 This installs/updates [uv](https://github.com/astral-sh/uv),
 creates your virtual environment and installs dependencies.
 
-For adding or removing packages:
+## 📚 Usage
 
-```bash
-uv add/remove requests  # for main dependencies
-uv add/remove requests --dev  # for dev dependencies
+Run this minimal, deterministic example to compute the
+Probabilistic Sharpe Ratio (PSR) from the package functions.
+
+```python
+from jsharpe import probabilistic_sharpe_ratio
+
+sr = 0.036 / 0.079
+psr = probabilistic_sharpe_ratio(SR=sr, SR0=0, T=24, gamma3=-2.448, gamma4=10.164)
+print(f"{psr:.3f}")
+```
+
+```result
+0.987
 ```
 
 ### **✅ Configure Pre-commit Hooks**
@@ -54,7 +64,7 @@ This project uses standardized configuration files from [tschm/.config-templates
 
 The following files are automatically synchronized from the template repository:
 
-- **Development Tools**: `.editorconfig`, `.pre-commit-config.yaml`, `Makefile`, `ruff.toml`, `pytest.ini`
+- **Development Tools**: [.editorconfig](`.editorconfig`), `.pre-commit-config.yaml`, `Makefile`, `ruff.toml`, `pytest.ini`
 - **GitHub Workflows**: CI/CD pipelines in `.github/workflows/`
 - **Documentation**: `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `LICENSE`
 - **Configuration**: `.gitignore` and other project setup files
@@ -80,19 +90,4 @@ While most boilerplate files come from the template, the following are project-s
 
 Note: The `tests/test_config_templates/` directory contains template-provided tests for validating the boilerplate configuration itself.
 
-## 📚 Usage
 
-Run this minimal, deterministic example to compute the
-Probabilistic Sharpe Ratio (PSR) from the package functions.
-
-```python
-from jsharpe import probabilistic_sharpe_ratio
-
-sr = 0.036 / 0.079
-psr = probabilistic_sharpe_ratio(SR=sr, SR0=0, T=24, gamma3=-2.448, gamma4=10.164)
-print(f"{psr:.3f}")
-```
-
-```result
-0.987
-```

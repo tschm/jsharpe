@@ -46,6 +46,37 @@ make marimo  # Start Marimo notebooks
 - 🚢 Push to the branch (git push origin feature/amazing-feature)
 - 🔍 Open a Pull Request
 
+## 🏗️ Project Structure & Configuration Templates
+
+This project uses standardized configuration files from [tschm/.config-templates](https://github.com/tschm/.config-templates), which provides a consistent development environment across multiple projects.
+
+### Synchronized Files
+
+The following files are automatically synchronized from the template repository:
+
+- **Development Tools**: `.editorconfig`, `.pre-commit-config.yaml`, `Makefile`, `ruff.toml`, `pytest.ini`
+- **GitHub Workflows**: CI/CD pipelines in `.github/workflows/`
+- **Documentation**: `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `LICENSE`
+- **Configuration**: `.gitignore` and other project setup files
+
+### Template Synchronization
+
+The `.github/template.yml` file controls which files are synchronized from the template repository. To sync with the latest template updates:
+
+```bash
+make sync
+```
+
+This ensures the project benefits from improvements to the shared configuration without manual updates.
+
+### Customization
+
+While most boilerplate files come from the template, the following are project-specific:
+- `README.md` (this file)
+- `pyproject.toml` (project dependencies and metadata)
+- `ruff.toml` (extended but based on template)
+- Source code in `src/` and tests in `tests/`
+
 ## 📚 Usage
 
 Run this minimal, deterministic example to compute the

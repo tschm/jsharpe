@@ -7,8 +7,7 @@ react live. Ideal as a minimal template for financial analytics apps.
 
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["marimo==0.18.4"]
-# install-command = "uv pip install -e ."
+# dependencies = ["marimo==0.18.4", "jsharpe"]
 # ///
 
 import marimo

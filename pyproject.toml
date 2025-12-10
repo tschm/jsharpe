@@ -47,10 +47,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-include = ["LICENSE", "README.md", "src/jsharpe"]
+include = ["LICENSE", "README.md"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/jsharpe"]
+package-dir = "src"
 
 [tool.deptry]
 pep621_dev_dependency_groups = ["dev"]

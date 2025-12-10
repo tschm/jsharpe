@@ -30,16 +30,15 @@ with app.setup:
             # Add src directory to path
             src_path = parent / "src"
             if src_path.exists() and str(src_path) not in sys.path:
-                #sys.path.insert(0, str(src_path))
+                # sys.path.insert(0, str(src_path))
                 subprocess.check_call(
                     {"bash", "-c", f"uv pip install -e {src_path}"},
                 )
 
-                #print(f"Added {src_path}/src to sys.path.")
+                # print(f"Added {src_path}/src to sys.path.")
                 print(f"Installed jsharpe from {src_path}/src.")
 
             break
-
 
     # Now import jsharpe
     from jsharpe import probabilistic_sharpe_ratio

@@ -4,6 +4,7 @@ A compact, lint-clean app demonstrating PSR computation using jsharpe.
 Adjust SR, SR0, T, skew, kurtosis, autocorrelation, and trials. Results
 react live. Ideal as a minimal template for financial analytics apps.
 """
+
 import marimo
 
 __generated_with = "0.18.3"

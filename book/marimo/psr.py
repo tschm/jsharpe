@@ -7,7 +7,7 @@ react live. Ideal as a minimal template for financial analytics apps.
 
 import marimo
 
-__generated_with = "0.18.3"
+__generated_with = "0.18.4"
 app = marimo.App()
 
 with app.setup:
@@ -17,13 +17,17 @@ with app.setup:
 
     import marimo as mo
 
-    project_root = Path(__file__).parent.parent.parent
+    project_root = Path(__file__).resolve().parents[2]
     print(f"Project root: {project_root}")
 
-    mo.md("Installing dependencies via `make install`...")
-    result = subprocess.run(["make", "install"], cwd=project_root)
+    # Install jsharpe and all its dependencies
+    subprocess.run(
+        ["uv", "pip", "install", "-e", project_root],
+        check=True,
+        cwd=project_root
+    )
 
-    from jsharpe import probabilistic_sharpe_ratio
+    import jsharpe
 
 
 @app.function
@@ -86,22 +90,24 @@ def _inputs():
     return K, T, gamma3, gamma4, rho, sr, sr0
 
 
-@app.function
-def psr_value(sr, sr0, T, gamma3, gamma4, rho, K):
-    """Compute PSR from widget values and return the numeric result."""
-    return probabilistic_sharpe_ratio(
-        SR=float(sr.value),
-        SR0=float(sr0.value),
-        T=int(T.value),
-        gamma3=float(gamma3.value),
-        gamma4=float(gamma4.value),
-        rho=float(rho.value),
-        K=int(K.value),
-    )
+@app.cell
+def _(probabilistic_sharpe_ratio):
+    def psr_value(sr, sr0, T, gamma3, gamma4, rho, K):
+        """Compute PSR from widget values and return the numeric result."""
+        return probabilistic_sharpe_ratio(
+            SR=float(sr.value),
+            SR0=float(sr0.value),
+            T=int(T.value),
+            gamma3=float(gamma3.value),
+            gamma4=float(gamma4.value),
+            rho=float(rho.value),
+            K=int(K.value),
+        )
+    return (psr_value,)
 
 
 @app.cell
-def display(K, T, gamma3, gamma4, rho, sr, sr0):
+def display(K, T, fmt, gamma3, gamma4, psr_value, rho, sr, sr0):
     """Render the PSR result markdown.
 
     Args:

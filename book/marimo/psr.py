@@ -7,14 +7,30 @@ react live. Ideal as a minimal template for financial analytics apps.
 
 import marimo
 
-__generated_with = "0.18.2"
+__generated_with = "0.18.3"
 app = marimo.App()
 
 with app.setup:
     import math
+    import sys
+    from pathlib import Path
 
     import marimo as mo
 
+    # Find project root
+    current_file = Path(__file__).resolve()
+    current_dir = current_file.parent
+
+    # Find project root (where pyproject.toml exists)
+    for parent in [current_dir] + list(current_dir.parents):
+        if (parent / "pyproject.toml").exists():
+            # Add src directory to path
+            src_path = parent / "src"
+            if src_path.exists() and str(src_path) not in sys.path:
+                sys.path.insert(0, str(src_path))
+            break
+
+    # Now import jsharpe
     from jsharpe import probabilistic_sharpe_ratio
 
 

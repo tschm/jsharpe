@@ -25,7 +25,7 @@ mkdir -p "$MARIMUSHKA_OUTPUT"
 
 # Discover .py files (top-level only) using globbing; handle no-match case
 set -- "$MARIMO_FOLDER"/*.py
-if [ "$1" = "$MARIMO_FOLDER/*.py" ]; then
+if [ "$1" = "$MARIMO_FOLDER/**/*.py" ]; then
   printf "%b[WARN] No Python files found in '%s'.%b\n" "$YELLOW" "$MARIMO_FOLDER" "$RESET"
   # Create a minimal index.html indicating no notebooks
   printf '<html><head><title>Marimo Notebooks</title></head><body><h1>Marimo Notebooks</h1><p>No notebooks found.</p></body></html>' > "$MARIMUSHKA_OUTPUT/index.html"
@@ -44,10 +44,10 @@ case "$UVX_BIN" in
 esac
 
 # Change to the notebook directory to ensure relative paths in notebooks work correctly
-cd "$MARIMO_FOLDER"
+# cd "$MARIMO_FOLDER"
 
-# Run marimushka export
-"$UVX_BIN" marimushka export --notebooks "." --output "$OUTPUT_DIR" --sandbox False
+# Run marimushka export without sandbox to avoid uv isolated resolution issues
+"$UVX_BIN" marimushka export --no-sandbox --notebooks "$MARIMO_FOLDER" --output "$OUTPUT_DIR"
 
 # Ensure GitHub Pages does not process with Jekyll
 : > "$OUTPUT_DIR/.nojekyll"

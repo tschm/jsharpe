@@ -4,6 +4,7 @@ A compact, lint-clean app demonstrating PSR computation using jsharpe.
 Adjust SR, SR0, T, skew, kurtosis, autocorrelation, and trials. Results
 react live. Ideal as a minimal template for financial analytics apps.
 """
+
 import marimo
 
 __generated_with = "0.18.4"
@@ -21,9 +22,13 @@ with app.setup:
     project_root = Path(__file__).resolve().parents[2]
     print(f"Project root: {project_root}")
 
-    try:
-        import jsharpe
-    except ModuleNotFoundError:
+    result = importlib.util.find_spec("jsharpe")
+    print(result)
+
+    #try:
+    #    import jsharpe
+    #except ModuleNotFoundError:
+    if not result:
         # Run uv install and wait until fully finished
         subprocess.run([sys.executable, "-m", "uv", "pip", "install", "-e", str(project_root)], check=True)
 
@@ -34,7 +39,7 @@ with app.setup:
         # import jsharpe
 
     # Install jsharpe and all its dependencies
-    #subprocess.run(["uv", "pip", "install", "-e", project_root], check=True, cwd=project_root)
+    # subprocess.run(["uv", "pip", "install", "-e", project_root], check=True, cwd=project_root)
 
     from jsharpe import probabilistic_sharpe_ratio
 

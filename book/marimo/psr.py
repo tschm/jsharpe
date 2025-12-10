@@ -23,6 +23,7 @@ with app.setup:
     # Install jsharpe and all its dependencies
     subprocess.run(["uv", "pip", "install", "-e", project_root], check=True, cwd=project_root)
 
+    from jsharpe import probabilistic_sharpe_ratio
 
 @app.function
 def fmt(x, precision: int = 3) -> str:
@@ -84,34 +85,28 @@ def _inputs():
     return K, T, gamma3, gamma4, rho, sr, sr0
 
 
-@app.cell
-def _(probabilistic_sharpe_ratio):
-    def psr_value(sr, sr0, T, gamma3, gamma4, rho, K):
-        """Compute PSR from widget values and return the numeric result."""
-        return probabilistic_sharpe_ratio(
-            SR=float(sr.value),
-            SR0=float(sr0.value),
-            T=int(T.value),
-            gamma3=float(gamma3.value),
-            gamma4=float(gamma4.value),
-            rho=float(rho.value),
-            K=int(K.value),
-        )
-
-    return (psr_value,)
-
+@app.function
+def psr_value(sr, sr0, T, gamma3, gamma4, rho, K):
+    """Compute PSR from widget values and return the numeric result."""
+    return probabilistic_sharpe_ratio(
+        SR=float(sr.value),
+        SR0=float(sr0.value),
+        T=int(T.value),
+        gamma3=float(gamma3.value),
+        gamma4=float(gamma4.value),
+        rho=float(rho.value),
+        K=int(K.value),
+    )
 
 @app.cell
-def display(K, T, fmt, gamma3, gamma4, psr_value, rho, sr, sr0):
+def display(K, T, gamma3, gamma4, rho, sr, sr0):
     """Render the PSR result markdown.
 
     Args:
         K: Trials slider widget controlling multiple-testing adjustment.
         T: Observations slider widget.
-        fmt: Helper function to format numeric values for display.
         gamma3: Skewness (third standardized moment) widget.
         gamma4: Kurtosis (fourth standardized moment) widget.
-        psr_value: Callable that computes the PSR from the provided widgets.
         rho: Autocorrelation widget.
         sr: Observed Sharpe ratio widget.
         sr0: Benchmark Sharpe ratio widget.

@@ -14,7 +14,6 @@ with app.setup:
     import importlib
     import math
     import subprocess
-    import sys
     from pathlib import Path
 
     import marimo as mo
@@ -25,23 +24,12 @@ with app.setup:
     result = importlib.util.find_spec("jsharpe")
     print(result)
 
-    # try:
-    #    import jsharpe
-    # except ModuleNotFoundError:
     if not result:
         # Run uv install and wait until fully finished
-        subprocess.run([sys.executable, "-m", "uv", "pip", "install", "-e", str(project_root)], check=True)
+        subprocess.run(["uv", "pip", "install", "-e", str(project_root)], check=True)
 
         # Invalidate import caches to make newly installed package visible
         importlib.invalidate_caches()
-
-        # Retry import
-        # import jsharpe
-
-    # Install jsharpe and all its dependencies
-    # subprocess.run(["uv", "pip", "install", "-e", project_root], check=True, cwd=project_root)
-
-    from jsharpe import probabilistic_sharpe_ratio
 
 
 @app.function
@@ -104,20 +92,6 @@ def _inputs():
     return K, T, gamma3, gamma4, rho, sr, sr0
 
 
-@app.function
-def psr_value(sr, sr0, T, gamma3, gamma4, rho, K):
-    """Compute PSR from widget values and return the numeric result."""
-    return probabilistic_sharpe_ratio(
-        SR=float(sr.value),
-        SR0=float(sr0.value),
-        T=int(T.value),
-        gamma3=float(gamma3.value),
-        gamma4=float(gamma4.value),
-        rho=float(rho.value),
-        K=int(K.value),
-    )
-
-
 @app.cell
 def display(K, T, gamma3, gamma4, rho, sr, sr0):
     """Render the PSR result markdown.
@@ -131,9 +105,18 @@ def display(K, T, gamma3, gamma4, rho, sr, sr0):
         sr: Observed Sharpe ratio widget.
         sr0: Benchmark Sharpe ratio widget.
     """
+    from jsharpe import probabilistic_sharpe_ratio
+
     mo.md(f"""
     ### Result
-    **PSR = {fmt(psr_value(sr, sr0, T, gamma3, gamma4, rho, K), 4)}**
+    **PSR = {
+        fmt(
+            probabilistic_sharpe_ratio(
+                sr.value, sr0.value, T=T.value, gamma3=gamma3.value, gamma4=gamma4.value, rho=rho.value, K=K.value
+            ),
+            4,
+        )
+    }**
     SR = {fmt(sr.value)} vs SR0 = {fmt(sr0.value)}
     T={T.value}, γ₃={fmt(gamma3.value)}, γ₄={fmt(gamma4.value)}, ρ={fmt(rho.value)}, K={K.value}
     """)

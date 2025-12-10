@@ -115,6 +115,7 @@ jobs:
         uses: ./.github/actions/setup-project
         with:
           python-version: ${{ vars.PYTHON_DEFAULT_VERSION || '3.14' }}
+          uv-extra-index-url: ${{ secrets.UV_EXTRA_INDEX_URL }}
 
       - name: Verify version matches tag
         if: hashFiles('pyproject.toml') != ''

@@ -86,6 +86,7 @@ jobs:
         uses: ./.github/actions/setup-project
         with:
           python-version: ${{ steps.get-python.outputs.python-version }}
+          uv-extra-index-url: ${{ secrets.UV_EXTRA_INDEX_URL }}
 
       # Execute the notebook with the appropriate runner based on its content
       - name: Run notebook

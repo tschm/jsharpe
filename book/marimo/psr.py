@@ -12,6 +12,7 @@ app = marimo.App()
 
 with app.setup:
     import math
+    import subprocess
     import sys
     from pathlib import Path
 
@@ -19,7 +20,9 @@ with app.setup:
 
     # Find project root
     current_file = Path(__file__).resolve()
+    print(f"The current file is {current_file}.")
     current_dir = current_file.parent
+    print(f"The current directory is {current_dir}.")
 
     # Find project root (where pyproject.toml exists)
     for parent in [current_dir] + list(current_dir.parents):
@@ -27,8 +30,16 @@ with app.setup:
             # Add src directory to path
             src_path = parent / "src"
             if src_path.exists() and str(src_path) not in sys.path:
-                sys.path.insert(0, str(src_path))
+                #sys.path.insert(0, str(src_path))
+                subprocess.check_call(
+                    {"bash", "-c", f"uv pip install -e {src_path}"},
+                )
+
+                #print(f"Added {src_path}/src to sys.path.")
+                print(f"Installed jsharpe from {src_path}/src.")
+
             break
+
 
     # Now import jsharpe
     from jsharpe import probabilistic_sharpe_ratio

@@ -21,11 +21,10 @@ with app.setup:
     # This allows the notebook to find jsharpe when run from any directory
     # Search for the repository root by looking for pyproject.toml
     current_path = Path(__file__).resolve().parent
-    repo_root = None
-    for parent in [current_path] + list(current_path.parents):
-        if (parent / "pyproject.toml").exists():
-            repo_root = parent
-            break
+    repo_root = next(
+        (p for p in [current_path] + list(current_path.parents) if (p / "pyproject.toml").exists()),
+        None
+    )
     
     if repo_root is not None:
         src_path = repo_root / "src"

@@ -25,7 +25,7 @@ mkdir -p "$MARIMUSHKA_OUTPUT"
 
 # Discover .py files (top-level only) using globbing; handle no-match case
 set -- "$MARIMO_FOLDER"/*.py
-if [ "$1" = "$MARIMO_FOLDER/**/*.py" ]; then
+if [ "$1" = "$MARIMO_FOLDER/*.py" ]; then
   printf "%b[WARN] No Python files found in '%s'.%b\n" "$YELLOW" "$MARIMO_FOLDER" "$RESET"
   # Create a minimal index.html indicating no notebooks
   printf '<html><head><title>Marimo Notebooks</title></head><body><h1>Marimo Notebooks</h1><p>No notebooks found.</p></body></html>' > "$MARIMUSHKA_OUTPUT/index.html"

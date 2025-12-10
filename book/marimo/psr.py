@@ -25,9 +25,9 @@ with app.setup:
     result = importlib.util.find_spec("jsharpe")
     print(result)
 
-    #try:
+    # try:
     #    import jsharpe
-    #except ModuleNotFoundError:
+    # except ModuleNotFoundError:
     if not result:
         # Run uv install and wait until fully finished
         subprocess.run([sys.executable, "-m", "uv", "pip", "install", "-e", str(project_root)], check=True)

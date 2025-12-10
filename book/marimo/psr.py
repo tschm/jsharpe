@@ -21,13 +21,7 @@ with app.setup:
     print(f"Project root: {project_root}")
 
     # Install jsharpe and all its dependencies
-    subprocess.run(
-        ["uv", "pip", "install", "-e", project_root],
-        check=True,
-        cwd=project_root
-    )
-
-    from jsharpe import probabilistic_sharpe_ratio
+    subprocess.run(["uv", "pip", "install", "-e", project_root], check=True, cwd=project_root)
 
 
 @app.function
@@ -103,6 +97,7 @@ def _(probabilistic_sharpe_ratio):
             rho=float(rho.value),
             K=int(K.value),
         )
+
     return (psr_value,)
 
 
@@ -113,8 +108,10 @@ def display(K, T, fmt, gamma3, gamma4, psr_value, rho, sr, sr0):
     Args:
         K: Trials slider widget controlling multiple-testing adjustment.
         T: Observations slider widget.
+        fmt: Helper function to format numeric values for display.
         gamma3: Skewness (third standardized moment) widget.
         gamma4: Kurtosis (fourth standardized moment) widget.
+        psr_value: Callable that computes the PSR from the provided widgets.
         rho: Autocorrelation widget.
         sr: Observed Sharpe ratio widget.
         sr0: Benchmark Sharpe ratio widget.

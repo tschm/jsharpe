@@ -7,7 +7,7 @@ react live. Ideal as a minimal template for financial analytics apps.
 
 import marimo
 
-__generated_with = "0.18.3"
+__generated_with = "0.18.4"
 app = marimo.App()
 
 with app.setup:
@@ -17,11 +17,11 @@ with app.setup:
 
     import marimo as mo
 
-    project_root = Path(__file__).parent.parent.parent
+    project_root = Path(__file__).resolve().parents[2]
     print(f"Project root: {project_root}")
 
-    mo.md("Installing dependencies via `make install`...")
-    result = subprocess.run(["make", "install"], cwd=project_root)
+    # Install jsharpe and all its dependencies
+    subprocess.run(["uv", "pip", "install", "-e", project_root], check=True, cwd=project_root)
 
     from jsharpe import probabilistic_sharpe_ratio
 

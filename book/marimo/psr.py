@@ -19,10 +19,18 @@ with app.setup:
 
     # Add the repository's src directory to the Python path
     # This allows the notebook to find jsharpe when run from any directory
-    repo_root = Path(__file__).parent.parent.parent
-    src_path = repo_root / "src"
-    if src_path.exists() and str(src_path) not in sys.path:
-        sys.path.insert(0, str(src_path))
+    # Search for the repository root by looking for pyproject.toml
+    current_path = Path(__file__).resolve().parent
+    repo_root = None
+    for parent in [current_path] + list(current_path.parents):
+        if (parent / "pyproject.toml").exists():
+            repo_root = parent
+            break
+    
+    if repo_root is not None:
+        src_path = repo_root / "src"
+        if src_path.exists() and str(src_path) not in sys.path:
+            sys.path.insert(0, str(src_path))
 
     from jsharpe import probabilistic_sharpe_ratio
 

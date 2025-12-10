@@ -14,7 +14,6 @@ with app.setup:
     import importlib
     import math
     import subprocess
-    import sys
     from pathlib import Path
 
     import marimo as mo
@@ -27,19 +26,10 @@ with app.setup:
 
     if not result:
         # Run uv install and wait until fully finished
-        subprocess.run(
-            ["uv", "pip", "install", "-e", str(project_root)], 
-            check=True
-        )
+        subprocess.run(["uv", "pip", "install", "-e", str(project_root)], check=True)
 
         # Invalidate import caches to make newly installed package visible
         importlib.invalidate_caches()
-
-
-@app.cell
-def _():
-    from jsharpe import probabilistic_sharpe_ratio
-    return (probabilistic_sharpe_ratio,)
 
 
 @app.function
@@ -103,23 +93,7 @@ def _inputs():
 
 
 @app.cell
-def _(probabilistic_sharpe_ratio):
-    def psr_value(sr, sr0, T, gamma3, gamma4, rho, K):
-        """Compute PSR from widget values and return the numeric result."""
-        return probabilistic_sharpe_ratio(
-            SR=float(sr.value),
-            SR0=float(sr0.value),
-            T=int(T.value),
-            gamma3=float(gamma3.value),
-            gamma4=float(gamma4.value),
-            rho=float(rho.value),
-            K=int(K.value),
-        )
-    return (psr_value,)
-
-
-@app.cell
-def display(K, T, gamma3, gamma4, psr_value, rho, sr, sr0):
+def display(K, T, gamma3, gamma4, rho, sr, sr0):
     """Render the PSR result markdown.
 
     Args:
@@ -131,17 +105,21 @@ def display(K, T, gamma3, gamma4, psr_value, rho, sr, sr0):
         sr: Observed Sharpe ratio widget.
         sr0: Benchmark Sharpe ratio widget.
     """
+    from jsharpe import probabilistic_sharpe_ratio
+
     mo.md(f"""
     ### Result
-    **PSR = {fmt(psr_value(sr, sr0, T, gamma3, gamma4, rho, K), 4)}**
+    **PSR = {fmt(probabilistic_sharpe_ratio(
+        sr.value,
+        sr0.value,
+        T.value,
+        gamma3.value,
+        gamma4.value,
+        rho.value,
+        K.value), 4)}**
     SR = {fmt(sr.value)} vs SR0 = {fmt(sr0.value)}
     T={T.value}, γ₃={fmt(gamma3.value)}, γ₄={fmt(gamma4.value)}, ρ={fmt(rho.value)}, K={K.value}
     """)
-    return
-
-
-@app.cell
-def _():
     return
 
 

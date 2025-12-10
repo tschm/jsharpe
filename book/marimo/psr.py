@@ -11,8 +11,10 @@ __generated_with = "0.18.4"
 app = marimo.App()
 
 with app.setup:
+    import importlib
     import math
     import subprocess
+    import sys
     from pathlib import Path
 
     import marimo as mo
@@ -20,8 +22,24 @@ with app.setup:
     project_root = Path(__file__).resolve().parents[2]
     print(f"Project root: {project_root}")
 
+    result = importlib.util.find_spec("jsharpe")
+    print(result)
+
+    # try:
+    #    import jsharpe
+    # except ModuleNotFoundError:
+    if not result:
+        # Run uv install and wait until fully finished
+        subprocess.run([sys.executable, "-m", "uv", "pip", "install", "-e", str(project_root)], check=True)
+
+        # Invalidate import caches to make newly installed package visible
+        importlib.invalidate_caches()
+
+        # Retry import
+        # import jsharpe
+
     # Install jsharpe and all its dependencies
-    subprocess.run(["uv", "pip", "install", "-e", project_root], check=True, cwd=project_root)
+    # subprocess.run(["uv", "pip", "install", "-e", project_root], check=True, cwd=project_root)
 
     from jsharpe import probabilistic_sharpe_ratio
 

@@ -114,7 +114,7 @@ marimo: install ## fire up Marimo server
 	  ${UV_BIN} run marimo edit "${MARIMO_FOLDER}"; \
 	fi
 
-marimushka: install ## export Marimo notebooks to HTML
+marimushka: install-uv ## export Marimo notebooks to HTML
 	@printf "${BLUE}[INFO] Exporting notebooks from ${MARIMO_FOLDER}...${RESET}\n"
 	@if [ ! -d "${MARIMO_FOLDER}" ]; then \
 	  printf "${YELLOW}[WARN] Directory '${MARIMO_FOLDER}' does not exist. Skipping marimushka.${RESET}\n"; \

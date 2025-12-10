@@ -17,7 +17,9 @@ app = marimo.App()
 
 with app.setup:
     import math
+
     import marimo as mo
+
     from jsharpe import probabilistic_sharpe_ratio
 
 

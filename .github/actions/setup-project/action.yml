@@ -104,3 +104,7 @@ runs:
         else
           echo "No pyproject.toml found, skipping package installation"
         fi
+
+    - name: "Install the package in development mode"
+      shell: bash
+      run: pip install -e .

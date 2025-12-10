@@ -44,10 +44,10 @@ case "$UVX_BIN" in
 esac
 
 # Change to the notebook directory to ensure relative paths in notebooks work correctly
-cd "$MARIMO_FOLDER"
+# cd "$MARIMO_FOLDER"
 
-# Run marimushka export
-"$UVX_BIN" marimushka export --notebooks "." --output "$OUTPUT_DIR" --sandbox False
+# Run marimushka export without sandbox to avoid uv isolated resolution issues
+"$UVX_BIN" marimushka export --no-sandbox --notebooks "$MARIMO_FOLDER" --output "$OUTPUT_DIR"
 
 # Ensure GitHub Pages does not process with Jekyll
 : > "$OUTPUT_DIR/.nojekyll"

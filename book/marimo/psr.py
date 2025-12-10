@@ -5,31 +5,22 @@ Adjust SR, SR0, T, skew, kurtosis, autocorrelation, and trials. Results
 react live. Ideal as a minimal template for financial analytics apps.
 """
 
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["marimo==0.18.4", "jsharpe"]
+# ///
+
 import marimo
 
 __generated_with = "0.18.4"
 app = marimo.App()
 
 with app.setup:
-    import importlib
     import math
-    import subprocess
-    from pathlib import Path
 
     import marimo as mo
 
-    project_root = Path(__file__).resolve().parents[2]
-    print(f"Project root: {project_root}")
-
-    result = importlib.util.find_spec("jsharpe")
-    print(result)
-
-    if not result:
-        # Run uv install and wait until fully finished
-        subprocess.run(["uv", "pip", "install", "-e", str(project_root)], check=True)
-
-        # Invalidate import caches to make newly installed package visible
-        importlib.invalidate_caches()
+    from jsharpe import probabilistic_sharpe_ratio
 
 
 @app.function
@@ -105,8 +96,6 @@ def display(K, T, gamma3, gamma4, rho, sr, sr0):
         sr: Observed Sharpe ratio widget.
         sr0: Benchmark Sharpe ratio widget.
     """
-    from jsharpe import probabilistic_sharpe_ratio
-
     mo.md(f"""
     ### Result
     **PSR = {

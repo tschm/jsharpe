@@ -12,25 +12,17 @@ app = marimo.App()
 
 with app.setup:
     import math
-    import sys
+    import subprocess
     from pathlib import Path
 
     import marimo as mo
 
-    # Find project root
-    current_file = Path(__file__).resolve()
-    current_dir = current_file.parent
+    project_root = Path(__file__).parent.parent.parent
+    print(f"Project root: {project_root}")
 
-    # Find project root (where pyproject.toml exists)
-    for parent in [current_dir] + list(current_dir.parents):
-        if (parent / "pyproject.toml").exists():
-            # Add src directory to path
-            src_path = parent / "src"
-            if src_path.exists() and str(src_path) not in sys.path:
-                sys.path.insert(0, str(src_path))
-            break
+    mo.md("Installing dependencies via `make install`...")
+    result = subprocess.run(["make", "install"], cwd=project_root)
 
-    # Now import jsharpe
     from jsharpe import probabilistic_sharpe_ratio
 
 

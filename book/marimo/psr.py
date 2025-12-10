@@ -12,35 +12,15 @@ app = marimo.App()
 with app.setup:
     import math
     import subprocess
-    import sys
     from pathlib import Path
 
     import marimo as mo
 
-    project_root = Path(__file__).parent.parent
+    project_root = Path(__file__).parent.parent.parent
+    print(f"Project root: {project_root}")
 
-    # Create a status output
-    status = mo.status()
-
-    with status:
-        mo.md("Installing dependencies via `make install`...")
-
-        try:
-            result = subprocess.run(
-                ["make", "install"],
-                cwd=project_root,
-                check=True,  # Raises CalledProcessError on non-zero exit
-                text=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-            )
-
-            mo.md(f"✅ Success!\n```\n{result.stdout}\n```")
-
-        except subprocess.CalledProcessError as e:
-            mo.md(f"❌ Failed with code {e.returncode}:\n```\n{e.stdout}\n```")
-            # Don't try to import if installation failed
-            sys.exit(1)
+    mo.md("Installing dependencies via `make install`...")
+    result = subprocess.run(["make", "install"], cwd=project_root)
 
     from jsharpe import probabilistic_sharpe_ratio
 

@@ -27,7 +27,7 @@ with app.setup:
         cwd=project_root
     )
 
-    import jsharpe
+    from jsharpe import probabilistic_sharpe_ratio
 
 
 @app.function

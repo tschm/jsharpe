@@ -25,6 +25,7 @@ with app.setup:
 
     from jsharpe import probabilistic_sharpe_ratio
 
+
 @app.function
 def fmt(x, precision: int = 3) -> str:
     """Format values for display."""
@@ -97,6 +98,7 @@ def psr_value(sr, sr0, T, gamma3, gamma4, rho, K):
         rho=float(rho.value),
         K=int(K.value),
     )
+
 
 @app.cell
 def display(K, T, gamma3, gamma4, rho, sr, sr0):

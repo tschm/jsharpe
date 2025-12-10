@@ -39,7 +39,7 @@ dev = [
     "pre-commit>=4.0.1",
     "marimo==0.18.4",
     "cvxpy>=1.7.0",
-    "pdoc>=16.0.0",
+    "pdoc>=16.0.0"
 ]
 
 [build-system]
@@ -50,7 +50,8 @@ build-backend = "hatchling.build"
 include = ["LICENSE", "README.md"]
 
 [tool.hatch.build.targets.wheel]
-package-dir = "src"
+#package-dir = "src"
+package = ["src/jsharpe"]
 
 [tool.deptry]
 pep621_dev_dependency_groups = ["dev"]

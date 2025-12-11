@@ -107,4 +107,4 @@ runs:
 
     - name: "Install the package in development mode"
       shell: bash
-      run: pip install -e .
+      run: uv pip install -e .

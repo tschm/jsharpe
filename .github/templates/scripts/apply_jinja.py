@@ -8,10 +8,12 @@ favor of pathlib for portability and clarity.
 
 import dataclasses
 import subprocess
+import sys
 from pathlib import Path
 
 import jinja2
 
+# Get the base directory (assuming script is in .github/scripts/)
 base_dir = Path(__file__).resolve().parents[3]
 notebooks_dir = base_dir / "book" / "marimo"
 output_dir = base_dir / "_marimushka"
@@ -26,13 +28,10 @@ class Notebook:
     for exporting it to HTML/WebAssembly format.
 
     Attributes:
-        path (Path): Path to the marimo notebook (.py file)
-
-
+        py_path (Path): Path to the marimo notebook (.py file)
     """
 
     py_path: Path
-    html_path: Path
 
     def __post_init__(self):
         """Validate the notebook path after initialization.
@@ -40,7 +39,6 @@ class Notebook:
         Raises:
             FileNotFoundError: If the file does not exist
             ValueError: If the path is not a file or not a Python file
-
         """
         if not self.py_path.exists():
             raise FileNotFoundError(f"File not found: {self.py_path}")
@@ -50,43 +48,57 @@ class Notebook:
             raise ValueError(f"File is not a Python file: {self.py_path}")
 
     @property
-    def py_file(self):
+    def py_file(self) -> Path:
         """Return the underlying Python file path of the notebook."""
         return self.py_path
 
     @property
     def display_name(self) -> str:
         """Return the display name for the notebook."""
-        return self.py_path.stem.replace("_", " ")
+        return self.py_path.stem.replace("_", " ").title()
 
     @property
-    def html(self) -> Path:
+    def html_path(self) -> Path:
         """Return the path to the exported HTML file."""
-        return self.html_path / f"{self.py_file.stem}.html"
+        return output_dir / "notebooks" / f"{self.py_file.stem}.html"
+
+    @property
+    def html_url(self) -> str:
+        """Return the relative URL for the HTML file."""
+        return f"{self.py_file.stem}.html"
 
 
-def folder2notebooks(folder: Path | str | None, html_path=output_dir / "notebooks") -> list[Notebook]:
+def folder_to_notebooks(folder: Path | str | None) -> list[Notebook]:
     """Find all marimo notebooks in a directory."""
     if folder is None or folder == "":
         return []
 
-    return [Notebook(py_path=nb, html_path=html_path) for nb in list(Path(folder).glob("*.py"))]
+    folder_path = Path(folder) if isinstance(folder, str) else folder
+    if not folder_path.exists():
+        print(f"Warning: Notebooks directory not found: {folder_path}")
+        return []
+
+    notebooks = []
+    for nb_path in folder_path.glob("*.py"):
+        try:
+            notebook = Notebook(py_path=nb_path)
+            notebooks.append(notebook)
+        except (FileNotFoundError, ValueError) as e:
+            print(f"Skipping {nb_path}: {e}")
+
+    return notebooks
 
 
-if __name__ == "__main__":
-    (output_dir / "notebooks").mkdir(parents=True, exist_ok=True)
+def export_notebook(notebook: Notebook) -> bool:
+    """Export a single notebook to HTML format.
 
-    notebooks = folder2notebooks(notebooks_dir, html_path=output_dir / "notebooks")
-    print(notebooks)
+    Returns:
+        bool: True if export was successful, False otherwise
+    """
+    try:
+        print(f"Exporting: {notebook.py_path.name} -> {notebook.html_path.name}")
 
-    # Iterate over Python notebooks using pathlib; avoid os.listdir
-    for notebook in notebooks:
-        print(notebook.py_path)
-        print(notebook.html)
-
-        # export file with marimo
-        # out_file = output_dir / "notebooks" / f"{notebook.stem}.html"
-        subprocess.run(
+        result = subprocess.run(
             [
                 "uv",
                 "run",
@@ -97,28 +109,120 @@ if __name__ == "__main__":
                 "--no-sandbox",
                 str(notebook.py_path),
                 "-o",
-                str(notebook.html),
-            ]
+                str(notebook.html_path),
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
         )
 
-    # Create the full path for the index.html file
-    index_path: Path = Path(output_dir) / "index.html"
+        if result.returncode == 0:
+            print(f"✓ Successfully exported {notebook.py_path.name}")
+            return True
+        else:
+            print(f"✗ Failed to export {notebook.py_path.name}: {result.stderr}")
+            return False
 
-    # Set up Jinja2 environment and load template
-    template_dir = template_file.parent
-    template_name = template_file.name
+    except subprocess.CalledProcessError as e:
+        print(f"✗ Error exporting {notebook.py_path.name}: {e}")
+        if e.stderr:
+            print(f"Error details: {e.stderr}")
+        return False
+    except Exception as e:
+        print(f"✗ Unexpected error exporting {notebook.py_path.name}: {e}")
+        return False
 
-    rendered_html = ""
 
-    # Create Jinja2 environment and load template
-    env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(template_dir), autoescape=jinja2.select_autoescape(["html", "xml"])
-    )
-    template = env.get_template(template_name)
+def generate_index(notebooks: list[Notebook]) -> bool:
+    """Generate the index.html file from the template.
 
-    # Render the template with notebook and app data
-    rendered_html = template.render(notebooks=notebooks)
+    Returns:
+        bool: True if generation was successful, False otherwise
+    """
+    try:
+        index_path = output_dir / "index.html"
 
-    # Write the rendered HTML to the index.html file
-    with Path.open(index_path, "w") as f:
-        f.write(rendered_html)
+        # Ensure template directory exists
+        if not template_file.exists():
+            print(f"✗ Template file not found: {template_file}")
+            return False
+
+        template_dir = template_file.parent
+        template_name = template_file.name
+
+        # Create Jinja2 environment and load template
+        env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(template_dir), autoescape=jinja2.select_autoescape(["html", "xml"])
+        )
+        template = env.get_template(template_name)
+
+        # Sort notebooks by display name for consistent ordering
+        sorted_notebooks = sorted(notebooks, key=lambda x: x.display_name)
+
+        # Render the template with notebook data
+        rendered_html = template.render(notebooks=sorted_notebooks)
+
+        # Write the rendered HTML to the index.html file
+        index_path.parent.mkdir(parents=True, exist_ok=True)
+        index_path.write_text(rendered_html, encoding="utf-8")
+
+        print(f"✓ Generated index at: {index_path}")
+        return True
+
+    except jinja2.TemplateError as e:
+        print(f"✗ Template error: {e}")
+        return False
+    except Exception as e:
+        print(f"✗ Error generating index: {e}")
+        return False
+
+
+def main() -> int:
+    """Main function to export notebooks and generate index.
+
+    Returns:
+        int: Exit code (0 for success, 1 for failure)
+    """
+    print("=" * 60)
+    print("Marimo Notebook Exporter")
+    print("=" * 60)
+
+    # Create output directories
+    (output_dir / "notebooks").mkdir(parents=True, exist_ok=True)
+
+    # Find all notebooks
+    notebooks = folder_to_notebooks(notebooks_dir)
+
+    if not notebooks:
+        print("No Marimo notebooks found to export.")
+        print(f"Expected notebooks in: {notebooks_dir}")
+        return 1
+
+    print(f"Found {len(notebooks)} notebook(s):")
+    for nb in notebooks:
+        print(f"  • {nb.display_name} ({nb.py_path.name})")
+    print()
+
+    # Export each notebook
+    successful_exports = 0
+    for notebook in notebooks:
+        if export_notebook(notebook):
+            successful_exports += 1
+
+    print(f"\nSuccessfully exported {successful_exports}/{len(notebooks)} notebook(s)")
+
+    # Generate index page if we have at least one successful export
+    if successful_exports > 0:
+        if generate_index(notebooks):
+            print("\n✓ Export process completed successfully")
+            return 0
+        else:
+            print("\n✗ Failed to generate index page")
+            return 1
+    else:
+        print("\n✗ No notebooks were successfully exported")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

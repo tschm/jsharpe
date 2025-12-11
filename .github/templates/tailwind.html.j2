@@ -28,7 +28,7 @@
                             <div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                                 <div class="bg-blue-100 p-3 font-medium">{{ notebook.display_name }}</div>
                                 <div class="p-4">
-                                    <a href="{{ notebook.html }}" class="inline-block bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded text-sm no-underline transition">Open Notebook</a>
+                                    <a href="notebooks/{{ notebook.html_url }}" class="inline-block bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded text-sm no-underline transition">Open Notebook</a>
                                 </div>
                             </div>
                         {% endfor %}

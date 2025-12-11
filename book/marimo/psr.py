@@ -1,8 +1,3 @@
-# /// script
-# requires-python = ">=3.11"
-# dependencies = ["marimo==0.18.4"]
-# ///
-
 """Interactive Marimo app for exploring the Probabilistic Sharpe Ratio (PSR).
 
 This notebook provides sliders for SR, SR0, sample size T, non-Gaussian
@@ -17,11 +12,8 @@ app = marimo.App()
 
 with app.setup:
     import math
-
-    import marimo as mo
-
     from jsharpe import probabilistic_sharpe_ratio
-
+    import marimo as mo
 
 @app.function
 def fmt(x, precision: int = 3) -> str:

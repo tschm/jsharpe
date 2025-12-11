@@ -1,5 +1,13 @@
-import subprocess
+"""Utilities to export Marimo notebooks and generate an index page.
+
+This script discovers Python-based Marimo notebooks in book/marimo, exports
+each to HTML using marimo export, and renders an index page via Jinja2.
+It is designed to be invoked from CI or the Makefile and avoids using os in
+favor of pathlib for portability and clarity.
+"""
+
 import dataclasses
+import subprocess
 from pathlib import Path
 
 import jinja2
@@ -8,6 +16,7 @@ base_dir = Path(__file__).resolve().parents[3]
 notebooks_dir = base_dir / "book" / "marimo"
 output_dir = base_dir / "_marimushka"
 template_file = base_dir / ".github" / "templates" / "tailwind.html.j2"
+
 
 @dataclasses.dataclass(frozen=True)
 class Notebook:
@@ -42,6 +51,7 @@ class Notebook:
 
     @property
     def py_file(self):
+        """Return the underlying Python file path of the notebook."""
         return self.py_path
 
     @property
@@ -55,7 +65,7 @@ class Notebook:
         return self.html_path / f"{self.py_file.stem}.html"
 
 
-def folder2notebooks(folder: Path | str | None, html_path = output_dir / "notebooks") -> list[Notebook]:
+def folder2notebooks(folder: Path | str | None, html_path=output_dir / "notebooks") -> list[Notebook]:
     """Find all marimo notebooks in a directory."""
     if folder is None or folder == "":
         return []
@@ -75,19 +85,21 @@ if __name__ == "__main__":
         print(notebook.html)
 
         # export file with marimo
-        #out_file = output_dir / "notebooks" / f"{notebook.stem}.html"
-        subprocess.run([
-            "uv",
-            "run",
-            "marimo",
-            "export",
-            "html",
-            "--force",
-            "--no-sandbox",
-            str(notebook.py_path),
-            "-o",
-            str(notebook.html),
-        ])
+        # out_file = output_dir / "notebooks" / f"{notebook.stem}.html"
+        subprocess.run(
+            [
+                "uv",
+                "run",
+                "marimo",
+                "export",
+                "html",
+                "--force",
+                "--no-sandbox",
+                str(notebook.py_path),
+                "-o",
+                str(notebook.html),
+            ]
+        )
 
     # Create the full path for the index.html file
     index_path: Path = Path(output_dir) / "index.html"
@@ -105,14 +117,8 @@ if __name__ == "__main__":
     template = env.get_template(template_name)
 
     # Render the template with notebook and app data
-    rendered_html = template.render(
-        notebooks=notebooks
-    )
+    rendered_html = template.render(notebooks=notebooks)
 
     # Write the rendered HTML to the index.html file
     with Path.open(index_path, "w") as f:
         f.write(rendered_html)
-
-
-
-

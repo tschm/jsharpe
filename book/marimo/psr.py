@@ -3,6 +3,13 @@
 # dependencies = ["marimo==0.18.4"]
 # ///
 
+"""Interactive Marimo app for exploring the Probabilistic Sharpe Ratio (PSR).
+
+This notebook provides sliders for SR, SR0, sample size T, non-Gaussian
+moments (gamma3, gamma4), autocorrelation (rho), and the number of trials K.
+It computes and displays the PSR using functions from the jsharpe package.
+"""
+
 import marimo
 
 __generated_with = "0.18.4"
@@ -14,7 +21,6 @@ with app.setup:
     import marimo as mo
 
     from jsharpe import probabilistic_sharpe_ratio
-
 
 
 @app.function

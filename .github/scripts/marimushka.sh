@@ -7,7 +7,6 @@ set -e
 MARIMO_FOLDER=${MARIMO_FOLDER:-book/marimo}
 MARIMUSHKA_OUTPUT=${MARIMUSHKA_OUTPUT:-_marimushka}
 UV_BIN=${UV_BIN:-./bin/uv}
-UVX_BIN=${UVX_BIN:-./bin/uvx}
 
 BLUE="\033[36m"
 YELLOW="\033[33m"
@@ -32,16 +31,10 @@ if [ "$1" = "$MARIMO_FOLDER/*.py" ]; then
   exit 0
 fi
 
-CURRENT_DIR=$(pwd)
-OUTPUT_DIR="$CURRENT_DIR/$MARIMUSHKA_OUTPUT"
-
-# Resolve UVX_BIN to absolute path if it's a relative path (contains / but doesn't start with /)
-case "$UVX_BIN" in
-  /*) ;;
-  */*) UVX_BIN="$CURRENT_DIR/$UVX_BIN" ;;
-  *) ;;
-esac
-
+#CURRENT_DIR=$(pwd)
+#OUTPUT_DIR="$CURRENT_DIR/$MARIMUSHKA_OUTPUT"
+#
+#
 ## Explicitly loop over .py files in $MARIMO_FOLDER and export each with marimo (no sandbox)
 #notes=""
 #for nb in "$@"; do
@@ -49,7 +42,7 @@ esac
 #  name="${base%.py}"
 #  out="$OUTPUT_DIR/${name}.html"
 #  printf "%b[INFO] Exporting %s -> %s...%b\n" "$BLUE" "$nb" "$out" "$RESET"
-#  if "$UVX_BIN" marimo export html --sandbox "$nb" -o "$out"; then
+#  if "$UV_BIN" run marimo export html --no-sandbox "$nb" -f -o "$out"; then
 #    notes="$notes<li><a href=\"${name}.html\">${name}</a></li>\n"
 #  else
 #    printf "%b[WARN] Failed to export %s; continuing...%b\n" "$YELLOW" "$nb" "$RESET"
@@ -68,8 +61,14 @@ esac
 #  printf '<html><head><title>Marimo Notebooks</title></head><body><h1>Marimo Notebooks</h1><p>No notebooks exported.</p></body></html>' > "$OUTPUT_DIR/index.html"
 #fi
 
+uv run python ./.github/templates/scripts/apply_jinja.py
+
 # Bypass this code using Marimushka
-$UVX_BIN marimushka export -n $MARIMO_FOLDER -o $OUTPUT_DIR --no-sandbox
+#uv pip install marimushka
+#uv pip install -e .
+#uv run --help
+#uv run marimushka export -n $MARIMO_FOLDER -o $OUTPUT_DIR --no-sandbox
+#$UVX_BIN marimushka export -n $MARIMO_FOLDER -o $OUTPUT_DIR --no-sandbox --bin-path "./bin/uv"
 
 # Ensure GitHub Pages does not process with Jekyll
 : > "$OUTPUT_DIR/.nojekyll"

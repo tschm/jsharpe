@@ -1,57 +1,71 @@
-# Marimushka Templates
+# Templates for exporting Marimo notebooks
 
-This directory contains the HTML templates used by Marimushka to generate the index
-page for exported marimo notebooks.
+This directory contains the Jinja2 template(s) used to generate the index page
+for exported Marimo notebooks produced by the project’s scripts.
 
-## Available Templates
+## Available template
 
 ### tailwind.html.j2
 
-A lean template based on [Tailwind CSS](https://tailwindcss.com/).
-This template uses Tailwind's utility
-classes for styling, resulting in a modern, responsive design.
-The Tailwind CSS is loaded via CDN, so no additional installation is required.
+A lean template based on Tailwind CSS loaded via CDN. It uses utility classes for
+simple, responsive styling without additional build steps.
 
-## Using a Custom Template
+## How templates are used in this repository
 
-You can specify which template to use when running Marimushka:
+Exports are performed by the helper script:
 
-### Command Line
+- .github/templates/scripts/apply_jinja.py
+
+That script:
+- finds all .py notebooks in book/marimo,
+- exports each to HTML using: uv run marimo export html --no-sandbox,
+- renders an index page using this Jinja2 template.
+
+You can run it via the Makefile target:
 
 ```bash
-# Use the default template (default)
-marimushka export
-
-# Use the Tailwind template
-marimushka export --template /path/to/marimushka/templates/tailwind.html.j2
+make marimushka
 ```
 
-### Python API
+or directly:
 
-```python
-from marimushka.export import main
-from pathlib import Path
-
-# Use the default template (default)
-main()
-
-# Use the Tailwind template
-main(template=Path(__file__).parent / "templates" / "tailwind.html.j2")
+```bash
+uv run python .github/templates/scripts/apply_jinja.py
 ```
 
-## Creating Your Own Template
+The generated files are written to the _marimushka directory.
 
-You can create your own custom template by using the existing templates
-as a reference. The template should be a Jinja2 template
-file with the `.html.j2` extension.
+## Overriding the template
 
-The template has access to the following variables:
+By default, apply_jinja.py uses:
 
-- `notebooks`: List of Notebook objects for HTML notebooks
-- `notebooks_wasm`: List of Notebook objects for WebAssembly notebooks
-- `apps`: List of Notebook objects for apps
+- .github/templates/tailwind.html.j2
 
-Each Notebook object has the following properties:
+If you want to customize the index, edit that file or change template_file in
+apply_jinja.py to point to a different Jinja2 template.
 
-- `display_name`: The display name of the notebook
-- `html_path`: The path to the exported HTML file
+## Template context (variables available to Jinja2)
+
+The template receives the following variables:
+
+- notebooks: list of Notebook objects (one per exported .py notebook)
+
+Each Notebook object exposes:
+- display_name: human‑friendly title derived from the filename
+- html_path: filesystem Path of the exported HTML file
+- html_url: relative URL (e.g., "psr.html") suitable for links in the index
+
+Example usage inside a template:
+
+```jinja2
+<ul>
+  {% for nb in notebooks %}
+    <li><a href="{{ nb.html_url }}">{{ nb.display_name }}</a></li>
+  {% endfor %}
+</ul>
+```
+
+## Creating your own template
+
+Create a new .html.j2 file and ensure apply_jinja.py points to it. You can
+copy tailwind.html.j2 as a starting point and adjust HTML/CSS as needed.

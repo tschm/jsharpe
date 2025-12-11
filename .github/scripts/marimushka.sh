@@ -71,4 +71,4 @@ uv run python ./.github/templates/scripts/apply_jinja.py
 #$UVX_BIN marimushka export -n $MARIMO_FOLDER -o $OUTPUT_DIR --no-sandbox --bin-path "./bin/uv"
 
 # Ensure GitHub Pages does not process with Jekyll
-: > "$OUTPUT_DIR/.nojekyll"
+: > "$MARIMUSHKA_OUTPUT/.nojekyll"

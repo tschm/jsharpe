@@ -12,8 +12,11 @@ app = marimo.App()
 
 with app.setup:
     import math
-    from jsharpe import probabilistic_sharpe_ratio
+
     import marimo as mo
+
+    from jsharpe import probabilistic_sharpe_ratio
+
 
 @app.function
 def fmt(x, precision: int = 3) -> str:

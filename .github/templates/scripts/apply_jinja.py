@@ -10,7 +10,6 @@ import dataclasses
 import subprocess
 import sys
 from pathlib import Path
-from typing import List
 
 import jinja2
 
@@ -69,7 +68,7 @@ class Notebook:
         return f"{self.py_file.stem}.html"
 
 
-def folder_to_notebooks(folder: Path | str | None) -> List[Notebook]:
+def folder_to_notebooks(folder: Path | str | None) -> list[Notebook]:
     """Find all marimo notebooks in a directory."""
     if folder is None or folder == "":
         return []
@@ -114,7 +113,7 @@ def export_notebook(notebook: Notebook) -> bool:
             ],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
 
         if result.returncode == 0:
@@ -134,7 +133,7 @@ def export_notebook(notebook: Notebook) -> bool:
         return False
 
 
-def generate_index(notebooks: List[Notebook]) -> bool:
+def generate_index(notebooks: list[Notebook]) -> bool:
     """Generate the index.html file from the template.
 
     Returns:
@@ -153,8 +152,7 @@ def generate_index(notebooks: List[Notebook]) -> bool:
 
         # Create Jinja2 environment and load template
         env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(template_dir),
-            autoescape=jinja2.select_autoescape(["html", "xml"])
+            loader=jinja2.FileSystemLoader(template_dir), autoescape=jinja2.select_autoescape(["html", "xml"])
         )
         template = env.get_template(template_name)
 
@@ -166,7 +164,7 @@ def generate_index(notebooks: List[Notebook]) -> bool:
 
         # Write the rendered HTML to the index.html file
         index_path.parent.mkdir(parents=True, exist_ok=True)
-        index_path.write_text(rendered_html, encoding='utf-8')
+        index_path.write_text(rendered_html, encoding="utf-8")
 
         print(f"✓ Generated index at: {index_path}")
         return True
@@ -216,13 +214,13 @@ def main() -> int:
     # Generate index page if we have at least one successful export
     if successful_exports > 0:
         if generate_index(notebooks):
-            print(f"\n✓ Export process completed successfully")
+            print("\n✓ Export process completed successfully")
             return 0
         else:
-            print(f"\n✗ Failed to generate index page")
+            print("\n✗ Failed to generate index page")
             return 1
     else:
-        print(f"\n✗ No notebooks were successfully exported")
+        print("\n✗ No notebooks were successfully exported")
         return 1
 
 

@@ -1,13 +1,5 @@
-"""Marimo Example: Probabilistic Sharpe Ratio (PSR).
-
-A compact, lint-clean app demonstrating PSR computation using jsharpe.
-Adjust SR, SR0, T, skew, kurtosis, autocorrelation, and trials. Results
-react live. Ideal as a minimal template for financial analytics apps.
-"""
-
 # /// script
 # requires-python = ">=3.11"
-# install-command = "uv pip install -e ."
 # dependencies = ["marimo==0.18.4"]
 # ///
 
@@ -23,7 +15,6 @@ with app.setup:
 
     from jsharpe import probabilistic_sharpe_ratio
 
-    print(jsharpe.__file__)
 
 
 @app.function

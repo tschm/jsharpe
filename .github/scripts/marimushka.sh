@@ -69,7 +69,7 @@ esac
 #fi
 
 # Bypass this code using Marimushka
-$UVX_BIN marimushka export -n $MARIMO_FOLDER -o $OUTPUT_DIR
+$UVX_BIN marimushka export -n $MARIMO_FOLDER -o $OUTPUT_DIR --no-sandbox
 
 # Ensure GitHub Pages does not process with Jekyll
 : > "$OUTPUT_DIR/.nojekyll"

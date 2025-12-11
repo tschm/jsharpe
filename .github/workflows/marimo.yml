@@ -91,5 +91,6 @@ jobs:
       # Execute the notebook with the appropriate runner based on its content
       - name: Run notebook
         run: |
+          uv pip install -e .
           uv run "${{ matrix.notebook }}"
         shell: bash

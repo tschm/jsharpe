@@ -7,7 +7,6 @@ set -e
 MARIMO_FOLDER=${MARIMO_FOLDER:-book/marimo}
 MARIMUSHKA_OUTPUT=${MARIMUSHKA_OUTPUT:-_marimushka}
 UV_BIN=${UV_BIN:-./bin/uv}
-UVX_BIN=${UVX_BIN:-./bin/uvx}
 
 BLUE="\033[36m"
 YELLOW="\033[33m"
@@ -32,22 +31,44 @@ if [ "$1" = "$MARIMO_FOLDER/*.py" ]; then
   exit 0
 fi
 
+#CURRENT_DIR=$(pwd)
+#OUTPUT_DIR="$CURRENT_DIR/$MARIMUSHKA_OUTPUT"
+#
+#
+## Explicitly loop over .py files in $MARIMO_FOLDER and export each with marimo (no sandbox)
+#notes=""
+#for nb in "$@"; do
+#  base=$(basename "$nb")
+#  name="${base%.py}"
+#  out="$OUTPUT_DIR/${name}.html"
+#  printf "%b[INFO] Exporting %s -> %s...%b\n" "$BLUE" "$nb" "$out" "$RESET"
+#  if "$UV_BIN" run marimo export html --no-sandbox "$nb" -f -o "$out"; then
+#    notes="$notes<li><a href=\"${name}.html\">${name}</a></li>\n"
+#  else
+#    printf "%b[WARN] Failed to export %s; continuing...%b\n" "$YELLOW" "$nb" "$RESET"
+#  fi
+#done
+#
+## Generate a simple index.html linking to exported notebooks
+#if [ -n "$notes" ]; then
+#  {
+#    printf '<html><head><meta charset="utf-8"><title>Marimo Notebooks</title></head><body>'
+#    printf '<h1>Marimo Notebooks</h1><ul>'
+#    printf '%b' "$notes"
+#    printf '</ul></body></html>'
+#  } > "$OUTPUT_DIR/index.html"
+#else
+#  printf '<html><head><title>Marimo Notebooks</title></head><body><h1>Marimo Notebooks</h1><p>No notebooks exported.</p></body></html>' > "$OUTPUT_DIR/index.html"
+#fi
 
-CURRENT_DIR=$(pwd)
-OUTPUT_DIR="$CURRENT_DIR/$MARIMUSHKA_OUTPUT"
+uv run python ./.github/templates/scripts/apply_jinja.py
 
-# Resolve UVX_BIN to absolute path if it's a relative path (contains / but doesn't start with /)
-case "$UVX_BIN" in
-  /*) ;;
-  */*) UVX_BIN="$CURRENT_DIR/$UVX_BIN" ;;
-  *) ;;
-esac
-
-# Change to the notebook directory to ensure relative paths in notebooks work correctly
-# cd "$MARIMO_FOLDER"
-
-# Run marimushka export without sandbox to avoid uv isolated resolution issues
-"$UVX_BIN" marimushka export --no-sandbox --notebooks "$MARIMO_FOLDER" --output "$OUTPUT_DIR"
+# Bypass this code using Marimushka
+#uv pip install marimushka
+#uv pip install -e .
+#uv run --help
+#uv run marimushka export -n $MARIMO_FOLDER -o $OUTPUT_DIR --no-sandbox
+#$UVX_BIN marimushka export -n $MARIMO_FOLDER -o $OUTPUT_DIR --no-sandbox --bin-path "./bin/uv"
 
 # Ensure GitHub Pages does not process with Jekyll
-: > "$OUTPUT_DIR/.nojekyll"
+: > "$MARIMUSHKA_OUTPUT/.nojekyll"

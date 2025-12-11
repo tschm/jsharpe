@@ -372,6 +372,7 @@ dependencies = [
 [package.optional-dependencies]
 dev = [
     { name = "cvxpy" },
+    { name = "jinja2" },
     { name = "marimo" },
     { name = "pdoc" },
     { name = "pre-commit" },
@@ -383,6 +384,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "cvxpy", marker = "extra == 'dev'", specifier = ">=1.7.0" },
+    { name = "jinja2", marker = "extra == 'dev'", specifier = ">=3.1.6" },
     { name = "marimo", marker = "extra == 'dev'", specifier = "==0.18.4" },
     { name = "numpy", specifier = ">=2.3.0" },
     { name = "pdoc", marker = "extra == 'dev'", specifier = ">=16.0.0" },

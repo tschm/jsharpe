@@ -1,5 +1,5 @@
-## Makefile for tschm/.config-templates
-# (https://github.com/tschm/.config-templates)
+## Makefile for jebel-quant/rhiza
+# (https://github.com/jebel-quant/rhiza)
 #
 # Purpose: Developer tasks using uv/uvx (install, test, docs, marimushka, book).
 # Lines with `##` after a target are parsed into help text,
@@ -83,8 +83,6 @@ install: install-uv install-extras ## install
 	  printf "${YELLOW}[WARN] No pyproject.toml found, skipping install${RESET}\n"; \
 	fi
 
-	# Install the package itself
-	${UV_BIN} pip install -e .
 
 clean: ## clean
 	@printf "${BLUE}Cleaning project...${RESET}\n"
@@ -102,6 +100,7 @@ clean: ## clean
 test: install ## run all tests
 	@if [ -d ${SOURCE_FOLDER} ] && [ -d ${TESTS_FOLDER} ]; then \
 	  mkdir -p _tests/html-coverage _tests/html-report; \
+	  ${UV_BIN} pip install pytest pytest-cov pytest-html; \
 	  ${UV_BIN} run pytest ${TESTS_FOLDER} --cov=${SOURCE_FOLDER} --cov-report=term --cov-report=html:_tests/html-coverage --html=_tests/html-report/report.html; \
 	else \
 	  printf "${YELLOW}[WARN] Source folder ${SOURCE_FOLDER} or tests folder ${TESTS_FOLDER} not found, skipping tests${RESET}\n"; \

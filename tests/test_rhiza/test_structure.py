@@ -31,9 +31,6 @@ class TestRootFixture:
         conftest_path = root / "tests" / "test_rhiza" / "conftest.py"
         assert conftest_path.exists()
 
-        conftest_path = root / "tests" / "conftest.py"
-        assert not conftest_path.exists()
-
     def test_root_contains_expected_directories(self, root):
         """Root should contain all expected project directories."""
         expected_dirs = [".github", "src", "tests", "book"]

@@ -5,6 +5,17 @@ moments (gamma3, gamma4), autocorrelation (rho), and the number of trials K.
 It computes and displays the PSR using functions from the jsharpe package.
 """
 
+# /// script
+# dependencies = [
+#     "marimo==0.18.4",
+#     "jsharpe",
+# ]
+#
+# [tool.uv.sources]
+# jsharpe = { path = "../..", editable=true }
+#
+# ///
+
 import marimo
 
 __generated_with = "0.18.4"

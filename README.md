@@ -43,7 +43,7 @@ Installs hooks to maintain code quality and formatting.
 
 ## 🛠️ Development Commands
 
-```bash                
+```bash
 make tests   # Run test suite
 make marimo  # Start Marimo notebooks
 ```
@@ -55,10 +55,10 @@ make marimo  # Start Marimo notebooks
 - 💾 Commit your changes (git commit -m 'Add some amazing feature')
 - 🚢 Push to the branch (git push origin feature/amazing-feature)
 - 🔍 Open a Pull Request
-        
+
 ## 🏗️ Project Structure & Configuration Templates
-        
-This project uses standardized configuration files from [tschm/.config-templates](https://github.com/tschm/.config-templates), which provides a consistent development environment across multiple projects.
+
+This project uses standardized configuration files from [jebel-quant/rhiza](https://github.com/jebel-quant/rhiza), which provides a consistent development environment across multiple projects.
 
 ### Synchronized Files
 
@@ -88,6 +88,6 @@ While most boilerplate files come from the template, the following are project-s
 - Source code in [src/](src/)
 - Project-specific tests (e.g., `tests/test_sharpe.py`)
 
-Note: The [tests/test_config_templates](tests/test_config_templates) directory contains template-provided tests for validating the boilerplate configuration itself.
+Note: The [tests/test_rhiza](tests/test_rhiza) directory contains template-provided tests for validating the boilerplate configuration itself.
 
 

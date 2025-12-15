@@ -1,5 +1,8 @@
 """Tests for the sync.sh script and template.yml file exclusion functionality.
 
+This file and its associated tests flow down via a SYNC action from the jebel-quant/rhiza repository
+(https://github.com/jebel-quant/rhiza).
+
 These tests validate that the sync script correctly handles file exclusions,
 particularly for nested files within directories.
 """

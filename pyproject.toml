@@ -40,7 +40,8 @@ dev = [
     "marimo==0.18.4",
     "cvxpy>=1.7.0",
     "pdoc>=16.0.0",
-    "jinja2>=3.1.6"
+    "jinja2>=3.1.6",
+    "rhiza>=0.2.0",
 ]
 
 [build-system]

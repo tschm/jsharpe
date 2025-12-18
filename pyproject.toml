@@ -48,15 +48,6 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-#[tool.hatch.build]
-#include = ["LICENSE", "README.md"]
-
-#[tool.hatch.build.targets.wheel]
-#packages = ["src/jsharpe"]
-
 [tool.deptry]
 pep621_dev_dependency_groups = ["dev"]
 
-# --- uv integration ---------------------------------------------------------
-[tool.uv.sources]
-jsharpe = { path = ".", editable = true }

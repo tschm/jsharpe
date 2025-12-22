@@ -71,7 +71,7 @@ The following files are automatically synchronized from the template repository:
 
 ### Template Synchronization
 
-The [.github/template.yml](.github/template.yml) file controls which files are synchronized from the template repository. To sync with the latest template updates:
+The [.github/template.yml](.github/rhiza/template.yml) file controls which files are synchronized from the template repository. To sync with the latest template updates:
 
 ```bash
 make sync

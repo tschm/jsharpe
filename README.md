@@ -60,18 +60,58 @@ make marimo  # Start Marimo notebooks
 
 This project uses standardized configuration files from [jebel-quant/rhiza](https://github.com/jebel-quant/rhiza), which provides a consistent development environment across multiple projects.
 
+### Directory Structure
+
+```
+jsharpe/
+├── .github/           # GitHub Actions workflows and configurations
+├── .rhiza/            # Rhiza template scripts, utilities, and configuration
+├── book/              # Documentation and interactive notebooks
+│   ├── marimo/        # Marimo interactive notebooks
+│   ├── minibook-templates/  # Documentation templates
+│   └── pdoc-templates/      # API documentation templates
+├── presentation/      # Marp presentation generation system
+├── src/jsharpe/       # Main package source code
+└── tests/             # Test suite
+    └── test_rhiza/    # Template-provided boilerplate tests
+```
+
+### Key Directories
+
+- **[.rhiza/](.rhiza/)** - Platform-agnostic scripts and utilities for repository management
+  - `scripts/` - Shell scripts for common tasks (book generation, release, etc.)
+  - `scripts/customisations/` - Repository-specific customization hooks
+  - `utils/` - Python utilities for version management
+  - See [.rhiza/CONFIG.md](.rhiza/CONFIG.md) for details
+
+- **[book/](book/)** - Documentation and interactive content
+  - Contains Marimo notebooks for interactive demonstrations
+  - Documentation templates for minibook and API docs
+  - See [book/marimo/README.md](book/marimo/README.md) for notebook details
+
+- **[presentation/](presentation/)** - Marp-based presentation system
+  - Converts Markdown to HTML/PDF slides
+  - See [presentation/README.md](presentation/README.md) for usage
+
+- **[src/jsharpe/](src/jsharpe/)** - Main package implementation
+  - Core functionality for computing Probabilistic Sharpe Ratios
+
+- **[tests/](tests/)** - Test suite
+  - `test_sharpe.py` - Project-specific tests
+  - `test_rhiza/` - Template-provided tests for validating boilerplate
+
 ### Synchronized Files
 
 The following files are automatically synchronized from the template repository:
 
 - **Development Tools**: [.editorconfig](.editorconfig), [.pre-commit-config.yaml](.pre-commit-config.yaml), [Makefile](Makefile), [ruff.toml](ruff.toml), [pytest.ini](pytest.ini)
 - **GitHub Workflows**: CI/CD pipelines in [.github/workflows](.github/workflows)
-- **Documentation**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [LICENSE](LICENSE.md)
+- **Documentation**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [LICENSE](LICENSE)
 - **Configuration**: [.gitignore](.gitignore) and other project setup files
 
 ### Template Synchronization
 
-The [.github/template.yml](.github/rhiza/template.yml) file controls which files are synchronized from the template repository. To sync with the latest template updates:
+The [.rhiza/template.yml](.rhiza/template.yml) file controls which files are synchronized from the template repository. To sync with the latest template updates:
 
 ```bash
 make sync

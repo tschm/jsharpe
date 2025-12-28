@@ -104,10 +104,10 @@ jsharpe/
 
 The following files are automatically synchronized from the template repository:
 
-- **Development Tools**: [.editorconfig](.editorconfig), [.pre-commit-config.yaml](.pre-commit-config.yaml), [Makefile](Makefile), [ruff.toml](ruff.toml), [pytest.ini](pytest.ini)
+- **Development Tools**: [.editorconfig](.editorconfig), [.pre-commit-config.yaml](.pre-commit-config.yaml), [Makefile](Makefile), [pytest.ini](pytest.ini)
 - **GitHub Workflows**: CI/CD pipelines in [.github/workflows](.github/workflows)
 - **Documentation**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [LICENSE](LICENSE)
-- **Configuration**: [.gitignore](.gitignore) and other project setup files
+- **Configuration**: [.gitignore](.gitignore), [renovate.json](renovate.json), and other project setup files
 
 ### Template Synchronization
 

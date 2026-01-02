@@ -1,9 +1,22 @@
-# 📦 [jsharpe](https://github.com/tschm/jsharpe)
+# [jsharpe](https://tschm.github.io/jsharpe): Probabilistic Sharpe Ratio
 
 [![PyPI version](https://badge.fury.io/py/jsharpe.svg)](https://badge.fury.io/py/jsharpe)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![CI](https://github.com/tschm/jsharpe/actions/workflows/ci.yml/badge.svg)](https://github.com/tschm/jsharpe/actions/workflows/ci.yml)
-[![Created with qCradle](https://img.shields.io/badge/Created%20with-qCradle-blue?style=flat-square)](https://github.com/tschm/package)
+[![Downloads](https://static.pepy.tech/personalized-badge/jsharpe?period=month&units=international_system&left_color=black&right_color=orange&left_text=PyPI%20downloads%20per%20month)](https://pepy.tech/project/jsharpe)
+[![CodeFactor](https://www.codefactor.io/repository/github/tschm/jsharpe/badge)](https://www.codefactor.io/repository/github/tschm/jsharpe)
+[![Python Version](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
+
+[![CI](https://github.com/tschm/jsharpe/actions/workflows/rhiza_ci.yml/badge.svg)](https://github.com/tschm/jsharpe/actions/workflows/rhiza_ci.yml)
+[![pre-commit](https://github.com/tschm/jsharpe/actions/workflows/rhiza_pre-commit.yml/badge.svg)](https://github.com/tschm/jsharpe/actions/workflows/rhiza_pre-commit.yml)
+[![Documentation](https://github.com/tschm/jsharpe/actions/workflows/rhiza_book.yml/badge.svg)](https://github.com/tschm/jsharpe/actions/workflows/rhiza_book.yml)
+
+[![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://github.com/renovatebot/renovate)
+
+[![GitHub stars](https://img.shields.io/github/stars/tschm/jsharpe.svg)](https://github.com/tschm/jsharpe/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/tschm/jsharpe.svg)](https://github.com/tschm/jsharpe/network)
+
+A Python library for calculating the Probabilistic Sharpe Ratio (PSR) and related statistics, as introduced by Marcos Lopez de Prado. The PSR provides a more robust way to evaluate trading strategies by accounting for the uncertainty in Sharpe ratio estimates.
 
 ## 🚀 Getting Started
 

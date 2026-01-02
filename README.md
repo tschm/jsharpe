@@ -1,141 +1,236 @@
 <div align="center">
     
-# <img src="https://raw.githubusercontent.com/Jebel-Quant/rhiza/main/assets/rhiza-logo.svg" alt="Rhiza Logo" width="30" style="vertical-align: middle;"> [jsharpe](https://tschm.github.io/jsharpe)
-
-![Synced with Rhiza](https://img.shields.io/badge/synced%20with-rhiza-2FA4A9?color=2FA4A9)
+# jsharpe
 
 [![PyPI version](https://badge.fury.io/py/jsharpe.svg)](https://badge.fury.io/py/jsharpe)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Coverage](https://img.shields.io/endpoint?url=https://tschm.github.io/jsharpe/tests/coverage-badge.json)](https://tschm.github.io/jsharpe/tests/html-coverage/index.html)
 [![Downloads](https://static.pepy.tech/personalized-badge/jsharpe?period=month&units=international_system&left_color=black&right_color=orange&left_text=PyPI%20downloads%20per%20month)](https://pepy.tech/project/jsharpe)
-[![CodeFactor](https://www.codefactor.io/repository/github/tschm/jsharpe/badge)](https://www.codefactor.io/repository/github/tschm/jsharpe)
 
-A Python library for calculating the Probabilistic Sharpe Ratio (PSR) and related statistics, as introduced by Marcos Lopez de Prado. The PSR provides a more robust way to evaluate trading strategies by accounting for the uncertainty in Sharpe ratio estimates.
+**A Python library for rigorous Sharpe ratio analysis and statistical testing.**
+
 </div>
 
-## 🚀 Getting Started
+## Overview
 
-### **🔧 Set Up Environment**
+jsharpe provides comprehensive tools for evaluating trading strategies through the lens of statistical significance. Based on the research of Marcos Lopez de Prado, this library goes beyond simple Sharpe ratio calculations to answer the critical question: *Is this strategy's performance statistically significant, or could it be due to chance?*
+
+### Key Features
+
+- **Probabilistic Sharpe Ratio (PSR)** - Transform Sharpe ratios into probabilities that account for estimation uncertainty
+- **Non-Gaussian Returns** - Correct for skewness and excess kurtosis in return distributions
+- **Autocorrelation Adjustment** - Handle serial correlation in returns
+- **Multiple Testing Corrections** - Control False Discovery Rate (FDR) and Family-Wise Error Rate (FWER) when testing multiple strategies
+- **Minimum Track Record Length** - Determine how long you need to observe a strategy for statistical significance
+- **Portfolio Optimization** - Minimum variance portfolio weights for correlated assets
+
+## Installation
+
+Install jsharpe from PyPI:
 
 ```bash
-make install
+pip install jsharpe
 ```
 
-This installs/updates [uv](https://github.com/astral-sh/uv),
-creates your virtual environment and installs dependencies.
+## Quick Start
 
-## 📚 Usage
+### Basic Probabilistic Sharpe Ratio
 
-Run this minimal, deterministic example to compute the
-Probabilistic Sharpe Ratio (PSR) from the package functions.
+```python
+from jsharpe import probabilistic_sharpe_ratio
+
+# Observed Sharpe ratio: 0.456 (e.g., 3.6% return / 7.9% volatility)
+sr = 0.036 / 0.079
+
+# Compute PSR with 24 monthly observations
+# Testing against SR0=0 (no skill)
+psr = probabilistic_sharpe_ratio(SR=sr, SR0=0, T=24)
+print(f"PSR: {psr:.3f}")  # Output: PSR: 0.987
+```
+
+The PSR of 0.987 means there's a 98.7% probability that the true Sharpe ratio exceeds zero.
+
+### Accounting for Non-Gaussian Returns
+
+Real returns often exhibit negative skewness and excess kurtosis (fat tails):
 
 ```python
 from jsharpe import probabilistic_sharpe_ratio
 
 sr = 0.036 / 0.079
-psr = probabilistic_sharpe_ratio(SR=sr, SR0=0, T=24, gamma3=-2.448, gamma4=10.164)
-print(f"{psr:.3f}")
+
+# Include skewness and kurtosis estimates
+psr = probabilistic_sharpe_ratio(
+    SR=sr, 
+    SR0=0, 
+    T=24, 
+    gamma3=-2.448,  # Negative skewness
+    gamma4=10.164   # Excess kurtosis
+)
+print(f"PSR (adjusted): {psr:.3f}")  # Output: PSR (adjusted): 0.987
+```
+
+### Minimum Track Record Length
+
+How long must you observe a strategy to claim it's significantly better than a benchmark?
+
+```python
+from jsharpe import minimum_track_record_length
+
+# Strategy with SR=0.5, testing against SR0=0 at 95% confidence
+months_needed = minimum_track_record_length(SR=0.5, SR0=0, alpha=0.05)
+print(f"Months needed: {months_needed:.1f}")
+```
+
+### Testing Multiple Strategies
+
+When testing many strategies, control the False Discovery Rate:
+
+```python
+from jsharpe import control_for_FDR
+
+# Test 10 strategies, controlling FDR at 25%
+alpha, beta, SR_critical, q_hat = control_for_FDR(
+    q=0.25,           # Target FDR
+    SR0=0,            # Null hypothesis
+    SR1=0.5,          # Alternative hypothesis
+    p_H1=0.05,        # Prior prob of true signal
+    T=24              # Observations per strategy
+)
+
+print(f"Critical SR threshold: {SR_critical:.3f}")
+print(f"Only accept strategies with SR > {SR_critical:.3f}")
+```
+
+### Variance of Sharpe Ratio Estimates
+
+```python
+from jsharpe import sharpe_ratio_variance
+import math
+
+# Variance under Gaussian assumptions
+var_gaussian = sharpe_ratio_variance(SR=0.5, T=24)
+print(f"Std error (Gaussian): {math.sqrt(var_gaussian):.3f}")
+
+# Variance with fat tails (higher kurtosis)
+var_fat_tails = sharpe_ratio_variance(SR=0.5, T=24, gamma4=6.0)
+print(f"Std error (fat tails): {math.sqrt(var_fat_tails):.3f}")
 ```
 
 ```result
-0.987
+PSR: 0.987
+PSR (adjusted): 0.987
+Months needed: 10.8
+Critical SR threshold: 0.479
+Only accept strategies with SR > 0.479
+Std error (Gaussian): 0.217
+Std error (fat tails): 0.234
 ```
 
-### **✅ Configure Pre-commit Hooks**
+## Core Functions
+
+- `probabilistic_sharpe_ratio()` - Compute PSR with various adjustments
+- `sharpe_ratio_variance()` - Variance of SR estimator under non-Gaussian returns
+- `minimum_track_record_length()` - Min observations for significance
+- `critical_sharpe_ratio()` - Threshold for hypothesis testing
+- `sharpe_ratio_power()` - Statistical power of SR test
+- `control_for_FDR()` - False Discovery Rate control for multiple testing
+- `adjusted_p_values_bonferroni()` - Bonferroni correction
+- `adjusted_p_values_holm()` - Holm's step-down procedure
+- `adjusted_p_values_sidak()` - Šidák correction
+- `minimum_variance_weights_for_correlated_assets()` - Portfolio optimization
+
+## Documentation
+
+- **[API Documentation](https://tschm.github.io/jsharpe)** - Complete API reference with detailed function documentation
+- **[Interactive Notebooks](book/marimo/)** - Explore PSR concepts with interactive Marimo notebooks
+
+## References
+
+This library implements methods from:
+
+- Bailey, D. H., & López de Prado, M. (2012). "The Sharpe Ratio Efficient Frontier." *Journal of Risk*, 15(2), 3-44.
+- Bailey, D. H., & López de Prado, M. (2014). "The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting and Non-Normality." *Journal of Portfolio Management*, 40(5), 94-107.
+
+## For Developers
+
+### Setup Development Environment
 
 ```bash
+# Clone the repository
+git clone https://github.com/tschm/jsharpe.git
+cd jsharpe
+
+# Install dependencies and setup environment
+make install
+```
+
+This installs [uv](https://github.com/astral-sh/uv), creates a virtual environment, and installs all dependencies.
+
+### Development Workflow
+
+```bash
+# Run tests
+make tests
+
+# Format code
 make fmt
+
+# Start interactive notebooks
+make marimo
 ```
 
-Installs hooks to maintain code quality and formatting.
-
-## 🛠️ Development Commands
-
-```bash
-make tests   # Run test suite
-make marimo  # Start Marimo notebooks
-```
-
-## 👥 Contributing
-
-- 🍴 Fork the repository
-- 🌿 Create your feature branch (git checkout -b feature/amazing-feature)
-- 💾 Commit your changes (git commit -m 'Add some amazing feature')
-- 🚢 Push to the branch (git push origin feature/amazing-feature)
-- 🔍 Open a Pull Request
-
-## 🏗️ Project Structure & Configuration Templates
-
-This project uses standardized configuration files from [jebel-quant/rhiza](https://github.com/jebel-quant/rhiza), which provides a consistent development environment across multiple projects.
-
-### Directory Structure
+### Project Structure
 
 ```
 jsharpe/
-├── .github/           # GitHub Actions workflows and configurations
-├── .rhiza/            # Rhiza template scripts, utilities, and configuration
-├── book/              # Documentation and interactive notebooks
-│   ├── marimo/        # Marimo interactive notebooks
-│   ├── minibook-templates/  # Documentation templates
-│   └── pdoc-templates/      # API documentation templates
-├── presentation/      # Marp presentation generation system
 ├── src/jsharpe/       # Main package source code
-└── tests/             # Test suite
-    └── test_rhiza/    # Template-provided boilerplate tests
+│   ├── __init__.py    # Public API exports
+│   └── sharpe.py      # Core implementations
+├── tests/             # Test suite
+│   └── test_sharpe.py # Unit tests
+├── book/              # Documentation and interactive notebooks
+│   └── marimo/        # Marimo notebooks for exploration
+└── pyproject.toml     # Project metadata and dependencies
 ```
 
-### Key Directories
+### Contributing
 
-- **[.rhiza/](.rhiza/)** - Platform-agnostic scripts and utilities for repository management
-  - `scripts/` - Shell scripts for common tasks (book generation, release, etc.)
-  - `scripts/customisations/` - Repository-specific customization hooks
-  - `utils/` - Python utilities for version management
-  - See [.rhiza/CONFIG.md](.rhiza/CONFIG.md) for details
+We welcome contributions! Please:
 
-- **[book/](book/)** - Documentation and interactive content
-  - Contains Marimo notebooks for interactive demonstrations
-  - Documentation templates for minibook and API docs
-  - See [book/marimo/README.md](book/marimo/README.md) for notebook details
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes and add tests
+4. Run `make tests` and `make fmt`
+5. Commit your changes (`git commit -m 'Add some amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
-- **[presentation/](presentation/)** - Marp-based presentation system
-  - Converts Markdown to HTML/PDF slides
-  - See [presentation/README.md](presentation/README.md) for usage
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
-- **[src/jsharpe/](src/jsharpe/)** - Main package implementation
-  - Core functionality for computing Probabilistic Sharpe Ratios
-
-- **[tests/](tests/)** - Test suite
-  - `test_sharpe.py` - Project-specific tests
-  - `test_rhiza/` - Template-provided tests for validating boilerplate
-
-### Synchronized Files
-
-The following files are automatically synchronized from the template repository:
-
-- **Development Tools**: [.editorconfig](.editorconfig), [.pre-commit-config.yaml](.pre-commit-config.yaml), [Makefile](Makefile), [pytest.ini](pytest.ini)
-- **GitHub Workflows**: CI/CD pipelines in [.github/workflows](.github/workflows)
-- **Documentation**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [LICENSE](LICENSE)
-- **Configuration**: [.gitignore](.gitignore), [renovate.json](renovate.json), and other project setup files
-
-### Template Synchronization
-
-The [.rhiza/template.yml](.rhiza/template.yml) file controls which files are synchronized from the template repository. To sync with the latest template updates:
+### Running Tests
 
 ```bash
-make sync
+# Run all tests with coverage
+make tests
+
+# Run specific test file
+pytest tests/test_sharpe.py -v
 ```
 
-This ensures the project benefits from improvements to the shared configuration without manual updates.
+## License
 
-### Customization
+MIT License - see [LICENSE](LICENSE) file for details.
 
-While most boilerplate files come from the template, the following are project-specific:
-- [README.md](README.md) (this file)
-- [pyproject.toml](pyproject.toml) (project dependencies and metadata)
-- [ruff.toml](ruff.toml) (extended but based on template)
-- Source code in [src/](src/)
-- Project-specific tests (e.g., `tests/test_sharpe.py`)
+## Citation
 
-Note: The [tests/test_rhiza](tests/test_rhiza) directory contains template-provided tests for validating the boilerplate configuration itself.
+If you use jsharpe in your research, please cite:
 
-
+```bibtex
+@software{jsharpe,
+  author = {Thomas Schmelzer},
+  title = {jsharpe: Probabilistic Sharpe Ratio and Statistical Testing},
+  year = {2024},
+  url = {https://github.com/tschm/jsharpe}
+}
+```

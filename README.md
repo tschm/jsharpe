@@ -1,6 +1,6 @@
-# [jsharpe](https://tschm.github.io/jsharpe): Probabilistic Sharpe Ratio
+<div align="center">
+# <img src="https://raw.githubusercontent.com/Jebel-Quant/rhiza/main/assets/rhiza-logo.svg" alt="Rhiza Logo" width="30" style="vertical-align: middle;"> [jsharpe](https://tschm.github.io/jsharpe)
 
-# <img src="https://raw.githubusercontent.com/Jebel-Quant/rhiza/main/assets/rhiza-logo.svg" alt="Rhiza Logo" width="30" style="vertical-align: middle;"> rhiza-tools
 ![Synced with Rhiza](https://img.shields.io/badge/synced%20with-rhiza-2FA4A9?color=2FA4A9)
 
 [![PyPI version](https://badge.fury.io/py/jsharpe.svg)](https://badge.fury.io/py/jsharpe)
@@ -10,7 +10,6 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/tschm/jsharpe/badge)](https://www.codefactor.io/repository/github/tschm/jsharpe)
 
 A Python library for calculating the Probabilistic Sharpe Ratio (PSR) and related statistics, as introduced by Marcos Lopez de Prado. The PSR provides a more robust way to evaluate trading strategies by accounting for the uncertainty in Sharpe ratio estimates.
-
 </div>
 
 ## 🚀 Getting Started

@@ -31,23 +31,16 @@ repository = "https://github.com/tschm/jsharpe"
 homepage = "https://github.com/tschm/jsharpe"
 issues = "https://github.com/tschm/jsharpe/issues"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-    "pytest>=9.0.1",
-    "pytest-cov>=7.0.0",
-    "pytest-html>=4.1.1",
-    "pre-commit>=4.0.1",
     "marimo==0.18.4",
     "cvxpy>=1.7.0",
-    "pdoc>=16.0.0",
     "jinja2>=3.1.6",
-    "rhiza>=0.2.0",
+    "plotly>=6.5",
+    "pandas>=2.3"
 ]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[tool.deptry]
-pep621_dev_dependency_groups = ["dev"]
 

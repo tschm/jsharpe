@@ -117,6 +117,16 @@ var_fat_tails = sharpe_ratio_variance(SR=0.5, T=24, gamma4=6.0)
 print(f"Std error (fat tails): {math.sqrt(var_fat_tails):.3f}")
 ```
 
+```result
+PSR: 0.987
+PSR (adjusted): 0.987
+Months needed: 10.8
+Critical SR threshold: 0.479
+Only accept strategies with SR > 0.479
+Std error (Gaussian): 0.217
+Std error (fat tails): 0.234
+```
+
 ## Core Functions
 
 - `probabilistic_sharpe_ratio()` - Compute PSR with various adjustments

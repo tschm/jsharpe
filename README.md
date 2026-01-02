@@ -45,10 +45,10 @@ sr = 0.036 / 0.079
 # Compute PSR with 24 monthly observations
 # Testing against SR0=0 (no skill)
 psr = probabilistic_sharpe_ratio(SR=sr, SR0=0, T=24)
-print(f"PSR: {psr:.3f}")  # Output: PSR: 0.794
+print(f"PSR: {psr:.3f}")  # Output: PSR: 0.987
 ```
 
-The PSR of 0.794 means there's a 79.4% probability that the true Sharpe ratio exceeds zero.
+The PSR of 0.987 means there's a 98.7% probability that the true Sharpe ratio exceeds zero.
 
 ### Accounting for Non-Gaussian Returns
 

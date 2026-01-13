@@ -33,7 +33,7 @@ issues = "https://github.com/tschm/jsharpe/issues"
 
 [dependency-groups]
 dev = [
-    "marimo==0.18.4",
+    "marimo==0.19.2",
     "cvxpy>=1.7.0",
     "jinja2>=3.1.6",
     "plotly>=6.5",

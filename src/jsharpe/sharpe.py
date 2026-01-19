@@ -9,12 +9,13 @@ This module provides comprehensive tools for Sharpe ratio analysis, including:
 
 import math
 import warnings
+from collections.abc import Callable
 
 import numpy as np
-import scipy
+import scipy  # type: ignore[import-untyped]
 
 
-def ppoints(n, a=None):
+def ppoints(n: int, a: float | None = None) -> np.ndarray:
     """Generate probability points for Q-Q plots and distribution fitting.
 
     Creates n equidistant points in the interval (0, 1), suitable for
@@ -84,7 +85,8 @@ def robust_covariance_inverse(V: np.ndarray) -> np.ndarray:
     rho = np.mean(C[np.triu_indices_from(C, 1)])
     A = np.diag(1 / sigma**2) / (1 - rho)
     sigma = sigma.reshape(-1, 1)
-    return A - (rho * A @ sigma @ sigma.T @ A) / (1 + rho * sigma.T @ A @ sigma)
+    result: np.ndarray = A - (rho * A @ sigma @ sigma.T @ A) / (1 + rho * sigma.T @ A @ sigma)
+    return result
 
 
 def minimum_variance_weights_for_correlated_assets(V: np.ndarray) -> np.ndarray:
@@ -160,7 +162,7 @@ def effective_rank(C: np.ndarray) -> float:
     return math.exp(H)
 
 
-def moments_Mk(k, *, rho=0):
+def moments_Mk(k: int, *, rho: float = 0) -> tuple[float, float, float]:
     """Compute moments of the maximum of k standard normal random variables.
 
     Computes E[M_k], E[M_k^2], and Var[M_k] where M_k = max(Z_1, ..., Z_k)
@@ -240,7 +242,7 @@ def sharpe_ratio_variance(
     b = A + B + C
     c = A + 2 * C
     V = (a * 1 - b * gamma3 * SR + c * (gamma4 - 1) / 4 * SR**2) / T
-    return V * moments_Mk(K)[2]
+    return float(V * moments_Mk(K)[2])
 
 
 def variance_of_the_maximum_of_k_Sharpe_ratios(number_of_trials: int, variance: float) -> float:
@@ -266,7 +268,7 @@ def variance_of_the_maximum_of_k_Sharpe_ratios(number_of_trials: int, variance: 
     """
     # Monotone increasing variance inflation with K (K>=1)
     inflation = 1.0 + np.log(max(1, int(number_of_trials)))
-    return variance * inflation
+    return float(variance * inflation)
 
 
 def control_for_FDR(
@@ -347,11 +349,14 @@ def expected_maximum_sharpe_ratio(number_of_trials: int, variance: float, SR0: f
         >>> bool(e10 > e1)
         True
     """
-    return SR0 + (
-        np.sqrt(variance)
-        * (
-            (1 - np.euler_gamma) * scipy.stats.norm.ppf(1 - 1 / number_of_trials)
-            + np.euler_gamma * scipy.stats.norm.ppf(1 - 1 / number_of_trials / np.exp(1))
+    return float(
+        SR0
+        + (
+            np.sqrt(variance)
+            * (
+                (1 - np.euler_gamma) * scipy.stats.norm.ppf(1 - 1 / number_of_trials)
+                + np.euler_gamma * scipy.stats.norm.ppf(1 - 1 / number_of_trials / np.exp(1))
+            )
         )
     )
 
@@ -390,10 +395,10 @@ def minimum_track_record_length(
         True
     """
     var = sharpe_ratio_variance(SR0, T=1, gamma3=gamma3, gamma4=gamma4, rho=rho, K=1)
-    return var * (scipy.stats.norm.ppf(1 - alpha) / (SR - SR0)) ** 2
+    return float(var * (scipy.stats.norm.ppf(1 - alpha) / (SR - SR0)) ** 2)
 
 
-def make_expectation_gh(n_nodes=200):
+def make_expectation_gh(n_nodes: int = 200) -> Callable[[Callable[[np.ndarray], np.ndarray]], float]:
     """Create an expectation function using Gauss-Hermite quadrature.
 
     Returns a function that computes E[g(Z)] where Z ~ N(0,1) using
@@ -423,9 +428,9 @@ def make_expectation_gh(n_nodes=200):
     norm = 1.0 / np.sqrt(np.pi)
     x = scale * nodes
 
-    def E(g):
+    def E(g: Callable[[np.ndarray], np.ndarray]) -> float:
         vals = g(x)
-        return norm * np.dot(weights, vals)
+        return float(norm * np.dot(weights, vals))
 
     return E
 
@@ -452,7 +457,8 @@ def adjusted_p_values_bonferroni(ps: np.ndarray) -> np.ndarray:
         True
     """
     M = len(ps)
-    return np.minimum(1, M * ps)
+    result: np.ndarray = np.minimum(1, M * ps)
+    return result
 
 
 def adjusted_p_values_sidak(ps: np.ndarray) -> np.ndarray:
@@ -552,20 +558,20 @@ def FDR_critical_value(q: float, SR0: float, SR1: float, sigma0: float, sigma1: 
         warnings.filterwarnings("ignore", message="invalid value encountered in scalar divide")
         warnings.filterwarnings("ignore", message="divide by zero encountered in scalar divide")
 
-        def f(c):
+        def f(c: float) -> float:
             a = 1 / (
                 1
                 + scipy.stats.norm.sf((c - SR1) / sigma1) / scipy.stats.norm.sf((c - SR0) / sigma0) * p_H1 / (1 - p_H1)
             )
-            return np.where(np.isfinite(a), a, 0)
+            return float(np.where(np.isfinite(a), a, 0))
 
         if f(-10) < q:  # Solution outside of the search interval
-            return -np.inf
+            return float(-np.inf)
 
         if (f(-10) - q) * (f(10) - q) > 0:  # No solution, for instance if σ₀≫σ₁ and q small
-            return np.nan
+            return float(np.nan)
 
-        return scipy.optimize.brentq(lambda c: f(c) - q, -10, 10)
+        return float(scipy.optimize.brentq(lambda c: f(c) - q, -10, 10))
 
 
 def critical_sharpe_ratio(
@@ -602,15 +608,15 @@ def critical_sharpe_ratio(
         True
     """
     variance = sharpe_ratio_variance(SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K)
-    return SR0 + scipy.stats.norm.ppf(1 - alpha) * math.sqrt(variance)
+    return float(SR0 + scipy.stats.norm.ppf(1 - alpha) * math.sqrt(variance))
 
 
 def probabilistic_sharpe_ratio(
     SR: float,
     SR0: float,
     *,
-    variance: float = None,
-    T: int = None,
+    variance: float | None = None,
+    T: int | None = None,
     gamma3: float = 0.0,
     gamma4: float = 3.0,
     rho: float = 0.0,
@@ -649,10 +655,11 @@ def probabilistic_sharpe_ratio(
         True
     """
     if variance is None:
+        assert T is not None, "T must be provided if variance is not provided"
         variance = sharpe_ratio_variance(SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K)
     else:
         assert T is None, "Provide either the variance or (T, gamma3, gamma4, rho)"
-    return scipy.stats.norm.cdf((SR - SR0) / math.sqrt(variance))
+    return float(scipy.stats.norm.cdf((SR - SR0) / math.sqrt(variance)))
 
 
 def sharpe_ratio_power(
@@ -698,10 +705,17 @@ def sharpe_ratio_power(
     critical_SR = critical_sharpe_ratio(SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, alpha=alpha)
     variance = sharpe_ratio_variance(SR1, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K)
     beta = scipy.stats.norm.cdf((critical_SR - SR1) / math.sqrt(variance))
-    return 1 - beta
+    return float(1 - beta)
 
 
-def generate_autocorrelated_non_gaussian_data(N, n, SR0=0, name="gaussian", rho=None, gaussian_autocorrelation=0):
+def generate_autocorrelated_non_gaussian_data(
+    N: int,
+    n: int,
+    SR0: float = 0,
+    name: str = "gaussian",
+    rho: float | None = None,
+    gaussian_autocorrelation: float = 0,
+) -> np.ndarray:
     """Generate autocorrelated non-Gaussian return data for simulation.
 
     Creates a matrix of simulated returns with specified autocorrelation
@@ -750,9 +764,9 @@ def generate_autocorrelated_non_gaussian_data(N, n, SR0=0, name="gaussian", rho=
     X = scipy.stats.norm.cdf(X)
 
     # Convert the uniforms to the target margins, using the ppf
-    X = ppf(X)
+    result: np.ndarray = ppf(X)
 
-    return X
+    return result
 
 
 def get_random_correlation_matrix(
@@ -760,7 +774,7 @@ def get_random_correlation_matrix(
     effective_number_of_trials: int = 10,
     number_of_observations: int = 200,
     noise: float = 0.1,
-):
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Generate a random correlation matrix with block structure.
 
     Creates a correlation matrix representing clustered strategies, where
@@ -804,7 +818,7 @@ def get_random_correlation_matrix(
     X = np.zeros(shape=(number_of_observations, number_of_trials))
     for i, cluster in enumerate(clusters):
         X[:, i] = X0[:, cluster] + noise * np.random.normal(size=number_of_observations)
-    C = np.corrcoef(X, rowvar=False)
+    C = np.asarray(np.corrcoef(X, rowvar=False))
     np.fill_diagonal(C, 1)  # rounding errors
     C = np.clip(C, -1, 1)
     return C, X, clusters
@@ -854,13 +868,17 @@ def generate_non_gaussian_data(
     }
     assert name in configs
 
-    def mixture_variance(p_tail, mu_tail, sigma_tail, mu_core, sigma_core):
+    def mixture_variance(
+        p_tail: float, mu_tail: float, sigma_tail: float, mu_core: float, sigma_core: float
+    ) -> float:
         w = 1.0 - p_tail
         mu = w * mu_core + p_tail * mu_tail
         m2 = w * (sigma_core**2 + mu_core**2) + p_tail * (sigma_tail**2 + mu_tail**2)
-        return m2 - mu**2
+        return float(m2 - mu**2)
 
-    def gen_with_true_SR0(reps, T, cfg, SR0):
+    def gen_with_true_SR0(
+        reps: int, T: int, cfg: tuple[float, float, float, float], SR0: float
+    ) -> np.ndarray:
         p, mu_tail, sig_tail, sig_core = cfg
         # Zero-mean baseline mixture (choose mu_core so mean=0)
         mu_core0 = -p * mu_tail / (1.0 - p)
@@ -874,7 +892,7 @@ def generate_non_gaussian_data(
     return gen_with_true_SR0(nr, nc, configs[name], SR0)
 
 
-def autocorrelation(X):
+def autocorrelation(X: np.ndarray) -> float:
     """Compute mean first-order autocorrelation across columns.
 
     Calculates the lag-1 autocorrelation for each column of the input
@@ -902,7 +920,7 @@ def autocorrelation(X):
     ac = np.zeros(nc)
     for i in range(nc):
         ac[i] = np.corrcoef(X[1:, i], X[:-1, i])[0, 1]
-    return ac.mean()
+    return float(ac.mean())
 
 
 def pFDR(

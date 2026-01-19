@@ -868,17 +868,13 @@ def generate_non_gaussian_data(
     }
     assert name in configs
 
-    def mixture_variance(
-        p_tail: float, mu_tail: float, sigma_tail: float, mu_core: float, sigma_core: float
-    ) -> float:
+    def mixture_variance(p_tail: float, mu_tail: float, sigma_tail: float, mu_core: float, sigma_core: float) -> float:
         w = 1.0 - p_tail
         mu = w * mu_core + p_tail * mu_tail
         m2 = w * (sigma_core**2 + mu_core**2) + p_tail * (sigma_tail**2 + mu_tail**2)
         return float(m2 - mu**2)
 
-    def gen_with_true_SR0(
-        reps: int, T: int, cfg: tuple[float, float, float, float], SR0: float
-    ) -> np.ndarray:
+    def gen_with_true_SR0(reps: int, T: int, cfg: tuple[float, float, float, float], SR0: float) -> np.ndarray:
         p, mu_tail, sig_tail, sig_core = cfg
         # Zero-mean baseline mixture (choose mu_core so mean=0)
         mu_core0 = -p * mu_tail / (1.0 - p)

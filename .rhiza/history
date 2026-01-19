@@ -19,6 +19,7 @@
 .github/workflows/rhiza_devcontainer.yml
 .github/workflows/rhiza_docker.yml
 .github/workflows/rhiza_marimo.yml
+.github/workflows/rhiza_mypy.yml
 .github/workflows/rhiza_pre-commit.yml
 .github/workflows/rhiza_release.yml
 .github/workflows/rhiza_security.yml
@@ -63,6 +64,7 @@ tests/test_rhiza/benchmarks/.gitignore
 tests/test_rhiza/benchmarks/README.md
 tests/test_rhiza/benchmarks/analyze_benchmarks.py
 tests/test_rhiza/conftest.py
+tests/test_rhiza/test_check_workflow_names.py
 tests/test_rhiza/test_docstrings.py
 tests/test_rhiza/test_git_repo_fixture.py
 tests/test_rhiza/test_makefile.py
@@ -74,4 +76,5 @@ tests/test_rhiza/test_readme.py
 tests/test_rhiza/test_release_script.py
 tests/test_rhiza/test_requirements_folder.py
 tests/test_rhiza/test_structure.py
+tests/test_rhiza/test_version_matrix.py
 tests/tests.mk

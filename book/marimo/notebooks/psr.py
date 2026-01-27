@@ -12,7 +12,7 @@ It computes and displays the PSR using functions from the jsharpe package.
 # ]
 #
 # [tool.uv.sources]
-# jsharpe = { path = "../..", editable=true }
+# jsharpe = { path = "../../..", editable=true }
 #
 # ///
 

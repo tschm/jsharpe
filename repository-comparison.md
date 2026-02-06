@@ -156,33 +156,6 @@ Without Rhiza (or equivalent infrastructure):
 - ❌ **No standardization**: Each project reinvents the wheel
 - ❌ **No documentation automation**: Docs drift from code
 
-### The Economics of Infrastructure: What Rhiza Saves You
-
-**Building Rhiza-equivalent infrastructure manually would require:**
-
-| Task | Estimated Time | Cost (at $150/hr DevOps rate) |
-|------|----------------|------------------------------|
-| Set up 14 GitHub Actions workflows | 2 weeks | $12,000 |
-| Configure security scanning (CodeQL + vulnerabilities) | 3 days | $3,600 |
-| Implement release automation & PyPI publishing | 1 week | $6,000 |
-| Set up documentation pipeline (API + book) | 1 week | $6,000 |
-| Create & configure pre-commit hooks | 2 days | $2,400 |
-| Configure multi-version testing matrix | 3 days | $3,600 |
-| Set up dependency management (Deptry + Renovate) | 2 days | $2,400 |
-| Create devcontainer environment | 2 days | $2,400 |
-| **Total Initial Setup** | **~2.5 months** | **~$38,000** |
-| **Ongoing Maintenance** | **~5 hrs/month** | **~$9,000/year** |
-| **3-Year Total Cost of Ownership** | **N/A** | **~$65,000** |
-
-**Rhiza Alternative:**
-- Initial setup: **$0** (git clone + template sync)
-- Ongoing maintenance: **$0** (automatic updates)
-- 3-year TCO: **$0**
-
-**💰 Savings from using Rhiza: ~$65,000 over 3 years**
-
-**Bottom Line**: Rhiza provides jsharpe with **~10,000 lines of production-grade infrastructure** worth approximately **$38,000 in initial development** plus **$9,000/year in maintenance**. This is equivalent to having a full-time DevOps engineer maintaining the project's tooling - but completely automated and free.
-
 ---
 
 ## 3. Code Quality & Practices

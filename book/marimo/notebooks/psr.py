@@ -6,6 +6,7 @@ It computes and displays the PSR using functions from the jsharpe package.
 """
 
 # /// script
+# requires-python = ">=3.13"
 # dependencies = [
 #     "marimo==0.18.4",
 #     "jsharpe",

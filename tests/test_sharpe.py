@@ -107,14 +107,20 @@ def test_sharpe_ratio_variance():
 
 def test_minimum_track_record_length():
     """Test minimum_track_record_length computation."""
-    mtrl = minimum_track_record_length(SR=0.036 / 0.079, SR0=0, gamma3=-2.448, gamma4=10.164, alpha=0.05)
+    mtrl = minimum_track_record_length(
+        SR=0.036 / 0.079, SR0=0, gamma3=-2.448, gamma4=10.164, alpha=0.05
+    )
     assert round(mtrl, 3) == 13.029
 
 
 def test_probabilistic_sharpe_ratio():
     """Test probabilistic_sharpe_ratio computation."""
-    psr0 = probabilistic_sharpe_ratio(SR=0.036 / 0.079, SR0=0, T=24, gamma3=-2.448, gamma4=10.164)
-    psr1 = probabilistic_sharpe_ratio(SR=0.036 / 0.079, SR0=0.1, T=24, gamma3=-2.448, gamma4=10.164)
+    psr0 = probabilistic_sharpe_ratio(
+        SR=0.036 / 0.079, SR0=0, T=24, gamma3=-2.448, gamma4=10.164
+    )
+    psr1 = probabilistic_sharpe_ratio(
+        SR=0.036 / 0.079, SR0=0.1, T=24, gamma3=-2.448, gamma4=10.164
+    )
     assert round(psr0, 3) == 0.987
     assert round(psr1, 3) == 0.939
 
@@ -132,14 +138,16 @@ def test_pFDR():
 
 def test_oFDR():
     """Test oFDR computation."""
-    result = oFDR(SR=0.036 / 0.079, SR0=0, SR1=0.5, T=24, p_H1=0.05, gamma3=-2.448, gamma4=10.164)
+    result = oFDR(
+        SR=0.036 / 0.079, SR0=0, SR1=0.5, T=24, p_H1=0.05, gamma3=-2.448, gamma4=10.164
+    )
     assert round(result, 3) == 0.306
 
 
 def test_FDR_critical_value():
     """Test FDR_critical_value computation."""
     np.random.seed(0)
-    r = dict()
+    r = {}
     for _ in range(100):
         q = np.random.uniform()
         mu0 = np.random.uniform()
@@ -213,39 +221,62 @@ def test_numeric_example():
         print(f"T                      = {T}")
         print(f"SR                     = {SR:.3f}")
 
-        var_ng = sharpe_ratio_variance(SR=mu / sigma, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T)
+        var_ng = sharpe_ratio_variance(
+            SR=mu / sigma, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T
+        )
         var_g = sharpe_ratio_variance(SR=mu / sigma, gamma3=0, gamma4=3, T=T)
         print(f"σ_SR                   = {math.sqrt(var_ng):.3f} (non-Gaussian)")
         print(f"σ_SR                   = {math.sqrt(var_g):.3f} (Gaussian, iid)")
 
-        mtrl = minimum_track_record_length(SR=mu / sigma, SR0=0, gamma3=gamma3, gamma4=gamma4, rho=rho, alpha=alpha)
+        mtrl = minimum_track_record_length(
+            SR=mu / sigma, SR0=0, gamma3=gamma3, gamma4=gamma4, rho=rho, alpha=alpha
+        )
         mtrl_01 = minimum_track_record_length(
             SR=mu / sigma, SR0=0.1, gamma3=gamma3, gamma4=gamma4, rho=rho, alpha=alpha
         )
         print(f"MinTRL                 = {mtrl:.3f}")
         print(f"MinTRL(SR0=.1)         = {mtrl_01:.3f}")
 
-        psr_0 = probabilistic_sharpe_ratio(SR=mu / sigma, SR0=0, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho)
-        psr_01 = probabilistic_sharpe_ratio(SR=mu / sigma, SR0=0.1, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho)
+        psr_0 = probabilistic_sharpe_ratio(
+            SR=mu / sigma, SR0=0, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho
+        )
+        psr_01 = probabilistic_sharpe_ratio(
+            SR=mu / sigma, SR0=0.1, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho
+        )
         print(f"p = 1 - PSR(SR0=0)     = {1 - psr_0:.3f}")
         print(f"PSR(SR0=0)             = {psr_0:.3f}")
         print(f"PSR(SR0=.1)            = {psr_01:.3f}")
         print(f"SR0                    = {SR0:.3f}")
 
-        sr_c_g = critical_sharpe_ratio(SR0, T, gamma3=0.0, gamma4=3.0, rho=0, alpha=alpha)
-        sr_c_ng = critical_sharpe_ratio(SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, alpha=alpha)
+        sr_c_g = critical_sharpe_ratio(
+            SR0, T, gamma3=0.0, gamma4=3.0, rho=0, alpha=alpha
+        )
+        sr_c_ng = critical_sharpe_ratio(
+            SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, alpha=alpha
+        )
         print(f"SR_c                   = {sr_c_g:.3f} (Gaussian, iid)")
         # Note: unchanged if iid and SR0=0
         print(f"SR_c                   = {sr_c_ng:.3f} (non-Gaussian)")
         print(f"SR1                    = {SR1:.3f}")
 
-        power = sharpe_ratio_power(SR0=SR0, SR1=SR1, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho, alpha=alpha)
+        power = sharpe_ratio_power(
+            SR0=SR0, SR1=SR1, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho, alpha=alpha
+        )
         print(f"Power = 1 - β          = {power:.3f}")
         print(f"β                      = {1 - power:.3f}")
         print(f"P[H1]                  = {p_H1:.3f}")
 
         pfdr_val = pFDR(p_H1, alpha, 1 - power)
-        ofdr_val = oFDR(SR=mu / sigma, SR0=SR0, SR1=SR1, T=T, p_H1=p_H1, gamma3=gamma3, gamma4=gamma4, rho=rho)
+        ofdr_val = oFDR(
+            SR=mu / sigma,
+            SR0=SR0,
+            SR1=SR1,
+            T=T,
+            p_H1=p_H1,
+            gamma3=gamma3,
+            gamma4=gamma4,
+            rho=rho,
+        )
         print(f"pFDR = P[H0|SR>SR_c]   = {pfdr_val:.3f}")
         print(f"oFDR = P[H0|SR>SR_obs] = {ofdr_val:.3f}")
 
@@ -256,20 +287,52 @@ def test_numeric_example():
         SR0_adj = SR0 + E_max_SR
         SR1_adj = SR1 + E_max_SR
 
-        sigma_SR0_adj_single = math.sqrt(sharpe_ratio_variance(SR=SR0_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T))
+        sigma_SR0_adj_single = math.sqrt(
+            sharpe_ratio_variance(
+                SR=SR0_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T
+            )
+        )
         sigma_SR0_adj = math.sqrt(
-            sharpe_ratio_variance(SR=SR0_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T, K=number_of_trials)
+            sharpe_ratio_variance(
+                SR=SR0_adj,
+                gamma3=gamma3,
+                gamma4=gamma4,
+                rho=rho,
+                T=T,
+                K=number_of_trials,
+            )
         )
-        sigma_SR1_adj_single = math.sqrt(sharpe_ratio_variance(SR=SR1_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T))
+        sigma_SR1_adj_single = math.sqrt(
+            sharpe_ratio_variance(
+                SR=SR1_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T
+            )
+        )
         sigma_SR1_adj = math.sqrt(
-            sharpe_ratio_variance(SR=SR1 + SR0_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T, K=number_of_trials)
+            sharpe_ratio_variance(
+                SR=SR1 + SR0_adj,
+                gamma3=gamma3,
+                gamma4=gamma4,
+                rho=rho,
+                T=T,
+                K=number_of_trials,
+            )
         )
-        DSR_single = probabilistic_sharpe_ratio(SR, SR0=SR0_adj, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho)
+        DSR_single = probabilistic_sharpe_ratio(
+            SR, SR0=SR0_adj, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho
+        )
         DSR = probabilistic_sharpe_ratio(
-            SR, SR0=SR0_adj, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=number_of_trials
+            SR,
+            SR0=SR0_adj,
+            T=T,
+            gamma3=gamma3,
+            gamma4=gamma4,
+            rho=rho,
+            K=number_of_trials,
         )
         print(f"K                         = {number_of_trials}")
-        print(f"Var[SR_k]                 = {variance:.3f}  (only used to compute E[max SR])")
+        print(
+            f"Var[SR_k]                 = {variance:.3f}  (only used to compute E[max SR])"
+        )
         print(f"E[max SR]                 = {E_max_SR:.3f}")
         print(f"SR0_adj = SR0 + E[max SR] = {SR0_adj:.3f}")
         print(f"SR1_adj = SR1 + E[max SR] = {SR1_adj:.3f}")
@@ -295,7 +358,14 @@ def test_numeric_example():
         print(f"DSR (K=1)                    = {DSR_single:.3f}")
 
         ofdr_k1 = oFDR(
-            SR=mu / sigma, SR0=SR0_adj, SR1=SR1 + SR0_adj, T=T, p_H1=p_H1, gamma3=gamma3, gamma4=gamma4, rho=rho
+            SR=mu / sigma,
+            SR0=SR0_adj,
+            SR1=SR1 + SR0_adj,
+            T=T,
+            p_H1=p_H1,
+            gamma3=gamma3,
+            gamma4=gamma4,
+            rho=rho,
         )
         print(f"oFDR = P[H0|SR>SR_obs] (K=1) = {ofdr_k1:.3f}")
 
@@ -310,16 +380,27 @@ def test_numeric_example():
         print(f"β                      = {beta_:.3f}")
         print(f"SR_c                   = {SR_c:.3f}")
 
-        var_sr0 = sharpe_ratio_variance(SR=SR0, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T)
-        var_sr1 = sharpe_ratio_variance(SR=SR1, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T)
+        var_sr0 = sharpe_ratio_variance(
+            SR=SR0, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T
+        )
+        var_sr1 = sharpe_ratio_variance(
+            SR=SR1, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T
+        )
         print(f"σ_SR0                  = {math.sqrt(var_sr0):.3f}")
         print(f"σ_SR1                  = {math.sqrt(var_sr1):.3f}")
 
         print("\nFWER-FDR")
-        alpha_W, beta_W, SR_c_W, q_hat_W = control_for_FDR(
-            q, SR0=SR0 + SR0_adj, SR1=SR1 + SR0_adj, p_H1=p_H1, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho
+        alpha_W, beta_W, SR_c_W, _q_hat_W = control_for_FDR(
+            q,
+            SR0=SR0 + SR0_adj,
+            SR1=SR1 + SR0_adj,
+            p_H1=p_H1,
+            T=T,
+            gamma3=gamma3,
+            gamma4=gamma4,
+            rho=rho,
         )
-        alpha_, beta_, SR_c, q_hat = control_for_FDR(
+        alpha_, beta_, SR_c, _q_hat = control_for_FDR(
             q,
             SR0=SR0 + SR0_adj,
             SR1=SR1 + SR0_adj,
@@ -332,10 +413,20 @@ def test_numeric_example():
         )
 
         var_sr0_fwer = sharpe_ratio_variance(
-            SR=SR0 + SR0_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T, K=number_of_trials
+            SR=SR0 + SR0_adj,
+            gamma3=gamma3,
+            gamma4=gamma4,
+            rho=rho,
+            T=T,
+            K=number_of_trials,
         )
         var_sr1_fwer = sharpe_ratio_variance(
-            SR=SR1 + SR0_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T, K=number_of_trials
+            SR=SR1 + SR0_adj,
+            gamma3=gamma3,
+            gamma4=gamma4,
+            rho=rho,
+            T=T,
+            K=number_of_trials,
         )
         print(f"σ_SR0                  = {math.sqrt(var_sr0_fwer):.3f}")
         print(f"σ_SR1                  = {math.sqrt(var_sr1_fwer):.3f}")
@@ -343,8 +434,12 @@ def test_numeric_example():
         print(f"β                      = {beta_:.3f}")
         print(f"SR_c                   = {SR_c:.3f}")
 
-        var_sr0_k1 = sharpe_ratio_variance(SR=SR0 + SR0_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T)
-        var_sr1_k1 = sharpe_ratio_variance(SR=SR1 + SR0_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T)
+        var_sr0_k1 = sharpe_ratio_variance(
+            SR=SR0 + SR0_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T
+        )
+        var_sr1_k1 = sharpe_ratio_variance(
+            SR=SR1 + SR0_adj, gamma3=gamma3, gamma4=gamma4, rho=rho, T=T
+        )
         print(f"σ_SR0 (K=1)          = {math.sqrt(var_sr0_k1):.3f}")
         print(f"σ_SR1 (K=1)          = {math.sqrt(var_sr1_k1):.3f}")
         print(f"α (K=1)              = {alpha_W:.5f}")
@@ -362,7 +457,8 @@ def test_ppoints_default_large_n():
     expected = np.linspace(1 - 0.5, n - 0.5, n) / (n + 1 - 2 * 0.5)
     x = ppoints(n)
     assert np.allclose(x, expected)
-    assert np.all(x > 0) and np.all(x < 1)
+    assert np.all(x > 0)
+    assert np.all(x < 1)
     # uniform spacing
     diffs = np.diff(x)
     assert np.allclose(diffs, diffs[0])
@@ -496,7 +592,10 @@ def test_get_random_correlation_matrix_and_effective_rank():
     """Generate a clustered correlation matrix and validate shapes, symmetry, labels, and effective rank."""
     np.random.seed(1)
     C, X, clusters = get_random_correlation_matrix(
-        number_of_trials=30, effective_number_of_trials=5, number_of_observations=200, noise=0.05
+        number_of_trials=30,
+        effective_number_of_trials=5,
+        number_of_observations=200,
+        noise=0.05,
     )
     # Shapes
     assert C.shape == (30, 30)
@@ -506,7 +605,8 @@ def test_get_random_correlation_matrix_and_effective_rank():
     assert np.allclose(C, C.T)
     assert np.allclose(np.diag(C), 1)
     # Cluster labels within range
-    assert clusters.min() >= 0 and clusters.max() < 5
+    assert clusters.min() >= 0
+    assert clusters.max() < 5
     # Effective rank between 1 and n
     er = effective_rank(C)
     assert 1 <= er <= 30
@@ -531,7 +631,9 @@ def test_generate_autocorrelated_non_gaussian_data_and_autocorrelation():
     np.random.seed(0)
     N, n = 800, 4
     rho = 0.3
-    X = generate_autocorrelated_non_gaussian_data(N, n, SR0=0.0, name="mild", rho=rho, gaussian_autocorrelation=0.0)
+    X = generate_autocorrelated_non_gaussian_data(
+        N, n, SR0=0.0, name="mild", rho=rho, gaussian_autocorrelation=0.0
+    )
     assert X.shape == (N, n)
     ac = autocorrelation(X)
     # Allow some tolerance due to finite sample

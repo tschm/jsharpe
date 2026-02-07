@@ -32,11 +32,7 @@ def test_readme_runs(logger, root):
     readme_text = readme.read_text(encoding="utf-8")
     code_blocks = CODE_BLOCK.findall(readme_text)
     result_blocks = RESULT.findall(readme_text)
-    logger.info(
-        "Found %d code block(s) and %d result block(s) in README",
-        len(code_blocks),
-        len(result_blocks),
-    )
+    logger.info("Found %d code block(s) and %d result block(s) in README", len(code_blocks), len(result_blocks))
 
     code = "".join(code_blocks)  # merged code
     expected = "".join(result_blocks)  # merged results
@@ -44,9 +40,7 @@ def test_readme_runs(logger, root):
     # Trust boundary: we execute Python snippets sourced from README.md in this repo.
     # The README is part of the trusted repository content and reviewed in PRs.
     logger.debug("Executing README code via %s -c ...", sys.executable)
-    result = subprocess.run(
-        [sys.executable, "-c", code], capture_output=True, text=True, cwd=root
-    )  # nosec
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=root)  # nosec
 
     stdout = result.stdout
     logger.debug("Execution finished with return code %d", result.returncode)
@@ -54,12 +48,8 @@ def test_readme_runs(logger, root):
         logger.debug("Stderr from README code:\n%s", result.stderr)
     logger.debug("Stdout from README code:\n%s", stdout)
 
-    assert result.returncode == 0, (
-        f"README code exited with {result.returncode}. Stderr:\n{result.stderr}"
-    )
-    logger.info(
-        "README code executed successfully; comparing output to expected result"
-    )
+    assert result.returncode == 0, f"README code exited with {result.returncode}. Stderr:\n{result.stderr}"
+    logger.info("README code executed successfully; comparing output to expected result")
     assert stdout.strip() == expected.strip()
     logger.info("README code output matches expected result")
 
@@ -129,6 +119,4 @@ class TestReadmeBashFragments:
             )
 
             if result.returncode != 0:
-                pytest.fail(
-                    f"Bash block {i} has syntax errors:\nCode:\n{code}\nError:\n{result.stderr}"
-                )
+                pytest.fail(f"Bash block {i} has syntax errors:\nCode:\n{code}\nError:\n{result.stderr}")

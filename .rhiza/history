@@ -15,6 +15,7 @@
 .github/workflows/rhiza_ci.yml
 .github/workflows/rhiza_codeql.yml
 .github/workflows/rhiza_deptry.yml
+.github/workflows/rhiza_marimo.yml
 .github/workflows/rhiza_mypy.yml
 .github/workflows/rhiza_pre-commit.yml
 .github/workflows/rhiza_release.yml
@@ -35,6 +36,7 @@
 .rhiza/make.d/00-custom-env.mk
 .rhiza/make.d/01-test.mk
 .rhiza/make.d/02-book.mk
+.rhiza/make.d/03-marimo.mk
 .rhiza/make.d/05-github.mk
 .rhiza/make.d/06-agentic.mk
 .rhiza/make.d/08-docs.mk
@@ -42,6 +44,7 @@
 .rhiza/make.d/README.md
 .rhiza/requirements/README.md
 .rhiza/requirements/docs.txt
+.rhiza/requirements/marimo.txt
 .rhiza/requirements/tests.txt
 .rhiza/requirements/tools.txt
 .rhiza/rhiza.mk
@@ -79,12 +82,14 @@ CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 LICENSE
 Makefile
+book/marimo/notebooks/rhiza.py
 docs/ARCHITECTURE.md
 docs/ASSETS.md
 docs/BOOK.md
 docs/CUSTOMIZATION.md
 docs/DEMO.md
 docs/GLOSSARY.md
+docs/MARIMO.md
 docs/QUICK_REFERENCE.md
 docs/RELEASING.md
 docs/SECURITY.md

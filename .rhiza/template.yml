@@ -9,3 +9,6 @@ templates:
     - book
     - marimo
 
+exclude:
+    - ruff.toml
+

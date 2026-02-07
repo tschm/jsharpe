@@ -202,7 +202,9 @@ class TestSupportedVersions:
         """Raise PyProjectError when no candidates match specifier."""
         pyproject = tmp_path / "pyproject.toml"
         # Require Python 2.7 which no candidate satisfies
-        pyproject.write_text('[project]\nname = "test"\nrequires-python = ">=2.7,<3.0"\n')
+        pyproject.write_text(
+            '[project]\nname = "test"\nrequires-python = ">=2.7,<3.0"\n'
+        )
 
         monkeypatch.setattr("version_matrix.PYPROJECT", pyproject)
 

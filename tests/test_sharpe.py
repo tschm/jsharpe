@@ -147,7 +147,7 @@ def test_oFDR():
 def test_FDR_critical_value():
     """Test FDR_critical_value computation."""
     np.random.seed(0)
-    r = dict()
+    r = {}
     for _ in range(100):
         q = np.random.uniform()
         mu0 = np.random.uniform()
@@ -390,7 +390,7 @@ def test_numeric_example():
         print(f"σ_SR1                  = {math.sqrt(var_sr1):.3f}")
 
         print("\nFWER-FDR")
-        alpha_W, beta_W, SR_c_W, q_hat_W = control_for_FDR(
+        alpha_W, beta_W, SR_c_W, _q_hat_W = control_for_FDR(
             q,
             SR0=SR0 + SR0_adj,
             SR1=SR1 + SR0_adj,
@@ -400,7 +400,7 @@ def test_numeric_example():
             gamma4=gamma4,
             rho=rho,
         )
-        alpha_, beta_, SR_c, q_hat = control_for_FDR(
+        alpha_, beta_, SR_c, _q_hat = control_for_FDR(
             q,
             SR0=SR0 + SR0_adj,
             SR1=SR1 + SR0_adj,
@@ -457,7 +457,8 @@ def test_ppoints_default_large_n():
     expected = np.linspace(1 - 0.5, n - 0.5, n) / (n + 1 - 2 * 0.5)
     x = ppoints(n)
     assert np.allclose(x, expected)
-    assert np.all(x > 0) and np.all(x < 1)
+    assert np.all(x > 0)
+    assert np.all(x < 1)
     # uniform spacing
     diffs = np.diff(x)
     assert np.allclose(diffs, diffs[0])
@@ -604,7 +605,8 @@ def test_get_random_correlation_matrix_and_effective_rank():
     assert np.allclose(C, C.T)
     assert np.allclose(np.diag(C), 1)
     # Cluster labels within range
-    assert clusters.min() >= 0 and clusters.max() < 5
+    assert clusters.min() >= 0
+    assert clusters.max() < 5
     # Effective rank between 1 and n
     er = effective_rank(C)
     assert 1 <= er <= 30

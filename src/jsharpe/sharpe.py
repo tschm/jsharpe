@@ -836,15 +836,15 @@ def get_random_correlation_matrix(
         True
     """
     while True:
-        block_positions = (
-            [0]
-            + sorted(
+        block_positions = [
+            0,
+            *sorted(
                 np.random.choice(
                     number_of_trials, effective_number_of_trials - 1, replace=True
                 )
-            )
-            + [number_of_trials]
-        )
+            ),
+            number_of_trials,
+        ]
         block_sizes = np.diff(block_positions)
         if np.all(block_sizes > 0):
             break
@@ -962,7 +962,7 @@ def autocorrelation(X: np.ndarray) -> float:
         >>> bool(0.4 < ac < 0.6)  # Should be close to 0.5
         True
     """
-    nr, nc = X.shape
+    _nr, nc = X.shape
     ac = np.zeros(nc)
     for i in range(nc):
         ac[i] = np.corrcoef(X[1:, i], X[:-1, i])[0, 1]

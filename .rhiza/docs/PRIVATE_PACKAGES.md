@@ -120,15 +120,26 @@ jobs:
 
 ## Token Scopes
 
-### Same Organization (Recommended)
+### Same Repository
 
-If your private packages are in the **same GitHub organization**, the default `GITHUB_TOKEN` automatically has access. No additional configuration needed!
-
-The default `GITHUB_TOKEN`:
-- ✅ Has read access to all repositories in the same organization
+The default `GITHUB_TOKEN` automatically has access to the **same repository** where the workflow runs:
 - ✅ Is automatically provided by GitHub Actions
 - ✅ Is scoped to the workflow run (secure)
 - ✅ No manual token management required
+
+This is sufficient if your private packages are defined within the same repository.
+
+### Same Organization (Requires PAT)
+
+**Important:** The default `GITHUB_TOKEN` typically does **not** have permission to read other private repositories, even within the same organization. This is GitHub's default security behavior.
+
+To access private packages in other repositories within your organization, you need a Personal Access Token (PAT):
+
+1. Create a PAT with `repo` scope (see [TOKEN_SETUP.md](TOKEN_SETUP.md) for instructions)
+2. Add it as a repository secret (e.g., `PRIVATE_PACKAGES_TOKEN`)
+3. Use it in the git config
+
+**Note:** Some organizations configure settings to allow `GITHUB_TOKEN` cross-repository access, but this is not the default and should not be assumed. Using a PAT is the recommended approach for reliability.
 
 ### Different Organization
 

@@ -6,6 +6,9 @@
 # Declare phony targets (they don't produce files)
 .PHONY: marimushka mkdocs-build book
 
+# Default folder for Marimo notebooks
+MARIMO_FOLDER ?= book/marimo/notebooks
+
 # Define a default no-op marimushka target that will be used
 # when book/marimo/marimo.mk doesn't exist or doesn't define marimushka
 marimushka:: install-uv
@@ -15,6 +18,16 @@ marimushka:: install-uv
 	  printf '%s\n' '<html><head><title>Marimo Notebooks</title></head>' \
 	    '<body><h1>Marimo Notebooks</h1><p>No notebooks found.</p></body></html>' \
 	    > "${MARIMUSHKA_OUTPUT}/index.html"; \
+	elif [ ! -d "${MARIMO_FOLDER}" ] || [ -z "$$(find "${MARIMO_FOLDER}" -maxdepth 1 -name '*.py' -print -quit 2>/dev/null)" ]; then \
+	  printf "${BLUE}[INFO] No Python files found in ${MARIMO_FOLDER}, creating placeholder${RESET}\n"; \
+	  mkdir -p "${MARIMUSHKA_OUTPUT}"; \
+	  printf '%s\n' '<html><head><title>Marimo Notebooks</title></head>' \
+	    '<body><h1>Marimo Notebooks</h1><p>No notebooks found.</p></body></html>' \
+	    > "${MARIMUSHKA_OUTPUT}/index.html"; \
+	else \
+	  printf "${BLUE}[INFO] Exporting notebooks from ${MARIMO_FOLDER} to ${MARIMUSHKA_OUTPUT}...${RESET}\n"; \
+	  mkdir -p "${MARIMUSHKA_OUTPUT}"; \
+	  "$(UVX_BIN)" marimushka "${MARIMO_FOLDER}" --output "${MARIMUSHKA_OUTPUT}"; \
 	fi
 
 # Define a default no-op mkdocs-build target that will be used

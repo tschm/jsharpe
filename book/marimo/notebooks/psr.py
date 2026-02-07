@@ -107,13 +107,21 @@ def display(K, T, gamma3, gamma4, rho, sr, sr0):
     **PSR = {
         fmt(
             probabilistic_sharpe_ratio(
-                sr.value, sr0.value, T=T.value, gamma3=gamma3.value, gamma4=gamma4.value, rho=rho.value, K=K.value
+                sr.value,
+                sr0.value,
+                T=T.value,
+                gamma3=gamma3.value,
+                gamma4=gamma4.value,
+                rho=rho.value,
+                K=K.value,
             ),
             4,
         )
     }**
     SR = {fmt(sr.value)} vs SR0 = {fmt(sr0.value)}
-    T={T.value}, γ₃={fmt(gamma3.value)}, γ₄={fmt(gamma4.value)}, ρ={fmt(rho.value)}, K={K.value}
+    T={T.value}, γ₃={fmt(gamma3.value)}, γ₄={fmt(gamma4.value)}, ρ={fmt(rho.value)}, K={
+        K.value
+    }
     """)
 
     result = f"""
@@ -121,13 +129,21 @@ def display(K, T, gamma3, gamma4, rho, sr, sr0):
     **PSR = {
         fmt(
             probabilistic_sharpe_ratio(
-                sr.value, sr0.value, T=T.value, gamma3=gamma3.value, gamma4=gamma4.value, rho=rho.value, K=K.value
+                sr.value,
+                sr0.value,
+                T=T.value,
+                gamma3=gamma3.value,
+                gamma4=gamma4.value,
+                rho=rho.value,
+                K=K.value,
             ),
             4,
         )
     }**
     SR = {fmt(sr.value)} vs SR0 = {fmt(sr0.value)}
-    T={T.value}, γ₃={fmt(gamma3.value)}, γ₄={fmt(gamma4.value)}, ρ={fmt(rho.value)}, K={K.value}
+    T={T.value}, γ₃={fmt(gamma3.value)}, γ₄={fmt(gamma4.value)}, ρ={fmt(rho.value)}, K={
+        K.value
+    }
     """
 
     print(result)

@@ -52,7 +52,9 @@ def parse_version(v: str) -> tuple[int, ...]:
     return tuple(parts)
 
 
-def _check_operator(version_tuple: tuple[int, ...], op: str, spec_v_tuple: tuple[int, ...]) -> bool:
+def _check_operator(
+    version_tuple: tuple[int, ...], op: str, spec_v_tuple: tuple[int, ...]
+) -> bool:
     """Check if a version tuple satisfies an operator constraint."""
     operators = {
         ">=": lambda v, s: v >= s,

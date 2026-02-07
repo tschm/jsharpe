@@ -1,6 +1,6 @@
 # Assets
 
-This directory contains static assets used in the Rhiza project, such as logos, images, and other media files.
+The `.rhiza/assets/` directory contains static assets used in the Rhiza project, such as logos, images, and other media files.
 
 ## Contents
 

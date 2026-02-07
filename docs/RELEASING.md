@@ -48,7 +48,7 @@ The script provides safety checks by:
 
 ## What Happens After Release
 
-The release workflow (`.github/workflows/release.yml`) triggers on the tag push and:
+The release workflow (`.github/workflows/rhiza_release.yml`) triggers on the tag push and:
 
 1. **Validates** - Checks the tag format and ensures no duplicate releases
 2. **Builds** - Builds the Python package (if `pyproject.toml` exists)

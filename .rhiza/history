@@ -96,4 +96,3 @@ docs/SECURITY.md
 docs/WORKFLOWS.md
 pytest.ini
 renovate.json
-ruff.toml

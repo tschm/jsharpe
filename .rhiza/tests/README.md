@@ -102,11 +102,14 @@ uv run pytest .rhiza/tests/ --cov
 
 ### Import Patterns
 ```python
-# Import from root conftest
-from ..conftest import strip_ansi, run_make
+# Import shared helpers from test_utils
+from test_utils import strip_ansi, run_make, setup_rhiza_git_repo
 
-# Import from category conftest
-from .conftest import setup_tmp_makefile
+# Import from local category conftest (for fixtures and category-specific helpers)
+from api.conftest import SPLIT_MAKEFILES, setup_tmp_makefile
+
+# Note: Fixtures defined in conftest.py are automatically available in tests
+# and don't need to be explicitly imported
 ```
 
 ## Test Coverage

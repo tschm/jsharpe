@@ -21,11 +21,16 @@ class TestRootFixture:
 
     def test_root_contains_expected_directories(self, root):
         """Root should contain all expected project directories."""
-        required_dirs = [".rhiza", "tests", "book"]
-        optional_dirs = ["src"]  # src/ is optional (rhiza itself doesn't have one)
+        required_dirs = [".rhiza"]
+        optional_dirs = ["src", "tests", "book"]  # src/ is optional (rhiza itself doesn't have one)
 
         for dirname in required_dirs:
             assert (root / dirname).exists(), f"Required directory {dirname} not found"
+
+        # Check that at least one CI directory exists (.github or .gitlab)
+        ci_dirs = [".github", ".gitlab"]
+        if not any((root / ci_dir).exists() for ci_dir in ci_dirs):
+            pytest.fail(f"At least one CI directory from {ci_dirs} must exist")
 
         for dirname in optional_dirs:
             if not (root / dirname).exists():

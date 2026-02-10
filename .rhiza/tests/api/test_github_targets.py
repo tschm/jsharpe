@@ -7,7 +7,7 @@ and emit the expected commands without actually executing them.
 from __future__ import annotations
 
 # Import run_make from local conftest (setup_tmp_makefile is autouse)
-from .conftest import run_make
+from api.conftest import run_make
 
 
 def test_gh_targets_exist(logger):
@@ -15,13 +15,7 @@ def test_gh_targets_exist(logger):
     result = run_make(logger, ["help"], dry_run=False)
     output = result.stdout
 
-    expected_targets = [
-        "gh-install",
-        "view-prs",
-        "view-issues",
-        "failed-workflows",
-        "whoami",
-    ]
+    expected_targets = ["gh-install", "view-prs", "view-issues", "failed-workflows", "whoami"]
 
     for target in expected_targets:
         assert target in output, f"Target {target} not found in help output"

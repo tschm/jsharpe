@@ -82,7 +82,9 @@ def cell_04():
 def cell_05():
     """Create and display a numeric slider UI component."""
     # Slider for numeric input
-    slider = mo.ui.slider(start=0, stop=100, value=50, label="Adjust the value:", show_value=True)
+    slider = mo.ui.slider(
+        start=0, stop=100, value=50, label="Adjust the value:", show_value=True
+    )
     slider
     return (slider,)
 
@@ -128,7 +130,9 @@ def cell_08(dropdown):
 def cell_09():
     """Create and display a text input field for the user's name."""
     # Text input
-    text_input = mo.ui.text(value="Marimo", label="Enter your name:", placeholder="Type something...")
+    text_input = mo.ui.text(
+        value="Marimo", label="Enter your name:", placeholder="Type something..."
+    )
     text_input
     return (text_input,)
 
@@ -162,9 +166,13 @@ def cell_12():
 def cell_14():
     """Create sliders for wave frequency and amplitude controls for the plot."""
     # Interactive controls for the plot
-    frequency_slider = mo.ui.slider(start=1, stop=10, value=2, label="Wave frequency:", show_value=True)
+    frequency_slider = mo.ui.slider(
+        start=1, stop=10, value=2, label="Wave frequency:", show_value=True
+    )
 
-    amplitude_slider = mo.ui.slider(start=1, stop=5, value=1, label="Wave amplitude:", show_value=True)
+    amplitude_slider = mo.ui.slider(
+        start=1, stop=5, value=1, label="Wave amplitude:", show_value=True
+    )
 
     mo.vstack([frequency_slider, amplitude_slider])
     return amplitude_slider, frequency_slider
@@ -178,7 +186,15 @@ def cell_15(amplitude_slider, frequency_slider):
     y = amplitude_slider.value * np.sin(frequency_slider.value * x)
 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=x, y=y, mode="lines", line={"color": "#2FA4A9", "width": 2}, name="Sine Wave"))
+    fig.add_trace(
+        go.Scatter(
+            x=x,
+            y=y,
+            mode="lines",
+            line={"color": "#2FA4A9", "width": 2},
+            name="Sine Wave",
+        )
+    )
 
     fig.update_layout(
         title=f"Sine Wave: y = {amplitude_slider.value} × sin({frequency_slider.value}x)",
@@ -420,7 +436,13 @@ def cell_28():
             "email": mo.ui.text(label="Email:", placeholder="email@example.com"),
             "subscribe": mo.ui.checkbox(label="Subscribe to newsletter"),
             "interests": mo.ui.multiselect(
-                options=["Data Science", "Machine Learning", "Web Development", "DevOps"], label="Your interests:"
+                options=[
+                    "Data Science",
+                    "Machine Learning",
+                    "Web Development",
+                    "DevOps",
+                ],
+                label="Your interests:",
             ),
         }
     )
@@ -433,7 +455,11 @@ def cell_29(form):
     """Display current form values reactively as the user edits the form."""
     # Display form values - updates reactively as you type/change values
     if form.value and any(form.value.values()):
-        interests_text = ", ".join(form.value["interests"]) if form.value["interests"] else "None selected"
+        interests_text = (
+            ", ".join(form.value["interests"])
+            if form.value["interests"]
+            else "None selected"
+        )
 
         mo.md(
             f"""

@@ -11,11 +11,15 @@ import os
 import pathlib
 import shutil
 import subprocess  # nosec B404
+import sys
 
 import pytest
 
-# Import shared helpers from test_utils (no __init__.py needed)
-from test_utils import GIT, MAKE, run_make, setup_rhiza_git_repo, strip_ansi  # noqa: F401
+tests_root = pathlib.Path(__file__).resolve().parent
+if str(tests_root) not in sys.path:
+    sys.path.insert(0, str(tests_root))
+
+from test_utils import GIT  # noqa: E402
 
 MOCK_MAKE_SCRIPT = """#!/usr/bin/env python3
 import sys
@@ -145,9 +149,7 @@ def git_repo(root, tmp_path, monkeypatch):
     remote_dir.mkdir()
     subprocess.run([GIT, "init", "--bare", str(remote_dir)], check=True)  # nosec B603
     # Ensure the remote's default HEAD points to master for predictable behavior
-    subprocess.run(
-        [GIT, "symbolic-ref", "HEAD", "refs/heads/master"], cwd=remote_dir, check=True
-    )  # nosec B603
+    subprocess.run([GIT, "symbolic-ref", "HEAD", "refs/heads/master"], cwd=remote_dir, check=True)  # nosec B603
 
     # 2. Clone to local
     subprocess.run([GIT, "clone", str(remote_dir), str(local_dir)], check=True)  # nosec B603

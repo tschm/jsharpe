@@ -12,7 +12,7 @@ import warnings
 from collections.abc import Callable
 
 import numpy as np
-import scipy  # type: ignore[import-untyped]
+import scipy
 
 
 def ppoints(n: int, a: float | None = None) -> np.ndarray:

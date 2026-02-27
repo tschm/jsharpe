@@ -6,6 +6,7 @@ This module provides comprehensive tools for Sharpe ratio analysis, including:
     - Multiple testing corrections (FDR, FWER)
     - Portfolio optimization utilities
 """
+# ruff: noqa: N802, N803, N806, S101, TRY003
 
 import math
 import warnings
@@ -31,7 +32,7 @@ def ppoints(n: int, a: float | None = None) -> np.ndarray:
         Array of n equidistant probability points in (0, 1).
 
     Raises:
-        AssertionError: If a is not in [0, 1].
+        ValueError: If a is not in [0, 1].
 
     Example:
         >>> import numpy as np
@@ -45,14 +46,15 @@ def ppoints(n: int, a: float | None = None) -> np.ndarray:
     """
     if a is None:
         a = 0.5 if n > 10 else 3 / 8
-    assert 0 <= a <= 1, f"the offset should be in [0,1], got {a}"
+    if not (0 <= a <= 1):
+        raise ValueError(f"the offset should be in [0,1], got {a}")
     return np.linspace(1 - a, n - a, n) / (n + 1 - 2 * a)
 
 
 def robust_covariance_inverse(V: np.ndarray) -> np.ndarray:
     r"""Compute inverse of a constant-correlation covariance matrix.
 
-    Uses the Sherman–Morrison formula for efficient computation.
+    Uses the Sherman-Morrison formula for efficient computation.
     Assumes the variance matrix has the form:
     $V = \rho \sigma \sigma' + (1-\rho) \text{diag}(\sigma^2)$
     (constant correlations across all pairs).
@@ -85,9 +87,7 @@ def robust_covariance_inverse(V: np.ndarray) -> np.ndarray:
     rho = np.mean(C[np.triu_indices_from(C, 1)])
     A = np.diag(1 / sigma**2) / (1 - rho)
     sigma = sigma.reshape(-1, 1)
-    result: np.ndarray = A - (rho * A @ sigma @ sigma.T @ A) / (
-        1 + rho * sigma.T @ A @ sigma
-    )
+    result: np.ndarray = A - (rho * A @ sigma @ sigma.T @ A) / (1 + rho * sigma.T @ A @ sigma)
     return result
 
 
@@ -247,9 +247,7 @@ def sharpe_ratio_variance(
     return float(V * moments_Mk(K)[2])
 
 
-def variance_of_the_maximum_of_k_Sharpe_ratios(
-    number_of_trials: int, variance: float
-) -> float:
+def variance_of_the_maximum_of_k_Sharpe_ratios(number_of_trials: int, variance: float) -> float:
     """Compute the variance of the maximum Sharpe ratio across K strategies.
 
     Selection across a larger pool increases the uncertainty of the selected
@@ -320,12 +318,8 @@ def control_for_FDR(
     """
     Z = scipy.stats.norm.cdf
 
-    s0 = math.sqrt(
-        sharpe_ratio_variance(SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K)
-    )
-    s1 = math.sqrt(
-        sharpe_ratio_variance(SR1, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K)
-    )
+    s0 = math.sqrt(sharpe_ratio_variance(SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K))
+    s1 = math.sqrt(sharpe_ratio_variance(SR1, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K))
     SRc = FDR_critical_value(q, SR0, SR1, s0, s1, p_H1)
 
     beta = Z((SRc - SR1) / s1)
@@ -335,9 +329,7 @@ def control_for_FDR(
     return alpha, beta, SRc, q_hat
 
 
-def expected_maximum_sharpe_ratio(
-    number_of_trials: int, variance: float, SR0: float = 0
-) -> float:
+def expected_maximum_sharpe_ratio(number_of_trials: int, variance: float, SR0: float = 0) -> float:
     """Compute expected maximum Sharpe ratio under multiple testing.
 
     Estimates E[max(SR_1, ..., SR_K)] assuming K independent Sharpe ratio
@@ -365,8 +357,7 @@ def expected_maximum_sharpe_ratio(
             np.sqrt(variance)
             * (
                 (1 - np.euler_gamma) * scipy.stats.norm.ppf(1 - 1 / number_of_trials)
-                + np.euler_gamma
-                * scipy.stats.norm.ppf(1 - 1 / number_of_trials / np.exp(1))
+                + np.euler_gamma * scipy.stats.norm.ppf(1 - 1 / number_of_trials / np.exp(1))
             )
         )
     )
@@ -496,9 +487,7 @@ def adjusted_p_values_sidak(ps: np.ndarray) -> np.ndarray:
     return 1 - (1 - ps) ** M
 
 
-def adjusted_p_values_holm(
-    ps: np.ndarray, *, variant: str = "bonferroni"
-) -> np.ndarray:
+def adjusted_p_values_holm(ps: np.ndarray, *, variant: str = "bonferroni") -> np.ndarray:
     """Adjust p-values using Holm's step-down procedure for FWER control.
 
     A step-down procedure that is uniformly more powerful than Bonferroni
@@ -527,18 +516,13 @@ def adjusted_p_values_holm(
     p_adjusted = np.zeros(M)
     previous = 0
     for j, idx in enumerate(i):
-        if variant == "bonferroni":
-            candidate = min(1, ps[idx] * (M - j))
-        else:
-            candidate = 1 - (1 - ps[idx]) ** (M - j)
+        candidate = min(1, ps[idx] * (M - j)) if variant == "bonferroni" else 1 - (1 - ps[idx]) ** (M - j)
         p_adjusted[idx] = max(previous, candidate)
         previous = p_adjusted[idx]
     return p_adjusted
 
 
-def FDR_critical_value(
-    q: float, SR0: float, SR1: float, sigma0: float, sigma1: float, p_H1: float
-) -> float:
+def FDR_critical_value(q: float, SR0: float, SR1: float, sigma0: float, sigma1: float, p_H1: float) -> float:
     """Compute critical value for FDR control in hypothesis testing.
 
     Given a mixture model where H ~ Bernoulli(p_H1) determines whether
@@ -568,33 +552,24 @@ def FDR_critical_value(
     assert SR0 < SR1
     assert 0 < q < 1
     assert 0 < p_H1 < 1
-    assert 0 < sigma0
-    assert 0 < sigma1
+    assert sigma0 > 0
+    assert sigma1 > 0
 
     with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", message="invalid value encountered in scalar divide"
-        )
-        warnings.filterwarnings(
-            "ignore", message="divide by zero encountered in scalar divide"
-        )
+        warnings.filterwarnings("ignore", message="invalid value encountered in scalar divide")
+        warnings.filterwarnings("ignore", message="divide by zero encountered in scalar divide")
 
         def f(c: float) -> float:
             a = 1 / (
                 1
-                + scipy.stats.norm.sf((c - SR1) / sigma1)
-                / scipy.stats.norm.sf((c - SR0) / sigma0)
-                * p_H1
-                / (1 - p_H1)
+                + scipy.stats.norm.sf((c - SR1) / sigma1) / scipy.stats.norm.sf((c - SR0) / sigma0) * p_H1 / (1 - p_H1)
             )
             return float(np.where(np.isfinite(a), a, 0))
 
         if f(-10) < q:  # Solution outside of the search interval
             return float(-np.inf)
 
-        if (f(-10) - q) * (
-            f(10) - q
-        ) > 0:  # No solution, for instance if σ₀≫σ₁ and q small
+        if (f(-10) - q) * (f(10) - q) > 0:  # No solution, for instance if σ₀≫σ₁ and q small
             return float(np.nan)
 
         return float(scipy.optimize.brentq(lambda c: f(c) - q, -10, 10))
@@ -682,9 +657,7 @@ def probabilistic_sharpe_ratio(
     """
     if variance is None:
         assert T is not None, "T must be provided if variance is not provided"
-        variance = sharpe_ratio_variance(
-            SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K
-        )
+        variance = sharpe_ratio_variance(SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K)
     else:
         assert T is None, "Provide either the variance or (T, gamma3, gamma4, rho)"
     return float(scipy.stats.norm.cdf((SR - SR0) / math.sqrt(variance)))
@@ -730,9 +703,7 @@ def sharpe_ratio_power(
         >>> bool(power_long > power_short)
         True
     """
-    critical_SR = critical_sharpe_ratio(
-        SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, alpha=alpha
-    )
+    critical_SR = critical_sharpe_ratio(SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, alpha=alpha)
     variance = sharpe_ratio_variance(SR1, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K)
     beta = scipy.stats.norm.cdf((critical_SR - SR1) / math.sqrt(variance))
     return float(1 - beta)
@@ -783,9 +754,7 @@ def generate_autocorrelated_non_gaussian_data(
     # Marginal distribution: ppf
     R = 10_000
     marginal = generate_non_gaussian_data(R, 1, SR0=SR0, name=name)[:, 0]
-    ppf = scipy.interpolate.interp1d(
-        ppoints(R), sorted(marginal), fill_value="extrapolate"
-    )
+    ppf = scipy.interpolate.interp1d(ppoints(R), sorted(marginal), fill_value="extrapolate")
 
     # AR(1) processes
     X = np.random.normal(size=shape)
@@ -838,24 +807,14 @@ def get_random_correlation_matrix(
     while True:
         block_positions = [
             0,
-            *sorted(
-                np.random.choice(
-                    number_of_trials, effective_number_of_trials - 1, replace=True
-                )
-            ),
+            *sorted(np.random.choice(number_of_trials, effective_number_of_trials - 1, replace=True)),
             number_of_trials,
         ]
         block_sizes = np.diff(block_positions)
         if np.all(block_sizes > 0):
             break
 
-    clusters = np.array(
-        [
-            block_number
-            for block_number, size in enumerate(block_sizes)
-            for _ in range(size)
-        ]
-    )
+    clusters = np.array([block_number for block_number, size in enumerate(block_sizes) for _ in range(size)])
     X0 = np.random.normal(size=(number_of_observations, effective_number_of_trials))
     X = np.zeros(shape=(number_of_observations, number_of_trials))
     for i, cluster in enumerate(clusters):
@@ -922,9 +881,7 @@ def generate_non_gaussian_data(
         m2 = w * (sigma_core**2 + mu_core**2) + p_tail * (sigma_tail**2 + mu_tail**2)
         return float(m2 - mu**2)
 
-    def gen_with_true_SR0(
-        reps: int, T: int, cfg: tuple[float, float, float, float], SR0: float
-    ) -> np.ndarray:
+    def gen_with_true_SR0(reps: int, T: int, cfg: tuple[float, float, float, float], SR0: float) -> np.ndarray:
         p, mu_tail, sig_tail, sig_core = cfg
         # Zero-mean baseline mixture (choose mu_core so mean=0)
         mu_core0 = -p * mu_tail / (1.0 - p)
@@ -1039,11 +996,7 @@ def oFDR(
         >>> bool(fdr_high < fdr_low)
         True
     """
-    p0 = 1 - probabilistic_sharpe_ratio(
-        SR, SR0, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K
-    )
-    p1 = 1 - probabilistic_sharpe_ratio(
-        SR, SR1, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K
-    )
+    p0 = 1 - probabilistic_sharpe_ratio(SR, SR0, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K)
+    p1 = 1 - probabilistic_sharpe_ratio(SR, SR1, T=T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K)
     p_H0 = 1 - p_H1
     return p0 * p_H0 / (p0 * p_H0 + p1 * p_H1)

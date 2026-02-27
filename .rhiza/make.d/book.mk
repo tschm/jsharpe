@@ -128,3 +128,8 @@ book:: test benchmark stress hypothesis-test docs marimushka mkdocs-build ## com
 	  --output "_book"
 
 	@touch "_book/.nojekyll"
+
+	@if [ -f _tests/coverage-badge.json ]; then \
+	  mkdir -p _book/tests; \
+	  cp _tests/coverage-badge.json _book/tests/coverage-badge.json; \
+	fi

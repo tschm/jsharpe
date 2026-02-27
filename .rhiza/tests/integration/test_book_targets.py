@@ -31,9 +31,7 @@ def test_no_book_folder(git_repo, book_makefile):
     # Targets are now always defined via .rhiza/make.d/
     # Use dry-run to verify they exist and can be parsed
     for target in ["book", "docs", "marimushka"]:
-        result = subprocess.run(
-            [MAKE, "-n", target], cwd=git_repo, capture_output=True, text=True
-        )  # nosec
+        result = subprocess.run([MAKE, "-n", target], cwd=git_repo, capture_output=True, text=True)  # nosec
         # Target should exist (not "no rule to make target")
         assert "no rule to make target" not in result.stderr.lower(), (
             f"Target {target} should be defined in .rhiza/make.d/"
@@ -60,9 +58,7 @@ def test_book_folder_but_no_mk(git_repo, book_makefile):
     # Targets are now always defined via .rhiza/make.d/
     # Use dry-run to verify they exist and can be parsed
     for target in ["book", "docs", "marimushka"]:
-        result = subprocess.run(
-            [MAKE, "-n", target], cwd=git_repo, capture_output=True, text=True
-        )  # nosec
+        result = subprocess.run([MAKE, "-n", target], cwd=git_repo, capture_output=True, text=True)  # nosec
         # Target should exist (not "no rule to make target")
         assert "no rule to make target" not in result.stderr.lower(), (
             f"Target {target} should be defined in .rhiza/make.d/"
@@ -74,9 +70,7 @@ def test_book_folder(git_repo, book_makefile):
     content = book_makefile.read_text()
 
     # get the list of phony targets from the Makefile
-    phony_targets = [
-        line.strip() for line in content.splitlines() if line.startswith(".PHONY:")
-    ]
+    phony_targets = [line.strip() for line in content.splitlines() if line.startswith(".PHONY:")]
     if not phony_targets:
         pytest.skip("No .PHONY targets found in book.mk")
 
@@ -86,10 +80,23 @@ def test_book_folder(git_repo, book_makefile):
         targets = phony_line.split(":")[1].strip().split()
         all_targets.update(targets)
 
-    expected_targets = {"book", "marimushka", "mkdocs-build"}
+    expected_targets = {"book", "marimushka", "mkdocs-build", "test", "benchmark", "stress", "hypothesis-test", "docs"}
     assert expected_targets.issubset(all_targets), (
         f"Expected phony targets to include {expected_targets}, got {all_targets}"
     )
+
+
+def test_book_noop_targets_defined(book_makefile):
+    """Test that book.mk defines no-op fallback targets for build resilience.
+
+    These no-op double-colon rules ensure 'make book' succeeds even when
+    test.mk is not available or tests are not installed.
+    """
+    content = book_makefile.read_text()
+    for target in ["test", "benchmark", "stress", "hypothesis-test", "docs"]:
+        assert f"{target}::" in content, (
+            f"book.mk should define a no-op '::' fallback for '{target}' to ensure build resilience"
+        )
 
 
 def test_book_without_logo_file(git_repo, book_makefile):
@@ -117,12 +124,8 @@ def test_book_without_logo_file(git_repo, book_makefile):
     makefile.write_text("\n".join(new_lines))
 
     # Dry-run the book target - it should still be valid
-    result = subprocess.run(
-        [MAKE, "-n", "book"], cwd=git_repo, capture_output=True, text=True
-    )  # nosec
-    assert "no rule to make target" not in result.stderr.lower(), (
-        "book target should work without LOGO_FILE"
-    )
+    result = subprocess.run([MAKE, "-n", "book"], cwd=git_repo, capture_output=True, text=True)  # nosec
+    assert "no rule to make target" not in result.stderr.lower(), "book target should work without LOGO_FILE"
     # Should not have errors about missing logo variable
     assert result.returncode == 0, f"Dry-run failed: {result.stderr}"
 
@@ -156,7 +159,5 @@ def test_book_with_missing_logo_file(git_repo, book_makefile):
     makefile.write_text("\n".join(new_lines))
 
     # Dry-run should still succeed
-    result = subprocess.run(
-        [MAKE, "-n", "book"], cwd=git_repo, capture_output=True, text=True
-    )  # nosec
+    result = subprocess.run([MAKE, "-n", "book"], cwd=git_repo, capture_output=True, text=True)  # nosec
     assert result.returncode == 0, f"Dry-run failed with missing logo: {result.stderr}"

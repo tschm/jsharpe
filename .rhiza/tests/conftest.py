@@ -4,13 +4,20 @@ This file and its associated tests flow down via a SYNC action from the jebel-qu
 (https://github.com/jebel-quant/rhiza).
 
 Provides test fixtures for testing git-based workflows and version management.
+
+Security Notes:
+- S101 (assert usage): Asserts are appropriate in test code for validating conditions
+- S603 (subprocess without shell=True): All subprocess calls use lists of known commands (git),
+  not user input, making them safe from shell injection
+- S607 (subprocess with partial path): Using 'git' from PATH is acceptable in test fixtures
+  as the test environment is controlled and git is a required development dependency
 """
 
 import logging
 import os
 import pathlib
 import shutil
-import subprocess  # nosec B404
+import subprocess  # nosec B404 - subprocess module needed for git operations in test fixtures
 import sys
 
 import pytest
@@ -148,9 +155,7 @@ def git_repo(root, tmp_path, monkeypatch):
     remote_dir.mkdir()
     subprocess.run([GIT, "init", "--bare", str(remote_dir)], check=True)  # nosec B603
     # Ensure the remote's default HEAD points to master for predictable behavior
-    subprocess.run(
-        [GIT, "symbolic-ref", "HEAD", "refs/heads/master"], cwd=remote_dir, check=True
-    )  # nosec B603
+    subprocess.run([GIT, "symbolic-ref", "HEAD", "refs/heads/master"], cwd=remote_dir, check=True)  # nosec B603
 
     # 2. Clone to local
     subprocess.run([GIT, "clone", str(remote_dir), str(local_dir)], check=True)  # nosec B603

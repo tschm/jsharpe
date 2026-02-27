@@ -4,6 +4,7 @@ This notebook provides sliders for SR, SR0, sample size T, non-Gaussian
 moments (gamma3, gamma4), autocorrelation (rho), and the number of trials K.
 It computes and displays the PSR using functions from the jsharpe package.
 """
+# ruff: noqa: N806
 
 # /// script
 # requires-python = ">=3.13"
@@ -38,7 +39,8 @@ def fmt(x, precision: int = 3) -> str:
     try:
         if math.isnan(x) or math.isinf(x):
             return str(x)
-        return f"{x:.{precision}f}"
+        else:
+            return f"{x:.{precision}f}"
     except Exception:
         return str(x)
 
@@ -120,9 +122,7 @@ def display(K, T, gamma3, gamma4, rho, sr, sr0):
         )
     }**
     SR = {fmt(sr.value)} vs SR0 = {fmt(sr0.value)}
-    T={T.value}, γ₃={fmt(gamma3.value)}, γ₄={fmt(gamma4.value)}, ρ={fmt(rho.value)}, K={
-        K.value
-    }
+    T={T.value}, γ₃={fmt(gamma3.value)}, γ₄={fmt(gamma4.value)}, ρ={fmt(rho.value)}, K={K.value}
     """)
 
     result = f"""
@@ -142,9 +142,7 @@ def display(K, T, gamma3, gamma4, rho, sr, sr0):
         )
     }**
     SR = {fmt(sr.value)} vs SR0 = {fmt(sr0.value)}
-    T={T.value}, γ₃={fmt(gamma3.value)}, γ₄={fmt(gamma4.value)}, ρ={fmt(rho.value)}, K={
-        K.value
-    }
+    T={T.value}, γ₃={fmt(gamma3.value)}, γ₄={fmt(gamma4.value)}, ρ={fmt(rho.value)}, K={K.value}
     """
 
     print(result)

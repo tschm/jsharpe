@@ -160,7 +160,7 @@ jobs:
         if: steps.buildable.outputs.buildable == 'true'
         run: |
           printf "[INFO] Building package...\n"
-          uvx hatch build
+          uv build
 
       - name: Install Python for SBOM generation
         if: hashFiles('pyproject.toml') != ''

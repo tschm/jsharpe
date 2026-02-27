@@ -38,6 +38,14 @@ test:: install ## run all tests
 	  --cov-fail-under=$(COVERAGE_FAIL_UNDER) \
 	  --cov-report=json:_tests/coverage.json \
 	  --html=_tests/html-report/report.html; \
+	  ${UV_BIN} run python -c "\
+import json; from pathlib import Path; \
+data = json.loads(Path('_tests/coverage.json').read_text()); \
+pct = data['totals']['percent_covered']; \
+color = 'brightgreen' if pct >= 90 else 'yellow' if pct >= 75 else 'orange' if pct >= 60 else 'red'; \
+badge = {'schemaVersion': 1, 'label': 'coverage', 'message': f'{pct:.0f}%', 'color': color}; \
+Path('_tests/coverage-badge.json').write_text(json.dumps(badge)); \
+"; \
 	else \
 	  printf "${YELLOW}[WARN] Source folder ${SOURCE_FOLDER} not found, running tests without coverage${RESET}\n"; \
 	  ${UV_BIN} run pytest \

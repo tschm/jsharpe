@@ -35,18 +35,12 @@ def test_concurrent_git_status(root: Path, concurrent_workers: int):
         )
         return result.returncode == 0
 
-    with concurrent.futures.ThreadPoolExecutor(
-        max_workers=concurrent_workers
-    ) as executor:
-        futures = [
-            executor.submit(run_git_status) for _ in range(concurrent_workers * 2)
-        ]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=concurrent_workers) as executor:
+        futures = [executor.submit(run_git_status) for _ in range(concurrent_workers * 2)]
         results = [f.result() for f in concurrent.futures.as_completed(futures)]
 
     success_rate = sum(results) / len(results)
-    assert success_rate == 1.0, (
-        f"Expected 100% success rate, got {success_rate * 100:.1f}%"
-    )
+    assert success_rate == 1.0, f"Expected 100% success rate, got {success_rate * 100:.1f}%"
 
 
 @pytest.mark.stress
@@ -66,16 +60,12 @@ def test_concurrent_git_log(root: Path, concurrent_workers: int):
         )
         return result.returncode == 0
 
-    with concurrent.futures.ThreadPoolExecutor(
-        max_workers=concurrent_workers
-    ) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=concurrent_workers) as executor:
         futures = [executor.submit(run_git_log) for _ in range(concurrent_workers * 2)]
         results = [f.result() for f in concurrent.futures.as_completed(futures)]
 
     success_rate = sum(results) / len(results)
-    assert success_rate == 1.0, (
-        f"Expected 100% success rate, got {success_rate * 100:.1f}%"
-    )
+    assert success_rate == 1.0, f"Expected 100% success rate, got {success_rate * 100:.1f}%"
 
 
 @pytest.mark.stress
@@ -104,9 +94,7 @@ def test_repeated_git_operations(root: Path, stress_iterations: int):
         results.append(result.returncode == 0)
 
     success_rate = sum(results) / len(results)
-    assert success_rate == 1.0, (
-        f"Expected 100% success rate, got {success_rate * 100:.1f}%"
-    )
+    assert success_rate == 1.0, f"Expected 100% success rate, got {success_rate * 100:.1f}%"
 
 
 @pytest.mark.stress
@@ -126,16 +114,12 @@ def test_concurrent_git_diff(root: Path, concurrent_workers: int):
         )
         return result.returncode == 0
 
-    with concurrent.futures.ThreadPoolExecutor(
-        max_workers=concurrent_workers
-    ) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=concurrent_workers) as executor:
         futures = [executor.submit(run_git_diff) for _ in range(concurrent_workers * 2)]
         results = [f.result() for f in concurrent.futures.as_completed(futures)]
 
     success_rate = sum(results) / len(results)
-    assert success_rate == 1.0, (
-        f"Expected 100% success rate, got {success_rate * 100:.1f}%"
-    )
+    assert success_rate == 1.0, f"Expected 100% success rate, got {success_rate * 100:.1f}%"
 
 
 @pytest.mark.stress
@@ -157,9 +141,7 @@ def test_rapid_git_rev_parse(root: Path, stress_iterations: int):
         results.append(result.returncode == 0 and len(result.stdout.strip()) == 40)
 
     success_rate = sum(results) / len(results)
-    assert success_rate == 1.0, (
-        f"Expected 100% success rate, got {success_rate * 100:.1f}%"
-    )
+    assert success_rate == 1.0, f"Expected 100% success rate, got {success_rate * 100:.1f}%"
 
 
 @pytest.mark.stress
@@ -179,13 +161,9 @@ def test_concurrent_git_show(root: Path, concurrent_workers: int):
         )
         return result.returncode == 0
 
-    with concurrent.futures.ThreadPoolExecutor(
-        max_workers=concurrent_workers
-    ) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=concurrent_workers) as executor:
         futures = [executor.submit(run_git_show) for _ in range(concurrent_workers)]
         results = [f.result() for f in concurrent.futures.as_completed(futures)]
 
     success_rate = sum(results) / len(results)
-    assert success_rate == 1.0, (
-        f"Expected 100% success rate, got {success_rate * 100:.1f}%"
-    )
+    assert success_rate == 1.0, f"Expected 100% success rate, got {success_rate * 100:.1f}%"

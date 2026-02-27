@@ -111,5 +111,6 @@ docs/QUICK_REFERENCE.md
 docs/SECURITY.md
 docs/TESTS.md
 pytest.ini
+ruff.toml
 tests/benchmarks/conftest.py
 tests/benchmarks/test_benchmarks.py

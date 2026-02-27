@@ -68,7 +68,7 @@ jobs:
       # This allows anyone to download the built documentation directly from
       # GitHub Actions without needing to run a full local build.
       - name: Upload book as workflow artifact
-        uses: actions/upload-artifact@v4.6.0
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: book
           path: _book/

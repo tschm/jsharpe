@@ -1,5 +1,5 @@
 repository: "jebel-quant/rhiza"
-ref: "v0.8.3"
+ref: "v0.8.4"
 
 templates:
     - core
@@ -8,7 +8,4 @@ templates:
     - legal
     - book
     - marimo
-
-#exclude:
-#    - ruff.toml
 

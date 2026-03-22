@@ -433,6 +433,14 @@ def make_expectation_gh(
     x = scale * nodes
 
     def E(g: Callable[[np.ndarray], np.ndarray]) -> float:
+        """Compute E[g(Z)] for Z ~ N(0,1) via Gauss-Hermite quadrature.
+
+        Args:
+            g: Function to integrate against the standard normal density.
+
+        Returns:
+            Approximation of E[g(Z)].
+        """
         vals = g(x)
         return float(norm * np.dot(weights, vals))
 
@@ -560,6 +568,14 @@ def FDR_critical_value(q: float, SR0: float, SR1: float, sigma0: float, sigma1: 
         warnings.filterwarnings("ignore", message="divide by zero encountered in scalar divide")
 
         def f(c: float) -> float:
+            """Compute the posterior probability P[H=0 | X > c].
+
+            Args:
+                c: Candidate critical value.
+
+            Returns:
+                Posterior false discovery probability at threshold c.
+            """
             a = 1 / (
                 1
                 + scipy.stats.norm.sf((c - SR1) / sigma1) / scipy.stats.norm.sf((c - SR0) / sigma0) * p_H1 / (1 - p_H1)
@@ -876,12 +892,35 @@ def generate_non_gaussian_data(
         mu_core: float,
         sigma_core: float,
     ) -> float:
+        """Compute the variance of a two-component Gaussian mixture.
+
+        Args:
+            p_tail: Mixing weight of the tail component.
+            mu_tail: Mean of the tail component.
+            sigma_tail: Standard deviation of the tail component.
+            mu_core: Mean of the core component.
+            sigma_core: Standard deviation of the core component.
+
+        Returns:
+            Variance of the mixture distribution.
+        """
         w = 1.0 - p_tail
         mu = w * mu_core + p_tail * mu_tail
         m2 = w * (sigma_core**2 + mu_core**2) + p_tail * (sigma_tail**2 + mu_tail**2)
         return float(m2 - mu**2)
 
     def gen_with_true_SR0(reps: int, T: int, cfg: tuple[float, float, float, float], SR0: float) -> np.ndarray:
+        """Generate mixture returns scaled to a target population Sharpe ratio.
+
+        Args:
+            reps: Number of independent return series to generate.
+            T: Length of each return series.
+            cfg: Mixture config tuple (p_tail, mu_tail, sigma_tail, sigma_core).
+            SR0: Target population Sharpe ratio.
+
+        Returns:
+            Array of shape (reps, T) with non-Gaussian returns at the given Sharpe ratio.
+        """
         p, mu_tail, sig_tail, sig_core = cfg
         # Zero-mean baseline mixture (choose mu_core so mean=0)
         mu_core0 = -p * mu_tail / (1.0 - p)

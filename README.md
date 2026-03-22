@@ -4,7 +4,7 @@
 
 [![PyPI version](https://badge.fury.io/py/jsharpe.svg)](https://badge.fury.io/py/jsharpe)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Coverage](https://img.shields.io/endpoint?url=https://tschm.github.io/jsharpe/tests/coverage-badge.json)](https://tschm.github.io/jsharpe/tests/html-coverage/index.html)
+[![Coverage](https://raw.githubusercontent.com/tschm/jsharpe/refs/heads/gh-pages/coverage-badge.svg)](https://tschm.github.io/jsharpe/tests/html-coverage/index.html)
 [![Downloads](https://static.pepy.tech/personalized-badge/jsharpe?period=month&units=international_system&left_color=black&right_color=orange&left_text=PyPI%20downloads%20per%20month)](https://pepy.tech/project/jsharpe)
 [![CodeFactor](https://www.codefactor.io/repository/github/tschm/jsharpe/badge)](https://www.codefactor.io/repository/github/tschm/jsharpe)
 

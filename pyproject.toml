@@ -4,7 +4,8 @@ version = "0.4.5"
 description = "Probabilistic Sharpe ratio and related statistics."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 
 authors = [
     { name = "Thomas Schmelzer", email = "thomas@jqr.ae" }

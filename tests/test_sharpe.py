@@ -597,6 +597,13 @@ def test_generate_autocorrelated_non_gaussian_data_and_autocorrelation():
     assert ac == pytest.approx(rho, abs=0.08)
 
 
+def test_generate_autocorrelated_non_gaussian_data_rho_none():
+    """When rho is None, gaussian_autocorrelation should be used as rho."""
+    np.random.seed(42)
+    X = generate_autocorrelated_non_gaussian_data(200, 2, SR0=0.0, name="gaussian", gaussian_autocorrelation=0.2)
+    assert X.shape == (200, 2)
+
+
 def test_probabilistic_sharpe_ratio_with_variance_and_T_conflict_raises():
     """Providing both variance and T should raise an assertion error."""
     with pytest.raises(AssertionError):

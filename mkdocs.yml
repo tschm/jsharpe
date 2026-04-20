@@ -1,0 +1,30 @@
+INHERIT: docs/mkdocs-base.yml
+
+site_name: jsharpe
+site_url: https://tschm.github.io/jsharpe/
+repo_url: https://github.com/tschm/jsharpe
+repo_name: tschm/jsharpe
+
+docs_dir: docs
+
+nav:
+  - Home: index.md
+  - API Reference:
+      - Sharpe: api/sharpe.md
+  - Development:
+      - Tests: development/TESTS.md
+      - Marimo: development/MARIMO.md
+  - CI/CD:
+      - coverage: reports/html-coverage/index.html
+      - report: reports/html-report/report.html
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true

@@ -1,6 +1,6 @@
 [project]
 name = "jsharpe"
-version = "0.4.6"
+version = "0.5.0"
 description = "Probabilistic Sharpe ratio and related statistics."
 readme = "README.md"
 requires-python = ">=3.11"

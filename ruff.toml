@@ -7,7 +7,7 @@ line-length = 120
 target-version = "py311"
 
 # Exclude directories with Jinja template variables in their names
-exclude = ["**/[{][{]*/", "**/*[}][}]*/"]
+exclude = ["**/[{][{]*/", "**/*[}][}]*/", "notebooks/*.ipynb"]
 
 [lint]
 # Available rule sets in Ruff:

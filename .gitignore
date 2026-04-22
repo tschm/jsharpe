@@ -1,3 +1,6 @@
+# Cached download of original reference implementation for migration tests
+tests/_zoonek_functions.py
+
 ### Python template
 .idea
 .venv

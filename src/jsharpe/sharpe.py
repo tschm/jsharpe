@@ -19,7 +19,7 @@ import numpy as np
 import scipy
 
 if TYPE_CHECKING:
-    import pandas as pd
+    pass
 
 
 def ppoints(n: int, a: float | None = None) -> np.ndarray:
@@ -168,95 +168,6 @@ def effective_rank(C: np.ndarray) -> float:
     p = p / sum(p)
     H = np.sum(-p * np.log(p))
     return math.exp(H)
-
-
-def number_of_clusters(
-    C: np.ndarray,
-    *,
-    retries: int = 10,
-    max_clusters: int = 100,
-    plot: bool = False,
-) -> tuple[int, pd.Series, np.ndarray]:
-    """Compute the optimal number of clusters from a correlation matrix.
-
-    Algorithm from section 8.1 of Lopez de Prado (2018), without the third
-    point (no recursive re-clustering of low-quality clusters):
-        1. Convert the correlation matrix into a distance matrix.
-        2. Using the columns of the distance matrix as features, run the
-           k-means algorithm for all k, and compute the "quality" of the
-           clustering.
-        3. Keep the clustering with the highest quality.
-    Quality is the mean of the silhouette scores divided by their standard
-    deviation.
-
-    Args:
-        C: Correlation matrix. Shape (n, n), symmetric, PSD, ones on diagonal.
-        retries: Number of times to run k-means per k. Default 10.
-        max_clusters: Maximum number of clusters to consider. Default 100.
-        plot: Whether to plot the quality of the clustering. Default False.
-
-    Returns:
-        Tuple of (n_clusters, qualities, clusters):
-            - n_clusters: Optimal number of clusters.
-            - qualities: pd.Series of clustering quality indexed by k.
-            - clusters: Cluster assignment for each observation.
-
-    References:
-        Lopez de Prado, M. (2018). "Detection of false investment strategies
-        using unsupervised learning methods." SSRN 3167017.
-
-    Example:
-        >>> import numpy as np
-        >>> np.random.seed(42)
-        >>> C = np.eye(5)
-        >>> n, q, c = number_of_clusters(C, max_clusters=4)
-        >>> isinstance(n, int)
-        True
-    """
-    import matplotlib.pyplot as plt
-    import pandas as pd
-    from sklearn.cluster import KMeans
-    from sklearn.metrics import silhouette_samples
-
-    assert isinstance(C, np.ndarray)
-    assert np.all(C >= -1)
-    assert np.all(C <= 1)
-    assert np.all(np.diag(C) == 1)
-    assert np.all(np.isfinite(C))
-
-    max_clusters = min(max_clusters, C.shape[0] - 1)
-    D = np.sqrt((1 - C) / 2)
-    assert np.all(np.isfinite(D))
-
-    qualities: dict[int, float] = {}
-    clusters_map: dict[int, np.ndarray] = {}
-    for k in range(2, max_clusters + 1):
-        qualities[k] = -np.inf
-        for _ in range(retries):
-            kmeans = KMeans(n_clusters=k)
-            kmeans.fit(D)
-            labels = kmeans.labels_
-            silhouette_vals = silhouette_samples(D, labels)
-            q = silhouette_vals.mean() / silhouette_vals.std()
-            if q > qualities[k]:
-                qualities[k] = q
-                clusters_map[k] = labels
-    qualities_series: pd.Series = pd.Series(qualities)
-    best_k = int(qualities_series.idxmax())
-    best_clusters = clusters_map[best_k]
-
-    if plot:
-        _fig, ax = plt.subplots(figsize=(4, 3), layout="constrained")
-        ax.plot(qualities_series)
-        i = np.argmax(qualities_series)
-        x, y = qualities_series.index[i], qualities_series.iloc[i]
-        ax.scatter(x, y)
-        ax.text(x, y, f"  {qualities_series.index[i]}", va="center", ha="left")
-        ax.set_xlabel("Number of clusters")
-        ax.set_ylabel("Quality")
-        plt.show()
-
-    return best_k, qualities_series, best_clusters
 
 
 def moments_Mk(k: int, *, rho: float = 0) -> tuple[float, float, float]:

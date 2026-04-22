@@ -14,6 +14,8 @@ nav:
   - Development:
       - Tests: development/TESTS.md
       - Marimo: development/MARIMO.md
+  - Notebooks:
+      - PSR: notebooks/psr.html
   - CI/CD:
       - coverage: reports/html-coverage/index.html
       - report: reports/html-report/report.html

@@ -124,6 +124,26 @@ line-ending = "auto"
     "RUF001",  # Allow ambiguous unicode in notebooks
     "RUF002",  # Allow ambiguous unicode in notebooks
 ]
+# Converted Jupyter notebooks in marimo format - preserve original code style
+"notebooks/marimo/*.py" = [
+    "D100",    # No module docstring
+    "D103",    # Missing docstring in public function
+    "D205",    # Blank line between summary and description
+    "N802",    # Function name should be lowercase
+    "N803",    # Argument name should be lowercase
+    "N806",    # Variable in function should be lowercase
+    "E501",    # Line too long
+    "S101",    # Allow assert statements
+    "S108",    # Allow hardcoded /tmp paths
+    "PLC0415", # Allow imports not at top-level
+    "B018",    # Allow useless expressions
+    "RUF001",  # Allow ambiguous unicode
+    "RUF002",  # Allow ambiguous unicode
+    "RUF003",  # Allow ambiguous unicode in comments
+    "F403",    # Allow star imports
+    "F405",    # Allow names from star imports
+    "F821",    # Allow undefined names
+]
 # Internal utility scripts - specific exceptions for internal tooling
 ".rhiza/utils/*.py" = [
     "PLW2901",  # Allow loop variable overwriting in utility scripts

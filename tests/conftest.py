@@ -45,7 +45,7 @@ def _mock_unavailable_modules() -> None:
 def original():
     """Original functions from zoonek/2025-sharpe-ratio, loaded once per session."""
     if not _CACHE.exists():
-        assert _URL.startswith("https://"), _URL
+        assert _URL.startswith("https://"), _URL  # S101: assert guards URL scheme before opening
         with urllib.request.urlopen(_URL) as resp:  # noqa: S310
             _CACHE.write_bytes(resp.read())
     _mock_unavailable_modules()

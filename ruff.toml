@@ -142,7 +142,9 @@ line-ending = "auto"
     "RUF003",  # Allow ambiguous unicode in comments
     "F403",    # Allow star imports
     "F405",    # Allow names from star imports
+    "F406",    # Allow star imports inside functions (marimo cells are functions)
     "F821",    # Allow undefined names
+    "RUF059",  # Allow unused unpacked variables
 ]
 # Internal utility scripts - specific exceptions for internal tooling
 ".rhiza/utils/*.py" = [

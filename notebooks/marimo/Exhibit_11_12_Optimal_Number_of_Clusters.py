@@ -19,18 +19,19 @@ def _(mo):
     return
 
 
-app._unparsable_cell(
-    r"""
+@app.cell
+def _():
     import math
 
     import matplotlib.pyplot as plt
     import numpy as np
     import ray
+    import scipy
+    import scipy.sparse.linalg
     from functions import *
     from tqdm.auto import tqdm
-    """,
-    name="_",
-)
+
+    return (effective_rank, get_random_correlation_matrix, math, np, number_of_clusters, plt, ray, scipy, tqdm)
 
 
 @app.cell

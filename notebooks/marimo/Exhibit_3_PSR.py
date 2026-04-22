@@ -47,7 +47,7 @@ def _():
 
 
 @app.cell
-def _(SR0, X, np, sharpe_ratio_variance, stats):
+def _(np, sharpe_ratio_variance, stats):
     REPS = 10_000
     SR0_annual_list = [0.0, 0.5, 1.0, 1.5, 2.0]
     [s / np.sqrt(252) for s in SR0_annual_list]
@@ -108,9 +108,6 @@ def _(SR0, X, np, sharpe_ratio_variance, stats):
         den = np.sqrt(v)
         return (sr_hat - SR0) / den
 
-    if False:
-        print(psr_z_T(X, SR0))
-        print(my_psr_z_T(X, SR0, 0))  # Same values
     return REPS, RHOs, RSEED, configs, gen_with_true_SR0, my_psr_z_T, psr_z_T
 
 

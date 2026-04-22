@@ -19,16 +19,15 @@ def _(mo):
     return
 
 
-app._unparsable_cell(
-    r"""
+@app.cell
+def _():
     import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
     from functions import *
     from tqdm.auto import tqdm
-    """,
-    name="_",
-)
+
+    return (control_for_FDR, expected_maximum_sharpe_ratio, np, pd, plt, tqdm)
 
 
 @app.cell

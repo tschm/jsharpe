@@ -1,5 +1,3 @@
-<div align="center">
-    
 # jsharpe
 
 [![PyPI version](https://badge.fury.io/py/jsharpe.svg)](https://badge.fury.io/py/jsharpe)
@@ -9,8 +7,6 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/tschm/jsharpe/badge)](https://www.codefactor.io/repository/github/tschm/jsharpe)
 
 **A Python library for rigorous Sharpe ratio analysis and statistical testing.**
-
-</div>
 
 ## Overview
 

@@ -26,8 +26,9 @@ def _():
     import numpy as np
     import pandas as pd
     import scipy.stats
-    from functions import generate_autocorrelated_non_gaussian_data, sharpe_ratio_variance
     from tqdm.auto import tqdm
+
+    from jsharpe import generate_autocorrelated_non_gaussian_data, sharpe_ratio_variance
 
     return (
         generate_autocorrelated_non_gaussian_data,

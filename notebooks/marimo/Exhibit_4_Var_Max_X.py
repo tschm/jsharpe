@@ -9,7 +9,8 @@ def _():
     import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
-    from functions import moments_Mk
+
+    from jsharpe import moments_Mk
 
     return moments_Mk, np, pd, plt
 

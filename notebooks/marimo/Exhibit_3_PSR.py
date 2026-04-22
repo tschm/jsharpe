@@ -23,9 +23,10 @@ def _(mo):
 def _():
     import numpy as np
     import pandas as pd
-    from functions import generate_autocorrelated_non_gaussian_data, generate_non_gaussian_data, sharpe_ratio_variance
     from scipy import stats
     from tqdm.auto import tqdm
+
+    from jsharpe import generate_autocorrelated_non_gaussian_data, generate_non_gaussian_data, sharpe_ratio_variance
 
     return (
         generate_autocorrelated_non_gaussian_data,

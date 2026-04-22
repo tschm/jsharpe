@@ -24,8 +24,9 @@ def _():
     import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
-    from functions import *
     from tqdm.auto import tqdm
+
+    from jsharpe import control_for_FDR, expected_maximum_sharpe_ratio
 
     return (control_for_FDR, expected_maximum_sharpe_ratio, np, pd, plt, tqdm)
 

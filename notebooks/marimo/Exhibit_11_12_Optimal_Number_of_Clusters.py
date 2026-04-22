@@ -28,8 +28,9 @@ def _():
     import ray
     import scipy
     import scipy.sparse.linalg
-    from functions import *
     from tqdm.auto import tqdm
+
+    from jsharpe import effective_rank, get_random_correlation_matrix, number_of_clusters
 
     return (effective_rank, get_random_correlation_matrix, math, np, number_of_clusters, plt, ray, scipy, tqdm)
 

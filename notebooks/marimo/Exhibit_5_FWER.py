@@ -27,12 +27,13 @@ def _():
     import numpy as np
     import pandas as pd
     import scipy
-    from functions import (
+    from sklearn.metrics import f1_score, precision_score, recall_score
+
+    from jsharpe import (
         expected_maximum_sharpe_ratio,
         generate_autocorrelated_non_gaussian_data,
         variance_of_the_maximum_of_k_Sharpe_ratios,
     )
-    from sklearn.metrics import f1_score, precision_score, recall_score
 
     logging.basicConfig(
         format="%(asctime)-15s %(message)s",

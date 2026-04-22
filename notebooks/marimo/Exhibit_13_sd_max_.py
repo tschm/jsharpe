@@ -8,10 +8,11 @@ app = marimo.App()
 def _():
     import math
 
-    import functions  # <- required local module
     import matplotlib.pyplot as plt
     import numpy as np
     from scipy.stats import norm
+
+    from jsharpe import moments_Mk
 
     EULER_GAMMA = 0.5772156649015328606
 
@@ -20,7 +21,7 @@ def _():
     # ------------------------------------------------------------
     def sd_numerical_integration(K: int) -> float:
         """Exact Std[M_K] via Gauss–Hermite integration implemented in functions.py."""
-        _, _, var = functions.moments_Mk(K, rho=0)
+        _, _, var = moments_Mk(K, rho=0)
         return math.sqrt(max(0.0, var))
 
     # ------------------------------------------------------------

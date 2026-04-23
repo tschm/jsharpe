@@ -52,13 +52,17 @@ def _(ks, np, plt, variances):
 
 @app.cell
 def _(ks, np, pd, variances):
+    import os
+    import tempfile
+
+    _out = os.path.join(tempfile.gettempdir(), "variances.csv")
     pd.DataFrame(
         {
             "k": ks,
             "variance": variances,
             "std": np.sqrt(variances),
         }
-    ).to_csv("/tmp/variances.csv", index=False)
+    ).to_csv(_out, index=False)
     return
 
 

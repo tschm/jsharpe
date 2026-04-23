@@ -266,7 +266,7 @@ def number_of_clusters(
         (20,)
     """
     assert isinstance(C, np.ndarray)
-    assert np.all(-1 <= C)
+    assert np.all(C >= -1)
     assert np.all(C <= 1)
     assert np.all(np.diag(C) == 1)
     assert np.all(np.isfinite(C))

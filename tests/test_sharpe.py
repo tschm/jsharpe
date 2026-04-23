@@ -615,7 +615,9 @@ def test_probabilistic_sharpe_ratio_with_variance_and_T_conflict_raises():
 def test_number_of_clusters_basic():
     """number_of_clusters should return a valid cluster count, quality dict, and labels array."""
     np.random.seed(7)
-    C, _, _ = get_random_correlation_matrix(number_of_trials=30, effective_number_of_trials=5, number_of_observations=200, noise=0.05)
+    C, _, _ = get_random_correlation_matrix(
+        number_of_trials=30, effective_number_of_trials=5, number_of_observations=200, noise=0.05
+    )
     n, qualities, labels = number_of_clusters(C, retries=3, max_clusters=10)
     # n must be within the evaluated range
     assert 2 <= n <= 10
@@ -634,7 +636,7 @@ def test_number_of_clusters_identity_matrix():
     """On an identity correlation matrix every variable is its own cluster."""
     n = 5
     C = np.eye(n)
-    k, qualities, labels = number_of_clusters(C, retries=2, max_clusters=n - 1)
+    k, _qualities, labels = number_of_clusters(C, retries=2, max_clusters=n - 1)
     assert 2 <= k <= n - 1
     assert labels.shape == (n,)
 

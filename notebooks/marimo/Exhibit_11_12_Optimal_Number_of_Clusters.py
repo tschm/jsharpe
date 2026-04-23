@@ -32,7 +32,17 @@ def _():
 
     from jsharpe import effective_rank, get_random_correlation_matrix, number_of_clusters
 
-    return (effective_rank, get_random_correlation_matrix, math, np, number_of_clusters, plt, ray, scipy, tqdm)
+    return (
+        effective_rank,
+        get_random_correlation_matrix,
+        math,
+        np,
+        number_of_clusters,
+        plt,
+        ray,
+        scipy,
+        tqdm,
+    )
 
 
 @app.cell

@@ -28,7 +28,7 @@ def _():
 
     from jsharpe import control_for_FDR, expected_maximum_sharpe_ratio
 
-    return (control_for_FDR, expected_maximum_sharpe_ratio, np, pd, plt, tqdm)
+    return control_for_FDR, expected_maximum_sharpe_ratio, np, pd, plt, tqdm
 
 
 @app.cell

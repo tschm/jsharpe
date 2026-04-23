@@ -158,7 +158,7 @@ def _(REPS, RSEED, configs, gen_with_true_SR0, np, pd, psr_z_T, stats):
     _psr_table = pd.DataFrame(rows).sort_values(["config", "SR1"]).set_index(["config", "SR1"]).round(4)
     _psr_table.to_csv("appendix_2.csv")
     _psr_table
-    return SR0_daily, SR1_annual_list, SR1_daily_list, T_1, X
+    return SR0_daily, SR1_annual_list, SR1_daily_list, T_1
 
 
 @app.cell

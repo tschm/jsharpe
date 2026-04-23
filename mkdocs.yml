@@ -11,9 +11,6 @@ nav:
   - Home: index.md
   - API Reference:
       - Sharpe: api/sharpe.md
-  - Development:
-      - Tests: development/TESTS.md
-      - Marimo: development/MARIMO.md
   - Notebooks:
       - PSR: notebooks/psr.html
   - CI/CD:

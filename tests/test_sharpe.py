@@ -32,6 +32,7 @@ try:
         make_expectation_gh,
         minimum_track_record_length,
         minimum_variance_weights_for_correlated_assets,
+        number_of_clusters,
         oFDR,
         pFDR,
         # merged imports
@@ -68,6 +69,7 @@ except ModuleNotFoundError:
         make_expectation_gh,
         minimum_track_record_length,
         minimum_variance_weights_for_correlated_assets,
+        number_of_clusters,
         oFDR,
         pFDR,
         ppoints,
@@ -608,3 +610,47 @@ def test_probabilistic_sharpe_ratio_with_variance_and_T_conflict_raises():
     """Providing both variance and T should raise an assertion error."""
     with pytest.raises(AssertionError):
         probabilistic_sharpe_ratio(SR=0.5, SR0=0.0, variance=0.04, T=24)
+
+
+def test_number_of_clusters_basic():
+    """number_of_clusters should return a valid cluster count, quality dict, and labels array."""
+    np.random.seed(7)
+    C, _, _ = get_random_correlation_matrix(
+        number_of_trials=30, effective_number_of_trials=5, number_of_observations=200, noise=0.05
+    )
+    n, qualities, labels = number_of_clusters(C, retries=3, max_clusters=10)
+    # n must be within the evaluated range
+    assert 2 <= n <= 10
+    # qualities maps each k to a float
+    assert set(qualities.keys()) == set(range(2, 11))
+    assert all(isinstance(q, float) for q in qualities.values())
+    # best k must match argmax of qualities
+    assert n == max(qualities, key=lambda x: qualities[x])
+    # labels must be integer array of length 30 with values in [0, n-1]
+    assert labels.shape == (30,)
+    assert labels.min() >= 0
+    assert labels.max() < n
+
+
+def test_number_of_clusters_identity_matrix():
+    """On an identity correlation matrix every variable is its own cluster."""
+    n = 5
+    C = np.eye(n)
+    k, _qualities, labels = number_of_clusters(C, retries=2, max_clusters=n - 1)
+    assert 2 <= k <= n - 1
+    assert labels.shape == (n,)
+
+
+def test_number_of_clusters_block_structure():
+    """number_of_clusters should detect the approximate block structure of a synthetic correlation matrix."""
+    np.random.seed(0)
+    C, _, true_clusters = get_random_correlation_matrix(
+        number_of_trials=20,
+        effective_number_of_trials=4,
+        number_of_observations=500,
+        noise=0.01,
+    )
+    true_k = len(np.unique(true_clusters))
+    k, _qualities, _labels = number_of_clusters(C, retries=5, max_clusters=8)
+    # With very low noise the detected k should be close to the true number of clusters
+    assert abs(k - true_k) <= 2

@@ -124,6 +124,15 @@ line-ending = "auto"
     "RUF001",  # Allow ambiguous unicode in notebooks
     "RUF002",  # Allow ambiguous unicode in notebooks
 ]
+# Math-domain file with conventional uppercase names (SR, T, K, etc.) from academic papers
+"tests/_zoonek_functions.py" = [
+    "N802",   # Allow non-lowercase function names (pFDR, oFDR)
+    "N803",   # Allow non-lowercase argument names (SR, T, K)
+    "N806",   # Allow non-lowercase variable names in functions
+    "E501",   # Allow long lines for formula documentation
+    "D205",   # Allow multi-line docstring summaries (formulas span multiple lines)
+    "RUF001", # Allow Greek math symbols (α, β, γ, σ) — intentional academic notation
+]
 # Internal utility scripts - specific exceptions for internal tooling
 ".rhiza/utils/*.py" = [
     "PLW2901",  # Allow loop variable overwriting in utility scripts

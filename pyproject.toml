@@ -28,9 +28,9 @@ classifiers = [
 ]
 
 [project.urls]
-repository = "https://github.com/tschm/jsharpe"
-homepage = "https://github.com/tschm/jsharpe"
-issues = "https://github.com/tschm/jsharpe/issues"
+Repository = "https://github.com/tschm/jsharpe"
+Homepage = "https://github.com/tschm/jsharpe"
+Issues = "https://github.com/tschm/jsharpe/issues"
 
 [dependency-groups]
 dev = [
@@ -40,6 +40,10 @@ dev = [
     "plotly>=6.5",
     "pandas>=2.3"
 ]
+test = [
+    "pytest>=8.0",
+]
+lint = []
 
 [build-system]
 requires = ["hatchling"]

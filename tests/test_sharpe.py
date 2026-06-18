@@ -654,3 +654,34 @@ def test_number_of_clusters_block_structure():
     k, _qualities, _labels = number_of_clusters(C, retries=5, max_clusters=8)
     # With very low noise the detected k should be close to the true number of clusters
     assert abs(k - true_k) <= 2
+
+
+def test_number_of_clusters_skips_zero_std_quality(monkeypatch):
+    """A k whose silhouette scores have zero spread (std == 0) is skipped, not selected."""
+
+    # Force the k-means assignment so the quality computation is deterministic:
+    # for k=2 both clusters are perfectly symmetric (every silhouette score == 1,
+    # so std == 0), while k=3 yields a genuine, uneven split.
+    def fake_kmeans2(data, k, **_kwargs):
+        """Return a deterministic cluster assignment: symmetric for k=2, uneven otherwise."""
+        labels = np.array([0, 0, 1, 1]) if k == 2 else np.array([0, 1, 2, 0])
+        return np.zeros((k, data.shape[1])), labels
+
+    monkeypatch.setattr("scipy.cluster.vq.kmeans2", fake_kmeans2)
+
+    # Two perfectly-correlated pairs -> rows 0,1 and 2,3 are identical in distance space.
+    r = 0.2
+    C = np.array([[1, 1, r, r], [1, 1, r, r], [r, r, 1, 1], [r, r, 1, 1]], dtype=float)
+    n, qualities, labels = number_of_clusters(C, retries=2, max_clusters=3)
+
+    # k=2 had zero silhouette spread and was skipped, so its quality stays -inf.
+    assert qualities[2] == -np.inf
+    # k=3 produced a valid solution and was selected instead.
+    assert n == 3
+    assert labels.shape == (4,)
+
+
+def test_number_of_clusters_raises_when_no_valid_solution():
+    """A 2x2 matrix admits no k in [2, n-1], so no clustering is found and it raises."""
+    with pytest.raises(RuntimeError, match="No valid clustering solution"):
+        number_of_clusters(np.eye(2))

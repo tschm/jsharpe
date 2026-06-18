@@ -41,7 +41,7 @@ def fmt(x, precision: int = 3) -> str:
             return str(x)
         else:
             return f"{x:.{precision}f}"
-    except Exception:
+    except (TypeError, ValueError):
         return str(x)
 
 

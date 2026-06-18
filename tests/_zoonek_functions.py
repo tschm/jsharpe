@@ -105,6 +105,7 @@ def make_expectation_gh(n_nodes=200):
     x = scale * nodes
 
     def E(g):
+        """Compute E[g(Z)] for Z ~ N(0,1) using the precomputed Gauss-Hermite nodes and weights."""
         vals = g(x)
         return norm * np.dot(weights, vals)
 
@@ -188,6 +189,7 @@ def effective_rank(C: np.ndarray) -> float:
 
 
 def test_effective_rank():
+    """Check effective_rank against the identity matrix and a known correlation matrix."""
     np.random.seed(1)
     x = np.random.normal(size=(10, 3))
     C = np.corrcoef(x.T)
@@ -345,12 +347,14 @@ def generate_non_gaussian_data(
     assert name in configs
 
     def mixture_variance(p_tail, mu_tail, sigma_tail, mu_core, sigma_core):
+        """Variance of the two-component (core/tail) Gaussian mixture."""
         w = 1.0 - p_tail
         mu = w * mu_core + p_tail * mu_tail
         m2 = w * (sigma_core**2 + mu_core**2) + p_tail * (sigma_tail**2 + mu_tail**2)
         return m2 - mu**2
 
     def gen_with_true_SR0(reps, T, cfg, SR0):
+        """Sample from the core/tail mixture, shifted so the population Sharpe ratio equals SR0."""
         p, mu_tail, sig_tail, sig_core = cfg
         # Zero-mean baseline mixture (choose mu_core so mean=0)
         mu_core0 = -p * mu_tail / (1.0 - p)
@@ -366,6 +370,7 @@ def generate_non_gaussian_data(
 
 @deprecated(reason="No longer used")
 def generate_autocorrelated_Gaussian_data(nr, nc, rho=0.5):
+    """Generate Gaussian data following an AR(1) process with autocorrelation rho."""
     X = np.random.normal(size=(nr, nc))
     for i in range(1, nr):
         X[i, :] = rho * X[i - 1, :] + X[i, :]
@@ -374,6 +379,7 @@ def generate_autocorrelated_Gaussian_data(nr, nc, rho=0.5):
 
 @deprecated(reason="No longer used")
 def enforce_marginals_1d(gaussian, marginals):
+    """Reorder marginals to share the rank order of gaussian, preserving its dependence structure."""
     assert gaussian.ndim == 1
     assert marginals.ndim == 1
     assert gaussian.shape == marginals.shape
@@ -390,6 +396,7 @@ def enforce_marginals_1d(gaussian, marginals):
 
 @deprecated(reason="No longer used")
 def enforce_marginals(gaussian, marginals):
+    """Apply enforce_marginals_1d column by column to a 2-D array."""
     assert gaussian.ndim == 2
     assert marginals.ndim == 2
     assert gaussian.shape == marginals.shape
@@ -399,6 +406,7 @@ def enforce_marginals(gaussian, marginals):
 
 
 def autocorrelation(X):
+    """Average lag-1 autocorrelation across the columns of X."""
     _nr, nc = X.shape
     ac = np.zeros(nc)
     for i in range(nc):
@@ -507,6 +515,7 @@ values = pd.read_csv(StringIO(values))
 
 @deprecated(reason="No longer used")
 def compute_input_rho(name, rho_output):
+    """Interpolate the input (Gaussian) autocorrelation yielding a target output autocorrelation for a distribution."""
     subset = values[values["name"] == name].sort_values("rho_output")
     x = subset["rho_output"]
     y = subset["rho_input"]
@@ -515,6 +524,7 @@ def compute_input_rho(name, rho_output):
 
 
 def generate_autocorrelated_non_gaussian_data(N, n, SR0=0, name="gaussian", rho=None, gaussian_autocorrelation=0):
+    """Generate AR(1)-autocorrelated data with the requested non-Gaussian marginals via the Gaussian copula."""
     if rho is None:
         # rho = compute_input_rho( name, gaussian_autocorrelation )
         rho = gaussian_autocorrelation  # With the distributions we consider the autocorrelation is almost the same.
@@ -572,6 +582,7 @@ def sharpe_ratio_variance(
 
 
 def test_sharpe_ratio_variance():
+    """Check sharpe_ratio_variance against known non-Gaussian and Gaussian values."""
     assert round(math.sqrt(sharpe_ratio_variance(SR=0.036 / 0.079, gamma3=-2.448, gamma4=10.164, T=24)), 3) == 0.329
     assert round(math.sqrt(sharpe_ratio_variance(SR=0.036 / 0.079, gamma3=0, gamma4=3, T=24)), 3) == 0.214
 
@@ -604,6 +615,7 @@ def minimum_track_record_length(
 
 
 def test_minimum_track_record_length():
+    """Check minimum_track_record_length against a known value."""
     assert (
         round(minimum_track_record_length(SR=0.036 / 0.079, SR0=0, gamma3=-2.448, gamma4=10.164, alpha=0.05), 3)
         == 13.029
@@ -647,6 +659,7 @@ def probabilistic_sharpe_ratio(
 
 
 def test_probabilistic_sharpe_ratio():
+    """Check probabilistic_sharpe_ratio against known values for two values of SR0."""
     assert round(probabilistic_sharpe_ratio(SR=0.036 / 0.079, SR0=0, T=24, gamma3=-2.448, gamma4=10.164), 3) == 0.987
     assert round(probabilistic_sharpe_ratio(SR=0.036 / 0.079, SR0=0.1, T=24, gamma3=-2.448, gamma4=10.164), 3) == 0.939
 
@@ -719,6 +732,7 @@ def sharpe_ratio_power(
 
 
 def test_sharpe_ratio_power():
+    """Check the type II error implied by sharpe_ratio_power against a known value."""
     assert round(1 - sharpe_ratio_power(SR0=0, SR1=0.5, T=24, gamma3=-2.448, gamma4=10.164), 3) == 0.315
 
 
@@ -746,10 +760,12 @@ def pFDR(
 
 @deprecated(reason="This was renamed to pFDR")
 def bayesian_fdr(*args, **kwargs):
+    """Deprecated alias for pFDR."""
     return pFDR(*args, **kwargs)
 
 
 def test_pFDR():
+    """Check pFDR against a known value."""
     assert round(pFDR(0.05, 0.05, 0.315), 3) == 0.581
 
 
@@ -790,10 +806,12 @@ def oFDR(
 
 @deprecated(reason="This was renamed to oFDR")
 def posterior_p_value(*args, **kwargs):
+    """Deprecated alias for oFDR."""
     return oFDR(*args, **kwargs)
 
 
 def test_oFDR():
+    """Check oFDR against a known value."""
     assert round(oFDR(SR=0.036 / 0.079, SR0=0, SR1=0.5, T=24, p_H1=0.05, gamma3=-2.448, gamma4=10.164), 3) == 0.306
 
 
@@ -817,6 +835,7 @@ def robust_covariance_inverse(V: np.ndarray) -> np.ndarray:
 
 
 def test_robust_covariance_inverse():
+    """Check robust_covariance_inverse matches numpy's inverse on a constant-correlation matrix."""
     np.random.seed(0)
     rho = 0.5
     C = rho * np.ones(shape=(10, 10))
@@ -842,6 +861,7 @@ def minimum_variance_weights_for_correlated_assets(V: np.ndarray) -> np.ndarray:
 
 
 def test_minimum_variance_weights_for_correlated_assets():
+    """Check the analytic minimum-variance weights match a cvxpy optimization."""
     np.random.seed(0)
     rho = 0.5
     C = rho * np.ones(shape=(10, 10))
@@ -918,6 +938,7 @@ def variance_of_the_maximum_of_k_Sharpe_ratios(number_of_trials: int, variance: 
 def deflated_sharpe_ratio(
     X: np.ndarray, *, verbose: bool = False, cluster: bool = True, details: bool = False
 ) -> float:
+    """Deflated Sharpe ratio of the best of several strategies, optionally clustering correlated strategies first."""
     gamma3 = scipy.stats.skew(X.flatten())  # Skewness
     gamma4 = scipy.stats.kurtosis(X.flatten(), fisher=False)  # Kurtosis (not excess kurtosis)
     T = X.shape[0]
@@ -1075,6 +1096,7 @@ def FDR_critical_value(q: float, SR0: float, SR1: float, sigma0: float, sigma1: 
         warnings.filterwarnings("ignore", message="divide by zero encountered in scalar divide")
 
         def f(c):
+            """Posterior probability P[H=0|X_H>c] as a function of the threshold c."""
             a = 1 / (
                 1
                 + scipy.stats.norm.sf((c - SR1) / sigma1) / scipy.stats.norm.sf((c - SR0) / sigma0) * p_H1 / (1 - p_H1)
@@ -1091,6 +1113,7 @@ def FDR_critical_value(q: float, SR0: float, SR1: float, sigma0: float, sigma1: 
 
 
 def test_FDR_critical_value():
+    """Check the FDR critical value yields the target false discovery proportion via simulation."""
     np.random.seed(0)
     r = []
     for _ in range(100):
@@ -1176,7 +1199,7 @@ def control_for_FDR(
 
 
 def test_numeric_example():
-
+    """Reproduce and print the numeric example from the paper for two autocorrelation levels."""
     for rho in [0, 0.2]:
         print("----------")
         mu = 0.036

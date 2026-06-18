@@ -49,3 +49,10 @@ lint = []
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# scipy ships no type stubs (scipy-stubs is a separate, partial package),
+# so mypy --strict cannot resolve its imports. Ignore the missing stubs
+# rather than pinning an out-of-tree stub package.
+[[tool.mypy.overrides]]
+module = ["scipy.*"]
+ignore_missing_imports = true
+

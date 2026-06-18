@@ -84,7 +84,7 @@ except ModuleNotFoundError:
 logger = logging.getLogger(__name__)
 
 # Route any legacy print calls in this module to the logger for consistency
-print = logger.debug  # type: ignore[assignment]
+print = logger.debug  # type: ignore[assignment]  # noqa: A001  # deliberately route print() to the logger
 
 
 def test_effective_rank():

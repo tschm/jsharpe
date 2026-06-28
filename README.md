@@ -168,7 +168,7 @@ This installs [uv](https://github.com/astral-sh/uv), creates a virtual environme
 
 ```bash
 # Run tests
-make tests
+make test
 
 # Format code
 make fmt
@@ -185,7 +185,9 @@ jsharpe/
 │   ├── __init__.py    # Public API exports
 │   └── sharpe.py      # Core implementations
 ├── tests/             # Test suite
-│   └── test_sharpe.py # Unit tests
+│   ├── test_sharpe.py    # Unit tests
+│   ├── test_migration.py # Parity tests vs. the original implementation
+│   └── fuzz/             # Atheris fuzz harness
 ├── book/              # Documentation and interactive notebooks
 │   └── marimo/        # Marimo notebooks for exploration
 └── pyproject.toml     # Project metadata and dependencies
@@ -198,7 +200,7 @@ We welcome contributions! Please:
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes and add tests
-4. Run `make tests` and `make fmt`
+4. Run `make test` and `make fmt`
 5. Commit your changes (`git commit -m 'Add some amazing feature'`)
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
@@ -209,7 +211,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ```bash
 # Run all tests with coverage
-make tests
+make test
 
 # Run specific test file
 pytest tests/test_sharpe.py -v

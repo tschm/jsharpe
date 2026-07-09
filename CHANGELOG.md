@@ -5,6 +5,27 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 and entries are generated from [Conventional Commits](https://www.conventionalcommits.org).
 
+## [0.6.3] - 2026-07-09
+
+### New Features
+- Add ClusterFuzzLite fuzzing scaffold for jsharpe (#248)
+
+### Maintenance
+- Chore(deps-dev)(deps-dev): bump the python-dependencies group with 3 updates (#247)
+- Chore(deps)(deps): bump actions/checkout in the github-actions group (#246)
+- Chore(deps)(deps): bump the github-actions group with 3 updates (#251)
+- Chore(deps-dev)(deps-dev): bump marimo in the python-dependencies group (#250)
+- Update rhiza to v1.0.0 (#255)
+- Split sharpe.py into a topical sub-package (#256) (#257)
+- Chore(deps-dev)(deps-dev): bump marimo in the python-dependencies group (#259)
+- Sync rhiza template to v1.1.1 (#260)
+
+### Other Changes
+- Sync Rhiza template v0.19.3 → v0.19.4 (#245)
+- Sync Rhiza template v0.19.4 → v0.19.6 (#249)
+- Sync Rhiza template v0.19.6 → v0.19.9 (#252)
+- Fix README to reference real 'make test' target (#254)
+
 ## [0.6.2] - 2026-06-18
 
 ### Bug Fixes
@@ -30,6 +51,7 @@ and entries are generated from [Conventional Commits](https://www.conventionalco
 ### Other Changes
 - Update template.yml to remove unused templates
 - Sync Rhiza template v0.18.8 → v0.19.3 (#242)
+- Bump version 0.6.1 → 0.6.2
 
 ## [0.6.1] - 2026-05-21
 

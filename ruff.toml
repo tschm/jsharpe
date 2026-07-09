@@ -158,8 +158,3 @@ line-ending = "auto"
     "D205",   # Allow multi-line docstring summaries (formulas span multiple lines)
     "RUF001", # Allow Greek math symbols (α, β, γ, σ) — intentional academic notation
 ]
-# Internal utility scripts - specific exceptions for internal tooling
-".rhiza/utils/*.py" = [
-    "PLW2901",  # Allow loop variable overwriting in utility scripts
-    "TRY003",   # Allow long exception messages in utility scripts
-]

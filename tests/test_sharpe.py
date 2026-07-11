@@ -685,3 +685,89 @@ def test_number_of_clusters_raises_when_no_valid_solution():
     """A 2x2 matrix admits no k in [2, n-1], so no clustering is found and it raises."""
     with pytest.raises(RuntimeError, match="No valid clustering solution"):
         number_of_clusters(np.eye(2))
+
+
+# ---- behavioural / property invariants ----
+#
+# The tests above pin exact reference values. The ones below instead assert
+# behaviour that must hold for *any* correct implementation — bounds and
+# monotonicity in each argument — so they keep protecting the contract even if
+# the internal formulas are refactored.
+
+
+def test_sharpe_ratio_variance_positive_and_monotone_in_trials():
+    """Variance is strictly positive and monotone in the multiple-testing factor K."""
+    var_single = sharpe_ratio_variance(SR=0.5, T=24)
+    var_many = sharpe_ratio_variance(SR=0.5, T=24, K=20)
+    assert var_single > 0
+    assert var_many > 0
+    # The K-adjustment (moments_Mk) rescales the estimator variance monotonically in K.
+    assert var_many < var_single
+
+
+def test_sharpe_ratio_variance_shrinks_with_more_observations():
+    """More observations reduce the estimator variance (∝ 1/T)."""
+    var_short = sharpe_ratio_variance(SR=0.5, T=12)
+    var_long = sharpe_ratio_variance(SR=0.5, T=120)
+    assert var_long < var_short
+
+
+def test_probabilistic_sharpe_ratio_bounds_and_monotonicity():
+    """PSR lies in (0, 1), rises with the observed SR, and falls as the benchmark SR0 rises."""
+    psr = probabilistic_sharpe_ratio(SR=0.5, SR0=0.0, T=24)
+    assert 0.0 < psr < 1.0
+    # Monotone increasing in the observed Sharpe ratio.
+    psr_higher_sr = probabilistic_sharpe_ratio(SR=1.0, SR0=0.0, T=24)
+    assert psr_higher_sr > psr
+    # Monotone decreasing in the benchmark it must beat.
+    psr_harder_benchmark = probabilistic_sharpe_ratio(SR=0.5, SR0=0.3, T=24)
+    assert psr_harder_benchmark < psr
+
+
+def test_minimum_track_record_length_positive_and_stricter_alpha_needs_more_data():
+    """MinTRL is positive and grows as the confidence requirement tightens (smaller alpha)."""
+    mtrl_loose = minimum_track_record_length(SR=0.5, SR0=0.0, alpha=0.10)
+    mtrl_strict = minimum_track_record_length(SR=0.5, SR0=0.0, alpha=0.01)
+    assert mtrl_loose > 0
+    assert mtrl_strict > mtrl_loose
+
+
+def test_critical_sharpe_ratio_positive_and_falls_as_alpha_relaxes():
+    """SR_c to reject H0: SR=0 is positive and decreases as alpha is relaxed."""
+    sr_c_strict = critical_sharpe_ratio(SR0=0.0, T=24, alpha=0.01)
+    sr_c_loose = critical_sharpe_ratio(SR0=0.0, T=24, alpha=0.10)
+    assert sr_c_strict > 0
+    assert sr_c_loose < sr_c_strict
+
+
+def test_sharpe_ratio_power_bounds_and_grows_with_sample_and_effect():
+    """Power is in [0, 1] and increases with both sample size T and the alternative SR1."""
+    power = sharpe_ratio_power(SR0=0.0, SR1=0.5, T=24)
+    assert 0.0 <= power <= 1.0
+    # More observations -> more power.
+    assert sharpe_ratio_power(SR0=0.0, SR1=0.5, T=96) > power
+    # A larger true effect -> more power.
+    assert sharpe_ratio_power(SR0=0.0, SR1=0.8, T=24) > power
+
+
+def test_expected_maximum_sharpe_ratio_grows_with_trials():
+    """The expected maximum Sharpe ratio increases with the number of trials."""
+    e_few = expected_maximum_sharpe_ratio(number_of_trials=2, variance=0.1)
+    e_many = expected_maximum_sharpe_ratio(number_of_trials=50, variance=0.1)
+    assert e_many > e_few
+
+
+def test_pFDR_bounds_and_grows_with_alpha():
+    """PFDR is a probability in (0, 1) that increases as the Type-I error rate alpha grows."""
+    fdr = pFDR(p_H1=0.05, alpha=0.05, beta=0.3)
+    assert 0.0 < fdr < 1.0
+    # A more permissive test admits more false discoveries among rejections.
+    assert pFDR(p_H1=0.05, alpha=0.20, beta=0.3) > fdr
+
+
+def test_oFDR_bounds_and_falls_with_stronger_evidence():
+    """OFDR is a probability in (0, 1) that decreases as the observed SR strengthens."""
+    fdr_weak = oFDR(SR=0.3, SR0=0.0, SR1=0.5, T=24, p_H1=0.1)
+    fdr_strong = oFDR(SR=0.8, SR0=0.0, SR1=0.5, T=24, p_H1=0.1)
+    assert 0.0 < fdr_weak < 1.0
+    assert fdr_strong < fdr_weak

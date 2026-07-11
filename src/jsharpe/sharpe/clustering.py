@@ -110,6 +110,59 @@ def _silhouette_samples(X: np.ndarray, labels: np.ndarray) -> np.ndarray:
     return np.where(max_ab > 0, (b - a) / max_ab, 0.0)
 
 
+def _assert_correlation_matrix(C: np.ndarray) -> None:
+    """Validate that ``C`` is a finite correlation matrix.
+
+    Checks that ``C`` is a numpy array with all entries in ``[-1, 1]``, ones on
+    the diagonal, and no non-finite values.
+
+    Args:
+        C: Candidate correlation matrix.
+    """
+    assert isinstance(C, np.ndarray)
+    assert np.all(C >= -1)
+    assert np.all(C <= 1)
+    assert np.all(np.diag(C) == 1)
+    assert np.all(np.isfinite(C))
+
+
+def _best_clustering_for_k(D: np.ndarray, k: int, *, retries: int) -> tuple[float, np.ndarray | None]:
+    """Run k-means ``retries`` times for a fixed ``k`` and return the best solution.
+
+    Degenerate runs (fewer than ``k`` non-empty clusters, or silhouette scores
+    with zero spread) are skipped. Quality is the mean silhouette score divided
+    by its standard deviation.
+
+    Args:
+        D: Distance matrix used as the feature matrix for k-means.
+        k: Number of clusters to fit.
+        retries: Number of k-means restarts to reduce sensitivity to the random
+            initialisation.
+
+    Returns:
+        Tuple of (quality, labels) for the best valid run, or ``(-inf, None)``
+        if no run produced a valid clustering.
+    """
+    best_quality = -np.inf
+    best_labels: np.ndarray | None = None
+    for _ in range(retries):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            _centroids, labels = scipy.cluster.vq.kmeans2(D, k, minit="points", iter=300)
+        # Skip degenerate solutions with empty clusters
+        if len(np.unique(labels)) < k:
+            continue
+        silhouette_vals = _silhouette_samples(D, labels)
+        std = silhouette_vals.std()
+        if std == 0:
+            continue
+        q = float(silhouette_vals.mean() / std)
+        if q > best_quality:
+            best_quality = q
+            best_labels = labels.copy()
+    return best_quality, best_labels
+
+
 def number_of_clusters(
     C: np.ndarray,
     *,
@@ -159,11 +212,7 @@ def number_of_clusters(
         >>> labels.shape
         (20,)
     """
-    assert isinstance(C, np.ndarray)
-    assert np.all(C >= -1)
-    assert np.all(C <= 1)
-    assert np.all(np.diag(C) == 1)
-    assert np.all(np.isfinite(C))
+    _assert_correlation_matrix(C)
 
     max_clusters = min(max_clusters, C.shape[0] - 1)
 
@@ -174,22 +223,10 @@ def number_of_clusters(
     qualities: dict[int, float] = {}
     best_labels: dict[int, np.ndarray] = {}
     for k in range(2, max_clusters + 1):
-        qualities[k] = -np.inf
-        for _ in range(retries):
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                _centroids, labels = scipy.cluster.vq.kmeans2(D, k, minit="points", iter=300)
-            # Skip degenerate solutions with empty clusters
-            if len(np.unique(labels)) < k:
-                continue
-            silhouette_vals = _silhouette_samples(D, labels)
-            std = silhouette_vals.std()
-            if std == 0:
-                continue
-            q = float(silhouette_vals.mean() / std)
-            if q > qualities[k]:
-                qualities[k] = q
-                best_labels[k] = labels.copy()
+        quality, labels = _best_clustering_for_k(D, k, retries=retries)
+        qualities[k] = quality
+        if labels is not None:
+            best_labels[k] = labels
 
     # Select the best k among those for which a valid solution was found
     valid_k = {k: q for k, q in qualities.items() if k in best_labels}

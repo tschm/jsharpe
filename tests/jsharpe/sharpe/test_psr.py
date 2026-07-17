@@ -4,11 +4,13 @@ Combines pinned reference values (documented numeric examples) with behavioural
 invariants — bounds and monotonicity in each argument — that must hold for any
 correct implementation.
 """
-# ruff: noqa: N806
+# ruff: noqa: N803, N806
 
 import math
 
 import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from jsharpe import (
     critical_sharpe_ratio,
@@ -53,9 +55,15 @@ def test_sharpe_ratio_power_pinned_value():
 
 
 def test_probabilistic_sharpe_ratio_with_variance_and_t_conflict_raises():
-    """Providing both variance and T should raise an assertion error."""
-    with pytest.raises(AssertionError):
+    """Providing both variance and T should raise a ValueError."""
+    with pytest.raises(ValueError, match="either the variance or"):
         probabilistic_sharpe_ratio(SR=0.5, SR0=0.0, variance=0.04, T=24)
+
+
+def test_probabilistic_sharpe_ratio_without_variance_or_t_raises():
+    """Providing neither variance nor T should raise a ValueError."""
+    with pytest.raises(ValueError, match="T must be provided"):
+        probabilistic_sharpe_ratio(SR=0.5, SR0=0.0)
 
 
 def test_probabilistic_sharpe_ratio_accepts_explicit_variance():
@@ -128,3 +136,39 @@ def test_expected_maximum_sharpe_ratio_grows_with_trials():
     assert expected_maximum_sharpe_ratio(number_of_trials=50, variance=0.1) > expected_maximum_sharpe_ratio(
         number_of_trials=2, variance=0.1
     )
+
+
+# ---- property-based invariants ----------------------------------------------
+
+
+@pytest.mark.property
+@settings(deadline=None, max_examples=100)
+@given(
+    SR=st.floats(min_value=-3.0, max_value=3.0),
+    T=st.integers(min_value=5, max_value=100),
+    extra=st.integers(min_value=1, max_value=1000),
+)
+def test_sharpe_ratio_variance_positive_and_shrinks_with_more_observations(SR, T, extra):
+    """For any SR, the estimator variance is strictly positive and strictly falls as T grows."""
+    var_small_T = sharpe_ratio_variance(SR=SR, T=T)
+    var_large_T = sharpe_ratio_variance(SR=SR, T=T + extra)
+    assert var_small_T > 0.0
+    assert var_large_T > 0.0
+    assert var_large_T < var_small_T
+
+
+@pytest.mark.property
+@settings(deadline=None, max_examples=100)
+@given(
+    SR=st.floats(min_value=-2.0, max_value=2.0),
+    delta=st.floats(min_value=0.0, max_value=2.0),
+    SR0=st.floats(min_value=-1.0, max_value=1.0),
+    T=st.integers(min_value=5, max_value=500),
+)
+def test_probabilistic_sharpe_ratio_in_unit_interval_and_monotone_in_sr(SR, delta, SR0, T):
+    """PSR always lies in [0, 1] and is non-decreasing in the observed Sharpe ratio."""
+    psr_low = probabilistic_sharpe_ratio(SR=SR, SR0=SR0, T=T)
+    psr_high = probabilistic_sharpe_ratio(SR=SR + delta, SR0=SR0, T=T)
+    assert 0.0 <= psr_low <= 1.0
+    assert 0.0 <= psr_high <= 1.0
+    assert psr_high >= psr_low - 1e-12

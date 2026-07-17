@@ -31,6 +31,53 @@ pip install jsharpe
 
 ## Quick Start
 
+### End-to-End Worked Example
+
+Start from a raw return series and answer two questions in one pass: *is this
+Sharpe ratio real?* (PSR) and *would it survive screening many strategies?*
+(FDR-controlled cutoff).
+
+```python
+import numpy as np
+
+from jsharpe import control_for_FDR, probabilistic_sharpe_ratio
+
+# Monthly excess returns of a candidate strategy (36 observations)
+returns = np.array([
+    0.021, -0.014, 0.038, 0.006, -0.022, 0.041,
+    0.013, 0.029, -0.008, 0.034, 0.017, -0.011,
+    0.025, 0.009, 0.031, -0.019, 0.022, 0.014,
+    0.037, -0.006, 0.028, 0.011, 0.019, 0.033,
+    0.007, 0.024, -0.013, 0.036, 0.015, 0.027,
+    0.004, 0.032, -0.017, 0.023, 0.018, 0.030,
+])
+
+# 1. Observed Sharpe ratio of the sample
+sr = returns.mean() / returns.std(ddof=1)
+
+# 2. Probabilistic Sharpe Ratio: P[true SR > 0] given the sample
+psr = probabilistic_sharpe_ratio(SR=sr, SR0=0, T=len(returns))
+
+# 3. FDR-controlled critical Sharpe ratio when screening many strategies at q=25%
+_alpha, _beta, sr_cutoff, _q_hat = control_for_FDR(q=0.25, SR0=0, SR1=sr, p_H1=0.05, T=len(returns))
+
+print(f"Observed SR:   {sr:.3f}")
+print(f"PSR (SR > 0):  {psr:.3f}")
+print(f"FDR SR cutoff: {sr_cutoff:.3f}")
+print(f"Survives FDR:  {sr > sr_cutoff}")
+```
+
+```result
+Observed SR:   0.815
+PSR (SR > 0):  1.000
+FDR SR cutoff: 0.352
+Survives FDR:  True
+```
+
+The strategy clears both bars: its PSR is effectively 1.0 (the true Sharpe ratio
+is almost certainly positive) and its observed Sharpe ratio of 0.815 comfortably
+exceeds the 0.352 threshold required to control the false-discovery rate at 25%.
+
 ### Basic Probabilistic Sharpe Ratio
 
 ```python
@@ -181,16 +228,21 @@ make marimo
 
 ```
 jsharpe/
-├── src/jsharpe/       # Main package source code
-│   ├── __init__.py    # Public API exports
-│   └── sharpe.py      # Core implementations
-├── tests/             # Test suite
-│   ├── test_sharpe.py    # Unit tests
-│   ├── test_migration.py # Parity tests vs. the original implementation
-│   └── fuzz/             # Atheris fuzz harness
-├── book/              # Documentation and interactive notebooks
-│   └── marimo/        # Marimo notebooks for exploration
-└── pyproject.toml     # Project metadata and dependencies
+├── src/jsharpe/           # Main package source code
+│   ├── __init__.py        # Top-level public API facade
+│   └── sharpe/            # Topical sub-modules (see ARCHITECTURE.md)
+│       ├── __init__.py    # Subpackage public API facade
+│       ├── linalg.py      # ppoints + covariance helpers (base layer)
+│       ├── quadrature.py  # Gauss–Hermite expectation + moments (base layer)
+│       ├── clustering.py  # effective rank + clustering (self-contained)
+│       ├── psr.py         # Sharpe variance, track record, PSR, power
+│       ├── corrections.py # FWER / FDR multiple-testing corrections
+│       └── generators.py  # synthetic data + autocorrelation
+├── tests/jsharpe/sharpe/  # Unit tests mirroring the source layout 1:1
+├── tests/fuzz/            # Atheris fuzz harness
+├── book/marimo/           # Marimo notebooks for exploration
+├── ARCHITECTURE.md        # Module layering and facade contract
+└── pyproject.toml         # Project metadata and dependencies
 ```
 
 ### Contributing

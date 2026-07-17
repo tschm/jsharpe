@@ -16,6 +16,41 @@ import scipy
 from .psr import probabilistic_sharpe_ratio, sharpe_ratio_variance
 
 
+def _valid_fdr_inputs(q: float, SR0: float, SR1: float, sigma0: float, sigma1: float, p_H1: float) -> bool:
+    """Return whether the FDR-critical-value inputs are within their valid ranges.
+
+    Args:
+        q: Desired False Discovery Rate; must be in (0, 1).
+        SR0: Mean under the null hypothesis; must be < SR1.
+        SR1: Mean under the alternative hypothesis.
+        sigma0: Standard deviation under the null hypothesis; must be > 0.
+        sigma1: Standard deviation under the alternative hypothesis; must be > 0.
+        p_H1: Prior probability of the alternative hypothesis; must be in (0, 1).
+
+    Returns:
+        ``True`` if every parameter is within its valid range.
+    """
+    return SR0 < SR1 and 0 < q < 1 and 0 < p_H1 < 1 and sigma0 > 0 and sigma1 > 0
+
+
+def _fdr_posterior(c: float, SR0: float, SR1: float, sigma0: float, sigma1: float, p_H1: float) -> float:
+    """Posterior false-discovery probability P[H=0 | X > c] under the two-normal mixture.
+
+    Args:
+        c: Candidate critical value.
+        SR0: Mean under the null hypothesis.
+        SR1: Mean under the alternative hypothesis.
+        sigma0: Standard deviation under the null hypothesis.
+        sigma1: Standard deviation under the alternative hypothesis.
+        p_H1: Prior probability of the alternative hypothesis.
+
+    Returns:
+        Posterior false discovery probability at threshold ``c`` (0 where non-finite).
+    """
+    a = 1 / (1 + scipy.stats.norm.sf((c - SR1) / sigma1) / scipy.stats.norm.sf((c - SR0) / sigma0) * p_H1 / (1 - p_H1))
+    return float(np.where(np.isfinite(a), a, 0))
+
+
 def adjusted_p_values_bonferroni(ps: np.ndarray) -> np.ndarray:
     """Adjust p-values using Bonferroni correction for FWER control.
 
@@ -123,38 +158,22 @@ def FDR_critical_value(q: float, SR0: float, SR1: float, sigma0: float, sigma1: 
         >>> c > 0  # Critical value should be positive
         True
     """
-    assert SR0 < SR1
-    assert 0 < q < 1
-    assert 0 < p_H1 < 1
-    assert sigma0 > 0
-    assert sigma1 > 0
+    assert _valid_fdr_inputs(q, SR0, SR1, sigma0, sigma1, p_H1)
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="invalid value encountered in scalar divide")
         warnings.filterwarnings("ignore", message="divide by zero encountered in scalar divide")
 
-        def f(c: float) -> float:
-            """Compute the posterior probability P[H=0 | X > c].
+        f_lo = _fdr_posterior(-10, SR0, SR1, sigma0, sigma1, p_H1)
+        f_hi = _fdr_posterior(10, SR0, SR1, sigma0, sigma1, p_H1)
 
-            Args:
-                c: Candidate critical value.
-
-            Returns:
-                Posterior false discovery probability at threshold c.
-            """
-            a = 1 / (
-                1
-                + scipy.stats.norm.sf((c - SR1) / sigma1) / scipy.stats.norm.sf((c - SR0) / sigma0) * p_H1 / (1 - p_H1)
-            )
-            return float(np.where(np.isfinite(a), a, 0))
-
-        if f(-10) < q:  # Solution outside of the search interval
+        if f_lo < q:  # Solution outside of the search interval
             return float(-np.inf)
 
-        if (f(-10) - q) * (f(10) - q) > 0:  # No solution, for instance if σ₀≫σ₁ and q small
+        if (f_lo - q) * (f_hi - q) > 0:  # No solution, for instance if σ₀≫σ₁ and q small
             return float(np.nan)
 
-        return float(scipy.optimize.brentq(lambda c: f(c) - q, -10, 10))
+        return float(scipy.optimize.brentq(lambda c: _fdr_posterior(c, SR0, SR1, sigma0, sigma1, p_H1) - q, -10, 10))
 
 
 def control_for_FDR(

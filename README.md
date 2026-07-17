@@ -184,6 +184,46 @@ Std error (fat tails): 0.234
 - `adjusted_p_values_sidak()` - Šidák correction
 - `minimum_variance_weights_for_correlated_assets()` - Portfolio optimization
 
+## Public API & Versioning
+
+**The public API is exactly the set of names exported in `jsharpe.__all__`**
+(24 symbols, re-exported unchanged from `jsharpe.sharpe.__all__`). You can rely
+on these being importable directly from the top-level package:
+
+```python +RHIZA_SKIP
+from jsharpe import probabilistic_sharpe_ratio, control_for_FDR  # supported
+```
+
+Everything else is **internal** and may change or disappear in any release
+without notice, including:
+
+- underscore-prefixed helpers (e.g. `_fdr_posterior`, `_select_best_k`);
+- symbols reachable only through a submodule path (e.g.
+  `jsharpe.sharpe.quadrature.moments_Mk`), which are deliberately *not* in
+  `__all__`;
+- the internal module layout of the `jsharpe.sharpe` subpackage (see
+  [ARCHITECTURE.md](ARCHITECTURE.md)).
+
+### Semantic versioning
+
+Releases follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
+While the project is in the `0.y.z` series the API is still stabilising, so the
+guarantees are:
+
+| Change to the public surface | Version bump |
+| ---------------------------- | ------------ |
+| Backward-incompatible change/removal | `MINOR` while `0.x`; `MAJOR` from `1.0` on |
+| Backward-compatible addition (new export) | `MINOR` |
+| Bug fix with no API change | `PATCH` |
+
+### Deprecation policy
+
+A public symbol is never removed without warning. Before removal it is marked
+deprecated and emits a `DeprecationWarning` (documented in the changelog) for at
+least one `MINOR` release, so downstream code has a migration window. Removal
+then happens in the next version that is allowed to make a breaking change under
+the table above.
+
 ## Documentation
 
 - **[API Documentation](https://tschm.github.io/jsharpe)** - Complete API reference with detailed function documentation

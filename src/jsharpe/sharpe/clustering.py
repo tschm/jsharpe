@@ -110,20 +110,34 @@ def _silhouette_samples(X: np.ndarray, labels: np.ndarray) -> np.ndarray:
     return np.where(max_ab > 0, (b - a) / max_ab, 0.0)
 
 
-def _assert_correlation_matrix(C: np.ndarray) -> None:
-    """Validate that ``C`` is a finite correlation matrix.
+def _is_correlation_matrix(C: np.ndarray) -> bool:
+    """Return whether ``C`` is a finite correlation matrix.
 
-    Checks that ``C`` is a numpy array with all entries in ``[-1, 1]``, ones on
-    the diagonal, and no non-finite values.
+    A correlation matrix is a numpy array with all entries in ``[-1, 1]``, ones
+    on the diagonal, and no non-finite values.
+
+    Args:
+        C: Candidate correlation matrix.
+
+    Returns:
+        ``True`` if ``C`` satisfies every correlation-matrix property.
+    """
+    return bool(
+        isinstance(C, np.ndarray)
+        and np.all(C >= -1)
+        and np.all(C <= 1)
+        and np.all(np.diag(C) == 1)
+        and np.all(np.isfinite(C))
+    )
+
+
+def _assert_correlation_matrix(C: np.ndarray) -> None:
+    """Assert that ``C`` is a finite correlation matrix.
 
     Args:
         C: Candidate correlation matrix.
     """
-    assert isinstance(C, np.ndarray)
-    assert np.all(C >= -1)
-    assert np.all(C <= 1)
-    assert np.all(np.diag(C) == 1)
-    assert np.all(np.isfinite(C))
+    assert _is_correlation_matrix(C)
 
 
 def _best_clustering_for_k(D: np.ndarray, k: int, *, retries: int) -> tuple[float, np.ndarray | None]:
@@ -161,6 +175,26 @@ def _best_clustering_for_k(D: np.ndarray, k: int, *, retries: int) -> tuple[floa
             best_quality = q
             best_labels = labels.copy()
     return best_quality, best_labels
+
+
+def _select_best_k(qualities: dict[int, float], best_labels: dict[int, np.ndarray]) -> int:
+    """Return the ``k`` with the highest quality among those with a valid clustering.
+
+    Args:
+        qualities: Mapping of ``k`` to its quality score (``-inf`` for degenerate ``k``).
+        best_labels: Mapping of ``k`` to its best label assignment; keys mark the
+            values of ``k`` for which a valid clustering was found.
+
+    Returns:
+        The number of clusters ``k`` maximising the quality score.
+
+    Raises:
+        RuntimeError: If no ``k`` produced a valid clustering.
+    """
+    valid_k = {k: q for k, q in qualities.items() if k in best_labels}
+    if not valid_k:
+        raise RuntimeError("No valid clustering solution found; try increasing retries or reducing max_clusters.")
+    return max(valid_k, key=lambda x: valid_k[x])
 
 
 def number_of_clusters(
@@ -229,8 +263,5 @@ def number_of_clusters(
             best_labels[k] = labels
 
     # Select the best k among those for which a valid solution was found
-    valid_k = {k: q for k, q in qualities.items() if k in best_labels}
-    if not valid_k:
-        raise RuntimeError("No valid clustering solution found; try increasing retries or reducing max_clusters.")
-    best_k = max(valid_k, key=lambda x: valid_k[x])
+    best_k = _select_best_k(qualities, best_labels)
     return best_k, qualities, best_labels[best_k]

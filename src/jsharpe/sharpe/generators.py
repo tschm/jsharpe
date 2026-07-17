@@ -12,6 +12,31 @@ import scipy
 from .linalg import ppoints
 
 
+def _sample_block_sizes(number_of_trials: int, effective_number_of_trials: int) -> np.ndarray:
+    """Sample positive block sizes partitioning ``number_of_trials`` into blocks.
+
+    Draws random block boundaries until every one of the
+    ``effective_number_of_trials`` blocks is non-empty.
+
+    Args:
+        number_of_trials: Total number of series to partition.
+        effective_number_of_trials: Number of (non-empty) blocks to produce.
+
+    Returns:
+        Array of ``effective_number_of_trials`` positive block sizes summing to
+        ``number_of_trials``.
+    """
+    while True:
+        block_positions = [
+            0,
+            *sorted(np.random.choice(number_of_trials, effective_number_of_trials - 1, replace=True)),
+            number_of_trials,
+        ]
+        block_sizes = np.diff(block_positions)
+        if np.all(block_sizes > 0):
+            return block_sizes
+
+
 def generate_autocorrelated_non_gaussian_data(
     N: int,
     n: int,
@@ -107,16 +132,7 @@ def get_random_correlation_matrix(
         >>> np.allclose(np.diag(C), 1)  # Diagonal is all ones
         True
     """
-    while True:
-        block_positions = [
-            0,
-            *sorted(np.random.choice(number_of_trials, effective_number_of_trials - 1, replace=True)),
-            number_of_trials,
-        ]
-        block_sizes = np.diff(block_positions)
-        if np.all(block_sizes > 0):
-            break
-
+    block_sizes = _sample_block_sizes(number_of_trials, effective_number_of_trials)
     clusters = np.array([block_number for block_number, size in enumerate(block_sizes) for _ in range(size)])
     X0 = np.random.normal(size=(number_of_observations, effective_number_of_trials))
     X = np.zeros(shape=(number_of_observations, number_of_trials))

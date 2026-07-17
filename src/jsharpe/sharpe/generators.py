@@ -4,7 +4,7 @@ This module groups the simulation helpers used to generate
 (autocorrelated) non-Gaussian return series and block-structured random
 correlation matrices, plus the mean first-order autocorrelation estimator.
 """
-# ruff: noqa: N802, N803, N806, S101
+# ruff: noqa: N802, N803, N806, TRY003
 
 import numpy as np
 import scipy
@@ -172,7 +172,7 @@ def generate_non_gaussian_data(
         Array of shape (nr, nc) containing simulated returns.
 
     Raises:
-        AssertionError: If name is not a valid distribution type.
+        ValueError: If name is not a valid distribution type.
 
     Example:
         >>> np.random.seed(42)
@@ -186,7 +186,8 @@ def generate_non_gaussian_data(
         "moderate": (0.03, -0.045, 0.020, 0.010),
         "severe": (0.02, -0.060, 0.025, 0.010),
     }
-    assert name in configs
+    if name not in configs:
+        raise ValueError(f"Unknown distribution name {name!r}; valid names are {sorted(configs)}.")
 
     def mixture_variance(
         p_tail: float,

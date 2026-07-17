@@ -131,13 +131,21 @@ def _is_correlation_matrix(C: np.ndarray) -> bool:
     )
 
 
-def _assert_correlation_matrix(C: np.ndarray) -> None:
-    """Assert that ``C`` is a finite correlation matrix.
+def _validate_correlation_matrix(C: np.ndarray) -> None:
+    """Validate that ``C`` is a finite correlation matrix.
 
     Args:
         C: Candidate correlation matrix.
+
+    Raises:
+        ValueError: If ``C`` is not a finite correlation matrix (entries in
+            ``[-1, 1]``, ones on the diagonal, all finite).
     """
-    assert _is_correlation_matrix(C)
+    if not _is_correlation_matrix(C):
+        raise ValueError(
+            "C must be a finite correlation matrix: a square array with all entries in [-1, 1], "
+            "ones on the diagonal, and no non-finite values."
+        )
 
 
 def _best_clustering_for_k(D: np.ndarray, k: int, *, retries: int) -> tuple[float, np.ndarray | None]:
@@ -229,6 +237,10 @@ def number_of_clusters(
             - qualities: Dict mapping k to its quality score.
             - labels: Cluster assignment for each observation (shape (n,)).
 
+    Raises:
+        ValueError: If ``C`` is not a finite correlation matrix.
+        RuntimeError: If no ``k`` produced a valid clustering.
+
     References:
         Lopez de Prado, M. (2018). "Detection of false investment strategies
         using unsupervised learning methods." SSRN 3167017.
@@ -246,11 +258,14 @@ def number_of_clusters(
         >>> labels.shape
         (20,)
     """
-    _assert_correlation_matrix(C)
+    _validate_correlation_matrix(C)
 
     max_clusters = min(max_clusters, C.shape[0] - 1)
 
-    # Convert correlations to distances
+    # Convert correlations to distances. C was validated above to be a finite
+    # correlation matrix (entries in [-1, 1]), so (1 - C) / 2 lies in [0, 1] and
+    # its square root is always finite: this assert is a pure internal invariant
+    # a caller cannot trigger, not a public-API guard.
     D = np.sqrt((1 - C) / 2)
     assert np.all(np.isfinite(D))
 

@@ -12,6 +12,8 @@ from pathlib import Path
 import cvxpy as cp
 import numpy as np
 import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 import jsharpe.sharpe as sharpe_pkg
 from jsharpe import (
@@ -92,6 +94,37 @@ def test_minimum_variance_weights_match_convex_solver():
     problem = cp.Problem(cp.Minimize(cp.quad_form(solver_w, V)), [solver_w.sum() == 1])
     problem.solve()
     assert np.allclose(solver_w.value, w, atol=1e-10)
+
+
+# --- property-based invariants ----------------------------------------------
+
+
+@pytest.mark.property
+@settings(deadline=None, max_examples=75)
+@given(
+    n=st.integers(min_value=2, max_value=8),
+    rho=st.floats(min_value=0.0, max_value=0.9),
+    data=st.data(),
+)
+def test_covariance_helpers_finite_and_well_formed_for_spd_inputs(n, rho, data):
+    """For any valid constant-correlation SPD covariance, both helpers return finite, well-formed output."""
+    sigma = np.array(data.draw(st.lists(st.floats(min_value=0.1, max_value=5.0), min_size=n, max_size=n)))
+    # Constant-correlation matrix with rho in [0, 1) is symmetric positive definite.
+    C = rho * np.ones((n, n))
+    np.fill_diagonal(C, 1.0)
+    sigma_col = sigma.reshape(-1, 1)
+    V = (C * sigma_col).T * sigma_col
+
+    V_inv = robust_covariance_inverse(V)
+    assert V_inv.shape == (n, n)
+    assert np.all(np.isfinite(V_inv))
+    # Sherman-Morrison is exact for this structure, so V @ V_inv is the identity.
+    assert np.allclose(V @ V_inv, np.eye(n), atol=1e-6)
+
+    w = minimum_variance_weights_for_correlated_assets(V)
+    assert w.shape == (n,)
+    assert np.all(np.isfinite(w))
+    assert w.sum() == pytest.approx(1.0)
 
 
 # --- package-wide architecture guard (see ARCHITECTURE.md) ------------------

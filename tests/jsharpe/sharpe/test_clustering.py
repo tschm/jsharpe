@@ -7,6 +7,8 @@ effective rank and the optimal-cluster-count routine.
 
 import numpy as np
 import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from jsharpe import effective_rank, get_random_correlation_matrix, number_of_clusters
 
@@ -96,5 +98,30 @@ def test_number_of_clusters_raises_when_no_valid_solution():
 
 def test_number_of_clusters_rejects_non_correlation_matrix():
     """A matrix with out-of-range entries fails the correlation-matrix precondition."""
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="finite correlation matrix"):
         number_of_clusters(np.array([[1.0, 2.0], [2.0, 1.0]]))
+
+
+@pytest.mark.property
+@settings(deadline=None, max_examples=100)
+@given(n=st.integers(min_value=2, max_value=8), data=st.data())
+def test_effective_rank_within_dimension_bounds(n, data):
+    """For any SPD correlation matrix of size n, the effective rank lies in [1, n]."""
+    # Build a random SPD matrix and normalise it to a correlation matrix (unit
+    # diagonal), which guarantees strictly positive eigenvalues.
+    a = np.array(
+        data.draw(
+            st.lists(
+                st.lists(st.floats(min_value=-3.0, max_value=3.0), min_size=n, max_size=n),
+                min_size=n,
+                max_size=n,
+            )
+        )
+    )
+    m = a @ a.T + n * np.eye(n)
+    d = np.sqrt(np.diag(m))
+    C = m / np.outer(d, d)
+
+    er = effective_rank(C)
+    assert np.isfinite(er)
+    assert 1.0 - 1e-9 <= er <= n + 1e-9

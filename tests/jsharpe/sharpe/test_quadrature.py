@@ -11,6 +11,8 @@ from itertools import pairwise
 
 import numpy as np
 import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 import jsharpe
 import jsharpe.sharpe as sharpe_pkg
@@ -70,3 +72,27 @@ def test_public_api_facades_are_consistent():
     # Internal helpers must stay off the public surface (see issue #273).
     assert "moments_Mk" not in jsharpe.__all__
     assert "E_under_normal" not in sharpe_pkg.__all__
+
+
+@pytest.mark.property
+@settings(deadline=None, max_examples=100)
+@given(
+    alpha=st.floats(min_value=-10.0, max_value=10.0),
+    beta=st.floats(min_value=-10.0, max_value=10.0),
+    c=st.floats(min_value=-10.0, max_value=10.0),
+    n_nodes=st.integers(min_value=5, max_value=200),
+)
+def test_make_expectation_gh_is_exact_and_linear_on_polynomials(alpha, beta, c, n_nodes):
+    """Gauss-Hermite quadrature is exact on low-degree polynomials and linear in g.
+
+    For Z ~ N(0, 1), E[Z^2] = 1 and E[Z^4] = 3, so by linearity
+    E[alpha*Z^2 + beta*Z^4 + c] = alpha + 3*beta + c. Gauss-Hermite with n nodes
+    integrates polynomials up to degree 2n-1 exactly, so n >= 5 covers degree 4.
+    """
+    E = make_expectation_gh(n_nodes=n_nodes)
+
+    got = E(lambda z: alpha * z**2 + beta * z**4 + c)
+    expected = alpha * 1.0 + beta * 3.0 + c
+
+    assert np.isfinite(got)
+    assert got == pytest.approx(expected, rel=1e-9, abs=1e-9)

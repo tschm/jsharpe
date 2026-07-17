@@ -5,7 +5,7 @@ This module groups the family-wise error rate corrections (Bonferroni,
 control, predictive pFDR and observed oFDR) used when screening many
 candidate strategies.
 """
-# ruff: noqa: N802, N803, N806, S101
+# ruff: noqa: N802, N803, N806, TRY003
 
 import math
 import warnings
@@ -111,7 +111,7 @@ def adjusted_p_values_holm(ps: np.ndarray, *, variant: str = "bonferroni") -> np
         Array of Holm-adjusted p-values, each in [0, 1].
 
     Raises:
-        AssertionError: If variant is not "bonferroni" or "sidak".
+        ValueError: If variant is not "bonferroni" or "sidak".
 
     Example:
         >>> p_vals = np.array([0.01, 0.04, 0.03])
@@ -119,7 +119,8 @@ def adjusted_p_values_holm(ps: np.ndarray, *, variant: str = "bonferroni") -> np
         >>> float(adj_p[0])  # Smallest p-value adjusted most
         0.03
     """
-    assert variant in ["bonferroni", "sidak"]
+    if variant not in ("bonferroni", "sidak"):
+        raise ValueError(f"Unknown Holm variant {variant!r}; expected 'bonferroni' or 'sidak'.")
     i = np.argsort(ps)
     M = len(ps)
     p_adjusted = np.zeros(M)
@@ -151,14 +152,18 @@ def FDR_critical_value(q: float, SR0: float, SR1: float, sigma0: float, sigma1: 
         or nan if no solution exists.
 
     Raises:
-        AssertionError: If parameters are out of valid ranges.
+        ValueError: If parameters are out of valid ranges.
 
     Example:
         >>> c = FDR_critical_value(q=0.2, SR0=0, SR1=0.5, sigma0=0.2, sigma1=0.3, p_H1=0.1)
         >>> c > 0  # Critical value should be positive
         True
     """
-    assert _valid_fdr_inputs(q, SR0, SR1, sigma0, sigma1, p_H1)
+    if not _valid_fdr_inputs(q, SR0, SR1, sigma0, sigma1, p_H1):
+        raise ValueError(
+            "Invalid FDR inputs: require SR0 < SR1, 0 < q < 1, 0 < p_H1 < 1, sigma0 > 0, and sigma1 > 0; "
+            f"got q={q}, SR0={SR0}, SR1={SR1}, sigma0={sigma0}, sigma1={sigma1}, p_H1={p_H1}."
+        )
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="invalid value encountered in scalar divide")

@@ -5,7 +5,7 @@ ratio: its asymptotic variance, the variance/expectation of the maximum
 across many trials, the minimum track record length, the critical Sharpe
 ratio, the Probabilistic Sharpe Ratio (PSR), and the associated power.
 """
-# ruff: noqa: N802, N803, N806, S101
+# ruff: noqa: N802, N803, N806, TRY003
 
 import math
 
@@ -224,7 +224,7 @@ def probabilistic_sharpe_ratio(
         strong evidence that the true SR exceeds SR0.
 
     Raises:
-        AssertionError: If both variance and T are provided.
+        ValueError: If neither variance nor T is provided, or if both are provided.
 
     Example:
         >>> psr = probabilistic_sharpe_ratio(SR=0.5, SR0=0, T=24)
@@ -236,10 +236,12 @@ def probabilistic_sharpe_ratio(
         True
     """
     if variance is None:
-        assert T is not None, "T must be provided if variance is not provided"
+        if T is None:
+            raise ValueError("T must be provided if variance is not provided.")
         variance = sharpe_ratio_variance(SR0, T, gamma3=gamma3, gamma4=gamma4, rho=rho, K=K)
     else:
-        assert T is None, "Provide either the variance or (T, gamma3, gamma4, rho)"
+        if T is not None:
+            raise ValueError("Provide either the variance or (T, gamma3, gamma4, rho), not both.")
     return float(scipy.stats.norm.cdf((SR - SR0) / math.sqrt(variance)))
 
 

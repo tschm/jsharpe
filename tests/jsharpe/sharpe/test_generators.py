@@ -8,6 +8,8 @@ symmetry / clustering structure of random correlation matrices.
 
 import numpy as np
 import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from jsharpe import (
     autocorrelation,
@@ -27,8 +29,8 @@ def test_generate_non_gaussian_data_sr0_shift(name):
 
 
 def test_generate_non_gaussian_data_rejects_unknown_name():
-    """An unknown distribution name is rejected."""
-    with pytest.raises(AssertionError):
+    """An unknown distribution name is rejected with a ValueError."""
+    with pytest.raises(ValueError, match="Unknown distribution name"):
         generate_non_gaussian_data(10, 1, name="does-not-exist")
 
 
@@ -78,3 +80,38 @@ def test_autocorrelation_of_iid_data_is_near_zero():
     np.random.seed(42)
     X = np.random.normal(size=(2000, 5))
     assert abs(autocorrelation(X)) < 0.1
+
+
+@pytest.mark.property
+@settings(deadline=None, max_examples=75)
+@given(
+    seed=st.integers(min_value=0, max_value=2**31 - 1),
+    number_of_trials=st.integers(min_value=4, max_value=24),
+    effective_number_of_trials=st.integers(min_value=2, max_value=8),
+    noise=st.floats(min_value=0.01, max_value=1.0),
+)
+def test_get_random_correlation_matrix_is_well_formed(seed, number_of_trials, effective_number_of_trials, noise):
+    """The generated matrix is a finite, symmetric, unit-diagonal correlation matrix.
+
+    Cluster labels are consistent with the requested block count.
+    """
+    effective_number_of_trials = min(effective_number_of_trials, number_of_trials)
+    np.random.seed(seed)
+
+    C, X, clusters = get_random_correlation_matrix(
+        number_of_trials=number_of_trials,
+        effective_number_of_trials=effective_number_of_trials,
+        number_of_observations=60,
+        noise=noise,
+    )
+
+    assert C.shape == (number_of_trials, number_of_trials)
+    assert np.all(np.isfinite(C))
+    assert np.allclose(C, C.T)  # symmetric
+    assert np.allclose(np.diag(C), 1.0)  # unit diagonal
+    assert C.min() >= -1.0 - 1e-9
+    assert C.max() <= 1.0 + 1e-9
+    assert X.shape == (60, number_of_trials)
+    assert clusters.shape == (number_of_trials,)
+    assert clusters.min() >= 0
+    assert clusters.max() < effective_number_of_trials

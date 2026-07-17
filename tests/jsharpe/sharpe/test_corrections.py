@@ -8,6 +8,8 @@ bounds/monotonicity — no comparison against a bundled reference implementation
 
 import numpy as np
 import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from jsharpe import (
     FDR_critical_value,
@@ -51,9 +53,22 @@ def test_adjusted_p_values_methods():
 
 
 def test_adjusted_p_values_holm_invalid_variant_raises():
-    """An unknown Holm variant is rejected."""
-    with pytest.raises(AssertionError):
+    """An unknown Holm variant is rejected with a ValueError."""
+    with pytest.raises(ValueError, match="Unknown Holm variant"):
         adjusted_p_values_holm(np.array([0.1, 0.2]), variant="unknown")
+
+
+def test_FDR_critical_value_invalid_inputs_raise():
+    """Out-of-range FDR-critical-value inputs are rejected with a ValueError."""
+    # SR0 >= SR1 violates the required ordering.
+    with pytest.raises(ValueError, match="Invalid FDR inputs"):
+        FDR_critical_value(q=0.2, SR0=0.5, SR1=0.5, sigma0=0.2, sigma1=0.3, p_H1=0.1)
+    # q outside (0, 1).
+    with pytest.raises(ValueError, match="Invalid FDR inputs"):
+        FDR_critical_value(q=1.5, SR0=0.0, SR1=0.5, sigma0=0.2, sigma1=0.3, p_H1=0.1)
+    # sigma0 must be positive.
+    with pytest.raises(ValueError, match="Invalid FDR inputs"):
+        FDR_critical_value(q=0.2, SR0=0.0, SR1=0.5, sigma0=0.0, sigma1=0.3, p_H1=0.1)
 
 
 # ---- FDR critical value -----------------------------------------------------
@@ -151,3 +166,24 @@ def test_oFDR_bounds_and_falls_with_stronger_evidence():
     fdr_strong = oFDR(SR=0.8, SR0=0.0, SR1=0.5, T=24, p_H1=0.1)
     assert 0.0 < fdr_weak < 1.0
     assert fdr_strong < fdr_weak
+
+
+# ---- property-based invariants ----------------------------------------------
+
+
+@pytest.mark.property
+@settings(deadline=None, max_examples=100)
+@given(ps=st.lists(st.floats(min_value=0.0, max_value=1.0), min_size=1, max_size=25))
+def test_adjusted_p_values_in_unit_interval_and_dominate_raw(ps):
+    """Every FWER adjustment stays in [0, 1] and never falls below the raw p-values."""
+    ps = np.array(ps)
+    for adjusted in (
+        adjusted_p_values_bonferroni(ps),
+        adjusted_p_values_sidak(ps),
+        adjusted_p_values_holm(ps, variant="bonferroni"),
+        adjusted_p_values_holm(ps, variant="sidak"),
+    ):
+        assert np.all(adjusted >= -1e-12)
+        assert np.all(adjusted <= 1.0 + 1e-12)
+        # Adjusted p-values dominate (are at least as large as) the raw ones.
+        assert np.all(adjusted >= ps - 1e-12)

@@ -112,7 +112,7 @@ def test_layering_is_acyclic_and_downward():
     pkg_dir = Path(sharpe_pkg.__file__).parent
     violations = []
     for module, idx in _LAYER.items():
-        tree = ast.parse((pkg_dir / f"{module}.py").read_text())
+        tree = ast.parse((pkg_dir / f"{module}.py").read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             # Relative `from .<module> import ...` statements carry level == 1.
             is_intra_import = isinstance(node, ast.ImportFrom) and node.level == 1 and node.module in _LAYER

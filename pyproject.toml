@@ -43,7 +43,6 @@ test = [
     "pytest>=8.0",
     "hypothesis>=6.112",
 ]
-lint = []
 
 [build-system]
 requires = ["hatchling"]

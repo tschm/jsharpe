@@ -444,7 +444,6 @@ dev = [
     { name = "pandas", specifier = ">=2.3" },
     { name = "plotly", specifier = ">=6.5" },
 ]
-lint = []
 test = [
     { name = "hypothesis", specifier = ">=6.112" },
     { name = "pytest", specifier = ">=8.0" },

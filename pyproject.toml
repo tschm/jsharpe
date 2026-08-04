@@ -31,18 +31,42 @@ Homepage = "https://github.com/tschm/jsharpe"
 Issues = "https://github.com/tschm/jsharpe/issues"
 
 [dependency-groups]
+# A group here earns its place only when something has to be present in the project
+# *environment*. Every rhiza gate provisions its own tooling on the fly — `--with
+# pytest --with pytest-cov ...` in `test`, `--with ty` / `--with mypy` in `typecheck`,
+# `--with interrogate` in `docs-coverage`, `uvx pre-commit` in `fmt` — so a tool named
+# by a `--with` flag must NOT be declared here.
+#
+# What does qualify: a library the test suite or a notebook imports. jinja2, plotly and
+# pandas qualified for none of it — nothing under src/, tests/ or book/ imports them,
+# and book/marimo/notebooks/psr.py pins its own deps in a PEP 723 header (marimo +
+# jsharpe) rather than resolving them from here.
 dev = [
+    # The runtime for book/marimo/notebooks/psr.py. Required by deptry, which scans
+    # MARIMO_FOLDER — now that .rhiza/.env points that at book/marimo/notebooks rather
+    # than the unused docs/notebooks default, dropping this is a DEP001.
     "marimo==0.23.15",
-    "cvxpy>=1.7.0",
-    "jinja2>=3.1.6",
-    "plotly>=6.5",
-    "pandas>=2.3",
-    "hypothesis>=6.112"
+    "cvxpy>=1.7.0",  # tests/jsharpe/sharpe/test_linalg.py imports it
 ]
 test = [
     "pytest>=8.0",
-    "hypothesis>=6.112",
+    "hypothesis>=6.112",  # imported directly by test_psr.py / test_quadrature.py (not via importorskip)
+    # tests/fuzz/fuzz_sharpe.py imports atheris. In CI it never comes from here — the
+    # ClusterFuzzLite image supplies atheris and compile_python_fuzzer, and
+    # .clusterfuzzlite/build.sh only `pip install .` — so this declaration exists to make
+    # the harness runnable locally, as its own docstring instructs.
+    #
+    # The marker is load-bearing, not defensive: atheris publishes ONLY manylinux x86_64
+    # wheels, and every other platform falls back to a source build that needs a clang
+    # carrying libFuzzer. Apple Clang has none, so an unmarked declaration fails
+    # `uv sync` outright on macOS — including the macos-latest and windows-latest legs of
+    # this repo's RHIZA_CI_OS_MATRIX.
+    "atheris>=3.1,<4; sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
+# Empty on purpose: ruff runs through the pre-commit hooks, which `make fmt` executes
+# via uvx. The key stays because the synced .rhiza/tests/test_pyproject.py asserts a
+# 'lint' group is declared; that assertion is gone in rhiza after #1484, so the key can
+# go on the next template sync.
 lint = []
 
 [build-system]

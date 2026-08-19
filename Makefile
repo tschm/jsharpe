@@ -1,8 +1,6 @@
 ## Makefile (repo-owned)
 # Keep this file small. It can be edited without breaking template sync.
 
-LOGO_FILE=.rhiza/assets/rhiza-logo.svg
-
 # Override template default: install the package itself (non-editable) so
 # mkdocstrings can import `jsharpe` to render the API reference, plus the
 # mkdocstrings[python] plugin. The package uses a src/ layout, so without

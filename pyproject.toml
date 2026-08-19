@@ -48,6 +48,45 @@ test = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.bumpversion]
+# Authoritative list of every location this repo's own version is written.
+# Kept in pyproject.toml because that is one of the four filenames
+# bump-my-version auto-discovers (.bumpversion.toml, .bumpversion.cfg,
+# setup.cfg, pyproject.toml). A block anywhere else is inert, and inert is
+# silent: with no config found the tool falls back to `git describe` and can
+# cut a release at a version that already exists. `current_version` is
+# deliberately absent — bump-my-version reads [project].version natively, so
+# duplicating it here only creates something that can go stale.
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(?:[-]?(?P<release>[a-z]+)[\\.]?(?P<pre_n>\\d+))?(?:\\+build\\.(?P<build_n>\\d+))?"
+serialize = [
+    "{major}.{minor}.{patch}-{release}.{pre_n}+build.{build_n}",
+    "{major}.{minor}.{patch}+build.{build_n}",
+    "{major}.{minor}.{patch}-{release}.{pre_n}",
+    "{major}.{minor}.{patch}",
+]
+allow_dirty = false
+# The release flow commits and tags itself (so the changelog lands in the same
+# commit as the bump), so bump-my-version must not do either.
+commit = false
+tag = false
+
+[tool.bumpversion.parts.release]
+optional_value = "prod"
+values = ["dev", "alpha", "a", "beta", "b", "rc", "prod"]
+
+# Anchored to the [project] table on purpose: an unanchored `version = "..."`
+# search is applied to every occurrence in the file, so it would also rewrite
+# any [tool.*] table that happens to share the current number.
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+regex = true
+search = '(?ms)^\[project\]((?:(?!^\[)[\s\S])*?)^version = "{current_version}"'
+replace = '[project]\1version = "{new_version}"'
+
+# uv.lock is deliberately absent: its `name = "jsharpe"` entry is regenerated
+# with `uv lock` after the bump. A search on the bare version string would also
+# rewrite any dependency sitting at the same number.
+
 # scipy ships no type stubs (scipy-stubs is a separate, partial package),
 # so mypy --strict cannot resolve its imports. Ignore the missing stubs
 # rather than pinning an out-of-tree stub package.

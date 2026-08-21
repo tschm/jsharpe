@@ -48,6 +48,66 @@ test = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.rhiza-task]
+# Settings recovered from the make layer that rhiza v1.4.0 retired (`Makefile`,
+# `.rhiza/rhiza.mk`, `.rhiza/make.d/*.mk`). The CLI's own defaults are NOT the values
+# those files used, so anything omitted here silently changes behaviour. Every entry
+# below records what the make layer set, what `rhiza-task` would default to, and what
+# breaks without it. Verify with `uvx rhiza-task@0.3.1 print <setting>`.
+
+# Was: `TYPECHECKER ?= both` (.rhiza/make.d/python.mk). CLI default: "ty".
+# Without this the `typecheck` gate drops mypy entirely and runs ty alone. Note it also
+# gets stricter than the make layer was: the old shell `case` let mypy's exit status win,
+# so a ty failure could pass; rhiza-task requires both to succeed.
+typechecker = "both"
+
+# Was: `MKDOCS_EXTRA_PACKAGES = --with . --with 'mkdocstrings[python]'` (repo-owned
+# Makefile). CLI default: ["mkdocstrings[python]"].
+# Each entry becomes one `--with`. The `.` installs this package into the ephemeral uvx
+# build env; jsharpe uses a src/ layout, so without it mkdocstrings cannot import
+# `jsharpe` and `book` fails with ModuleNotFoundError. Naming this setting REPLACES the
+# default list rather than extending it, so "mkdocstrings[python]" must be repeated here
+# — dropping it would silently remove the plugin from the book build.
+mkdocs-extra-packages = [".", "mkdocstrings[python]"]
+
+# Was: `RHIZA_CHECKS_VERSION ?= 0.2.1`, used as `--with 'pytest-rhiza==$(...)'`
+# (.rhiza/make.d/quality.mk). CLI default: the git pin
+# "pytest-rhiza @ git+https://github.com/Jebel-Quant/pytest-rhiza@v0.2.0".
+# Preserving the repo's pin keeps `rhiza-test` running the same assertion set as before
+# the migration; the CLI default would silently move it back to v0.2.0.
+pytest-rhiza = "pytest-rhiza==0.2.1"
+
+# NOT a migrated value — a fix. The make layer and the deleted `.rhiza/.env` both said
+# `docs/notebooks`, which is also the CLI default, but this repo keeps its notebooks in
+# `book/marimo/notebooks`. `rhiza_marimo.yml` reads `print marimo_folder` and searches it
+# with `find -maxdepth 1`, so the gate found no directory, set an empty matrix and passed
+# green while executing ZERO notebooks. Pointing it at the real folder makes the gate run
+# `psr.py` (verified passing locally). Keep this in step with the notebooks' location.
+marimo-folder = "book/marimo/notebooks"
+
+# Deliberately not set — each matches the CLI default, so naming it would only create a
+# second place to keep in sync:
+#   source-folder        "src"                  (.rhiza/rhiza.mk, and the deleted .env)
+#   coverage-fail-under  90                     (.rhiza/make.d/python.mk; this repo has no
+#                                                [tool.coverage.report] fail-under either)
+#   tests-folder         "tests"                (.rhiza/make.d/python.mk)
+#   license-fail-on      GPL;LGPL;AGPL          (.rhiza/make.d/python.mk)
+#   uv-sync-args         --all-extras --all-groups
+#   zensical-version     >=0.0.36               (.rhiza/make.d/book.mk)
+#   book-output          "_book"                (.rhiza/make.d/book.mk)
+#   layers               python                 (inferred from the manifest)
+#   rhiza-checks         all five modules the make layer's `+=` lines accumulated
+#
+# ci-os-matrix is deliberately absent, not merely default. `.rhiza/.env` carried a comment
+# explaining that pinning it here defeats `rhiza_ci.yml`'s per-caller export (rhiza #1545):
+# the workflow chooses the matrix per consumer, and a value in this file would override it
+# for every run. Leave it unset unless this repo genuinely needs more platforms.
+#
+# license-ignore-packages is also deliberately absent. `.rhiza/make.d/marimo.mk` appended
+# `docutils`, which reports a GPL classifier and would fail the copyleft scan — but
+# rhiza-task appends it itself when marimo is in the task registry. Verified: `license`
+# passes with this setting unset.
+
 [tool.bumpversion]
 # Authoritative list of every location this repo's own version is written.
 # Kept in pyproject.toml because that is one of the four filenames

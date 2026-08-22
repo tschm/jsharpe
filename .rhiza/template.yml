@@ -11,18 +11,8 @@ templates:
 # paths — where the file lands here, not where it sits in the template.
 exclude:
   # SECURITY.md makes factual claims about THIS repo's security posture (which scanners,
-  # which release protections). Only the repo knows which are true -- the template shipped a
-  # fuzzing claim that was false here -- so the file is owned here, not template-managed.
+  # which release protections). Only the repo knows which are true, so the file is owned
+  # here rather than template-managed.
   - SECURITY.md
-  # Mutation testing is opt-in via the MUTATION_ENABLED repository variable, which is
-  # not set here. The gate is an `if:` in this caller, so the workflow never starts.
-  # Re-enabling means restoring this caller, not just setting the variable.
-  - .github/workflows/rhiza_mutation.yml
-  # Fuzzing is opt-in via FUZZING_ENABLED, now unset here (the variable was deleted along
-  # with this caller). It was never doing anything: the reusable workflow also needs a
-  # .clusterfuzzlite/ config this repo lacks, so every PR and weekly cron ran purely to
-  # skip. Re-enabling needs the variable, this caller AND a .clusterfuzzlite/ config.
-  - .github/workflows/rhiza_fuzzing.yml
+  # Contributor-facing GitHub meta doc: this repo's own, not the template's generic version.
   - .github/CONFIG.md
-  - .github/DISCUSSION_TEMPLATE
-  - .github/ISSUE_TEMPLATE

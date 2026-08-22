@@ -279,7 +279,6 @@ jsharpe/
 │       ├── corrections.py # FWER / FDR multiple-testing corrections
 │       └── generators.py  # synthetic data + autocorrelation
 ├── tests/jsharpe/sharpe/  # Unit tests mirroring the source layout 1:1
-├── tests/fuzz/            # Atheris fuzz harness
 ├── book/marimo/           # Marimo notebooks for exploration
 ├── ARCHITECTURE.md        # Module layering and facade contract
 └── pyproject.toml         # Project metadata and dependencies

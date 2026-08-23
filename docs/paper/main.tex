@@ -49,9 +49,11 @@ inverts the multiple-testing correction it is named for: raising it from $1$ to
 $1000$ lowers the critical Sharpe ratio from $0.164$ to $0.058$, because two
 functions in the package model the variance of a maximum of $K$ draws in
 opposite directions --- one correctly (it falls with $K$), one as a
-$1 + \log K$ inflation, off by a factor of $39$ at $K = 200$. We give the
-one-line repairs for each and a simulation harness that would have caught all
-three.
+$1 + \log K$ inflation, off by a factor of $39$ at $K = 200$. Separately, the
+cluster-count selector returns $k = n-1$ --- one pair and $58$ singletons --- on
+a matrix with ten true blocks, because a singleton silhouette is scored $1$
+rather than the conventional $0$. We give the one-line repairs for each and the
+simulation harness that would have caught them.
 \end{abstract}
 
 \section{Introduction}
@@ -463,8 +465,8 @@ range. The mixture in \eqref{eq:fdr} is solved by bisection on
 $[-10, 10]$ with the two degenerate cases --- no root in the interval, and no
 root at all when $\sigma_0 \gg \sigma_1$ with small $q$ --- returning
 $-\infty$ and NaN respectively rather than a spurious number. The trade-off it
-exposes is the real one: controlling the false-discovery rate at $5\%$ on a
-$5\%$ prior costs all but $24\%$ of the power.
+exposes is the real one: controlling the false-discovery rate at $5\%$ against
+a $5\%$ prior leaves the test with only $24\%$ power.
 
 The family-wise adjustments are textbook and behave so. On
 $p = (0.001, 0.008, 0.02, 0.04, 0.30)$: Bonferroni gives

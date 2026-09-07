@@ -43,14 +43,46 @@ import numpy as np
 from jsharpe import control_for_FDR, probabilistic_sharpe_ratio
 
 # Monthly excess returns of a candidate strategy (36 observations)
-returns = np.array([
-    0.021, -0.014, 0.038, 0.006, -0.022, 0.041,
-    0.013, 0.029, -0.008, 0.034, 0.017, -0.011,
-    0.025, 0.009, 0.031, -0.019, 0.022, 0.014,
-    0.037, -0.006, 0.028, 0.011, 0.019, 0.033,
-    0.007, 0.024, -0.013, 0.036, 0.015, 0.027,
-    0.004, 0.032, -0.017, 0.023, 0.018, 0.030,
-])
+returns = np.array(
+    [
+        0.021,
+        -0.014,
+        0.038,
+        0.006,
+        -0.022,
+        0.041,
+        0.013,
+        0.029,
+        -0.008,
+        0.034,
+        0.017,
+        -0.011,
+        0.025,
+        0.009,
+        0.031,
+        -0.019,
+        0.022,
+        0.014,
+        0.037,
+        -0.006,
+        0.028,
+        0.011,
+        0.019,
+        0.033,
+        0.007,
+        0.024,
+        -0.013,
+        0.036,
+        0.015,
+        0.027,
+        0.004,
+        0.032,
+        -0.017,
+        0.023,
+        0.018,
+        0.030,
+    ]
+)
 
 # 1. Observed Sharpe ratio of the sample
 sr = returns.mean() / returns.std(ddof=1)
@@ -105,11 +137,11 @@ sr = 0.036 / 0.079
 
 # Include skewness and kurtosis estimates
 psr = probabilistic_sharpe_ratio(
-    SR=sr, 
-    SR0=0, 
-    T=24, 
+    SR=sr,
+    SR0=0,
+    T=24,
     gamma3=-2.448,  # Negative skewness
-    gamma4=10.164   # Excess kurtosis
+    gamma4=10.164,  # Excess kurtosis
 )
 print(f"PSR (adjusted): {psr:.3f}")  # Output: PSR (adjusted): 0.987
 ```
@@ -135,11 +167,11 @@ from jsharpe import control_for_FDR
 
 # Test 10 strategies, controlling FDR at 25%
 alpha, beta, SR_critical, q_hat = control_for_FDR(
-    q=0.25,           # Target FDR
-    SR0=0,            # Null hypothesis
-    SR1=0.5,          # Alternative hypothesis
-    p_H1=0.05,        # Prior prob of true signal
-    T=24              # Observations per strategy
+    q=0.25,  # Target FDR
+    SR0=0,  # Null hypothesis
+    SR1=0.5,  # Alternative hypothesis
+    p_H1=0.05,  # Prior prob of true signal
+    T=24,  # Observations per strategy
 )
 
 print(f"Critical SR threshold: {SR_critical:.3f}")

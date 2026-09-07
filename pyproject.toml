@@ -1,6 +1,8 @@
 [project]
 name = "jsharpe"
-version = "0.6.3"
+# Derived from the git tag by hatch-vcs (see [tool.hatch.version]) rather than written
+# here, so the tag is the single source of truth and no commit can disagree with it.
+dynamic = ["version"]
 description = "Probabilistic Sharpe ratio and related statistics."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -45,8 +47,20 @@ test = [
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+# Resolves [project].dynamic = ["version"] from `git describe`. Tags are vX.Y.Z and
+# hatch-vcs strips the leading "v" by default, so v0.6.3 builds 0.6.3; a commit off the
+# tag builds a PEP 440 dev version (0.6.4.dev40+g<sha>).
+#
+# This makes the build history-dependent: a shallow clone that cannot see the tag does
+# not fail, it silently builds 0.1.dev1+g<sha>. Every checkout in rhiza_release.yml uses
+# fetch-depth: 0, and its "Verify built distribution matches the tag" step parses the
+# filename in dist/ and fails the release unless it carries the tag -- nothing earlier
+# can catch a wrong derived version.
+source = "vcs"
 
 [tool.rhiza-task]
 # Settings recovered from the make layer that rhiza v1.4.0 retired (`Makefile`,
@@ -75,7 +89,13 @@ mkdocs-extra-packages = [".", "mkdocstrings[python]"]
 # "pytest-rhiza @ git+https://github.com/Jebel-Quant/pytest-rhiza@v0.2.0".
 # Preserving the repo's pin keeps `rhiza-test` running the same assertion set as before
 # the migration; the CLI default would silently move it back to v0.2.0.
-pytest-rhiza = "pytest-rhiza==0.2.1"
+#
+# Raised 0.2.1 -> 0.6.0 when [project].version became dynamic. Every release up to and
+# including 0.5.0 reads `project["version"]` unconditionally, so a derived version fails
+# test_version_follows_semver (empty string against the semver regex) and the git-tag
+# comparison (InvalidVersion on ""). 0.6.0 is the first release that asks whether the
+# version is dynamic and skips those two assertions; there is no older version to pin.
+pytest-rhiza = "pytest-rhiza==0.6.0"
 
 # NOT a migrated value — a fix. The make layer and the deleted `.rhiza/.env` both said
 # `docs/notebooks`, which is also the CLI default, but this repo keeps its notebooks in
@@ -116,7 +136,10 @@ marimo-folder = "book/marimo/notebooks"
 # silent: with no config found the tool falls back to `git describe` and can
 # cut a release at a version that already exists. `current_version` is
 # deliberately absent — bump-my-version reads [project].version natively, so
-# duplicating it here only creates something that can go stale.
+# duplicating it here only creates something that can go stale. There is no
+# [[tool.bumpversion.files]] entry either: [project].version is dynamic (see
+# [tool.hatch.version]), so nothing writes the version down and a release is a
+# tag, not an edit. The table stays only so a config is still discovered.
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(?:[-]?(?P<release>[a-z]+)[\\.]?(?P<pre_n>\\d+))?(?:\\+build\\.(?P<build_n>\\d+))?"
 serialize = [
     "{major}.{minor}.{patch}-{release}.{pre_n}+build.{build_n}",
@@ -137,16 +160,6 @@ values = ["dev", "alpha", "a", "beta", "b", "rc", "prod"]
 # Anchored to the [project] table on purpose: an unanchored `version = "..."`
 # search is applied to every occurrence in the file, so it would also rewrite
 # any [tool.*] table that happens to share the current number.
-[[tool.bumpversion.files]]
-filename = "pyproject.toml"
-regex = true
-search = '(?ms)^\[project\]((?:(?!^\[)[\s\S])*?)^version = "{current_version}"'
-replace = '[project]\1version = "{new_version}"'
-
-# uv.lock is deliberately absent: its `name = "jsharpe"` entry is regenerated
-# with `uv lock` after the bump. A search on the bare version string would also
-# rewrite any dependency sitting at the same number.
-
 # scipy ships no type stubs (scipy-stubs is a separate, partial package),
 # so mypy --strict cannot resolve its imports. Ignore the missing stubs
 # rather than pinning an out-of-tree stub package.

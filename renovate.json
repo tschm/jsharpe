@@ -2,5 +2,14 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "description": "Rhiza workflows are template-owned: updated by rhiza sync, not Renovate",
+      "matchFileNames": [
+        ".github/workflows/rhiza_*.yml"
+      ],
+      "enabled": false
+    }
   ]
 }

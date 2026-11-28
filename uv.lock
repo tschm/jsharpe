@@ -473,7 +473,7 @@ dev = [
 ]
 test = [
     { name = "hypothesis", specifier = ">=6.112" },
-    { name = "pytest", specifier = ">=8.0" },
+    { name = "pytest", specifier = ">=9.1.1" },
 ]
 
 [[package]]

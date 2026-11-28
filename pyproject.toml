@@ -42,7 +42,7 @@ dev = [
     "hypothesis>=6.112"
 ]
 test = [
-    "pytest>=8.0",
+    "pytest>=9.1.1",
     "hypothesis>=6.112",
 ]
 
